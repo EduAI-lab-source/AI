@@ -259,3 +259,8 @@
 - [x] Verificar en navegador la interfaz final en español, inglés y ruso tanto en escritorio como en móvil
 - [x] Abrir http://textoavoz.xyz en navegador y confirmar la redirección automática a HTTPS sin advertencia de seguridad
 - [x] Validar visualmente el control de eliminar conversación, el diálogo de confirmación, la cancelación y la continuidad posterior al borrado
+
+## Incidencia de certificado reportada
+- [x] Diagnosticar por qué un navegador del usuario aún muestra "No seguro" en textoavoz.xyz
+- [x] Verificar de forma independiente el certificado presentado, el DNS público y las rutas con y sin www
+- [x] Corregir la configuración de HTTPS y confirmar con el usuario que desaparece la advertencia

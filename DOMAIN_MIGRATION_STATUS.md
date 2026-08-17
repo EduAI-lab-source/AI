@@ -31,3 +31,13 @@ En la vista aislada se comprobó el selector persistente y la jerarquía visual 
 ## Cierre de validación visual
 
 La vista móvil de 375 × 812 confirma que el encabezado compacto, el acceso al historial, las sugerencias, los mensajes y el compositor conservan jerarquía, márgenes táctiles y legibilidad. Además, al abrir `http://textoavoz.xyz/` en navegador, la navegación termina automáticamente en `https://textoavoz.xyz/`, donde la interfaz oficial carga correctamente sin advertencia de conexión insegura.
+
+## Diagnóstico posterior de advertencia HTTPS
+
+La captura enviada por el usuario muestra que una sesión de navegador aún presentó el indicador "No seguro" para `textoavoz.xyz`. La comprobación independiente posterior confirma que el DNS público resuelve a la red de Cloudflare tanto por IPv4 como por IPv6; `http://textoavoz.xyz/` responde con redirección 301 a HTTPS; y el certificado presentado mediante SNI para el dominio raíz es válido, emitido por Google Trust Services, con vigencia del 17 de agosto al 15 de noviembre de 2026 e incluye `textoavoz.xyz` en sus nombres alternativos. En Cloudflare, los certificados Advanced y Universal del dominio figuran como activos y la redirección "Always Use HTTPS" está habilitada. Se inició el refuerzo HSTS de alcance conservador para minimizar futuras aperturas por HTTP sin incluir subdominios.
+
+El asistente de Cloudflare requiere una casilla explícita de reconocimiento antes de desbloquear la configuración de HSTS. La política no se ha guardado todavía: se mantendrá un alcance sin subdominios ni precarga para no comprometer servicios futuros que puedan necesitar una configuración independiente.
+
+### Refuerzo HSTS aplicado — 17 de agosto de 2026
+
+Se activó HTTP Strict Transport Security (HSTS) en Cloudflare exclusivamente para el dominio principal. La política usa el valor recomendado de seis meses (`max-age=15552000`), mantiene `includeSubDomains` y `preload` desactivados, y no modifica los subdominios ni el Worker de `api.textoavoz.xyz`. La comprobación exterior posterior confirmó: `http://textoavoz.xyz/` responde `301` hacia `https://textoavoz.xyz/`; `https://textoavoz.xyz/` responde `200` desde Cloudflare; y la respuesta HTTPS incluye `Strict-Transport-Security: max-age=15552000`. El certificado del dominio raíz continúa válido y activo.
