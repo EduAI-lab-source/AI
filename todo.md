@@ -216,7 +216,7 @@
 
 ## Biblioteca y voz humana de Edu AI
 - [x] Añadir *Teoterapia del amor*, de J. Chamorro, a la biblioteca con una ficha editorial contrastada
-- [ ] Publicar Teoterapia del amor en la biblioteca del dominio oficial y comprobar su ficha visible
+- [x] Publicar Teoterapia del amor en la biblioteca del dominio oficial y comprobar su ficha visible
 - [x] Investigar y seleccionar libros populares y obras menos conocidas con alta valoración editorial internacional
 - [x] Diseñar una sección de libros útil, atractiva y coherente con la experiencia conversacional de Edu AI
 - [x] Incorporar la biblioteca recomendada al sitio con enlaces de consulta y criterios editoriales transparentes
