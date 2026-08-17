@@ -309,3 +309,5 @@
 - [x] Añadir pruebas, validación visual en escritorio y móvil, y publicación de la versión integral
 - [x] Restablecer el control del navegador y confirmar la propagación de la versión pública sin cuentas
 - [x] Evaluar requisitos, políticas y viabilidad de monetización con Google AdSense para Edu AI antes de cualquier integración
+- [x] Crear y entregar un logotipo de marca distintivo para Edu AI, basado en la paleta cálida actual
+- [x] Rediseñar el logo de Edu AI con una dirección más singular y aplicarlo en la cabecera publicada

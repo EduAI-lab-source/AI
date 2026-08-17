@@ -19,8 +19,10 @@ import { COPY, LANGUAGE_OPTIONS, getLocale, loadLanguage, saveLanguage, type App
 import { trpc } from "@/lib/trpc";
 import { workspaceStateFromSnapshot } from "@/lib/workspaceRestore";
 import { parseSharedNotebookSnapshot } from "@/lib/sharedNotebook";
-import { ArrowUpRight, Bot, BookOpen, CirclePlus, Eraser, FolderPlus, Languages, LibraryBig, Link2, Menu, MessageSquareText, Search, ShieldCheck, Sparkles, Star, Trash2, X } from "lucide-react";
+import { ArrowUpRight, Bot, BookOpen, CirclePlus, Eraser, FolderPlus, Languages, LibraryBig, Link2, Menu, MessageSquareText, Search, ShieldCheck, Star, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+
+const EDU_AI_LOGO_SRC = "/manus-storage/edu-ai-origen-mark_85743c02.png";
 
 export default function Home() {
   const [sharedToken, setSharedToken] = useState(() => getSharedToken());
@@ -156,17 +158,17 @@ export default function Home() {
       <section className="conversation-main">
         <div className="mobile-appbar">
           <button className="mobile-menu" onClick={() => setIsHistoryOpen(true)} aria-label={copy.openHistory}><Menu size={20} /></button>
-          <div className="mobile-brand"><span className="mini-mark"><Sparkles size={13} /></span><strong>Edu AI</strong></div>
+          <div className="mobile-brand"><span className="mini-mark"><img src={EDU_AI_LOGO_SRC} alt="" /></span><strong>Edu AI</strong></div>
           <button className="mobile-new-chat" onClick={startNewConversation} disabled={chat.isPending} aria-label={copy.startNewChat}><CirclePlus size={20} /></button>
         </div>
         <header className="conversation-header">
           <div><span className="status-line"><i /> {copy.statusLine}</span><h1>{hasConversation ? activeThread.title : <>{copy.heroTitle}<br /><em>{copy.heroEmphasis}</em></>}</h1><p className="header-subtitle">{copy.headerSubtitle}</p></div>
-          <div className="header-actions"><button className="learning-entry" onClick={() => setIsLearningOpen(current => !current)} aria-pressed={isLearningOpen}><LibraryBig size={15} />{learningLabel}</button><LanguagePicker language={language} copy={copy} onChange={setLanguage} /><span className="header-mark" aria-hidden="true"><Sparkles size={17} /></span></div>
+          <div className="header-actions"><button className="learning-entry" onClick={() => setIsLearningOpen(current => !current)} aria-pressed={isLearningOpen}><LibraryBig size={15} />{learningLabel}</button><LanguagePicker language={language} copy={copy} onChange={setLanguage} /><span className="header-mark" aria-hidden="true"><img src={EDU_AI_LOGO_SRC} alt="" /></span></div>
         </header>
         <div className="conversation-stage">
           {isLearningOpen ? <LearningStudio language={language} latestAssistantMessage={latestAssistantMessage} onAskEdu={sendMessage} onClose={() => setIsLearningOpen(false)} responseStyle={responseStyle} onResponseStyleChange={setResponseStyle} chatState={chatState} onRestoreWorkspace={snapshot => { const restored = workspaceStateFromSnapshot(snapshot); setChatState(restored.chatState); setLanguage(restored.language); setResponseStyle(restored.responseStyle); }} /> : <>
             {!hasConversation && <section className="conversation-intro">
-              <div className="intro-mark"><span /><Sparkles size={20} /></div>
+              <div className="intro-mark" aria-hidden="true"><img src={EDU_AI_LOGO_SRC} alt="" /></div>
               <div className="intro-copy"><p className="overline">{copy.introOverline}</p><h2>{copy.introTitle}<br /><em>{copy.introEmphasis}</em></h2><p>{copy.introDescription}</p><div className="intro-whisper"><span>{copy.introWhisper}</span><ArrowUpRight size={15} /></div></div>
               <div className="starter-row" aria-label={copy.introTitle}>{copy.starters.map((starter, index) => <button key={starter} onClick={() => sendMessage(starter)} disabled={chat.isPending || !isChatAvailable}><span className="starter-number">0{index + 1}</span>{starter}<ArrowUpRight size={14} /></button>)}</div>
             </section>}
@@ -201,7 +203,7 @@ function getSharedToken() {
 function SharedNotebookPage({ data, isLoading, hasError, onBack }: { data?: { title: string; snapshot: string; expiresAt: string | null }; isLoading: boolean; hasError: boolean; onBack: () => void }) {
   const notes = data ? parseSharedNotebookSnapshot(data.snapshot) : [];
   return <main className="shared-notebook-page"><section className="shared-notebook-card">
-    <div className="shared-notebook-brand"><span><Sparkles size={15} /></span><strong>Edu AI</strong></div>
+    <div className="shared-notebook-brand"><span><img src={EDU_AI_LOGO_SRC} alt="" /></span><strong>Edu AI</strong></div>
     {isLoading ? <p className="shared-notebook-state">Abriendo un cuaderno compartido de forma segura…</p> : hasError || !data ? <><div className="shared-notebook-icon"><ShieldCheck size={24} /></div><h1>Este enlace no está disponible</h1><p>Es posible que haya vencido o que la persona que lo creó lo haya revocado.</p></> : <><div className="shared-notebook-icon"><BookOpen size={24} /></div><p className="overline">CUADERNO COMPARTIDO</p><h1>{data.title}</h1><p className="shared-notebook-detail">Este enlace muestra solo las notas seleccionadas. Las conversaciones y preferencias personales permanecen privadas.</p><div className="shared-notebook-notes">{notes.length ? notes.map((note, index) => <article key={`${index}-${note.content.slice(0, 12)}`}><span>{String(index + 1).padStart(2, "0")}</span><p>{note.content}</p></article>) : <p>No hay notas legibles en este cuaderno compartido.</p>}</div>{data.expiresAt && <small>Disponible hasta el {new Date(data.expiresAt).toLocaleDateString()}</small>}</>}
     <button onClick={onBack}><Link2 size={15} />Volver a Edu AI</button>
   </section></main>;
@@ -238,7 +240,7 @@ function SidebarContents({ activeThreadId, isPending, threads, folders, copy, lo
   };
   return <>
     <div className="sidebar-main">
-      <div className="identity-lockup"><span className="identity-orb"><Sparkles size={17} /></span><span><strong>Edu AI</strong><small>{copy.brandSubtitle}</small></span></div>
+      <div className="identity-lockup"><span className="identity-orb"><img src={EDU_AI_LOGO_SRC} alt="" /></span><span><strong>Edu AI</strong><small>{copy.brandSubtitle}</small></span></div>
       <button type="button" className="new-chat-button" onClick={onNewConversation} disabled={isPending}><CirclePlus size={17} /> <span>{copy.newConversation}</span><span className="new-chat-key">N</span></button>
       <button type="button" className="sidebar-learning-link" onClick={onOpenLearning}><LibraryBig size={15} /><span>{learningText}</span></button>
       <div className="sidebar-copy"><span>{copy.notebookLabel}</span><p>{copy.notebookDescription}</p></div>

@@ -15,6 +15,15 @@ describe("experiencia pública de Edu AI", () => {
     expect(home).not.toContain("account-entry");
   });
 
+  it("usa el emblema Origen como marca coherente en los puntos principales de la interfaz", () => {
+    const home = source("client/src/pages/Home.tsx");
+
+    expect(home).toContain("const EDU_AI_LOGO_SRC = \"/manus-storage/edu-ai-origen-mark_85743c02.png\"");
+    expect(home).toContain('className="identity-orb"');
+    expect(home).toContain('className="header-mark"');
+    expect(home).toContain('className="intro-mark"');
+  });
+
   it("conserva la copia cifrada privada y no ofrece sincronización o enlaces dependientes de cuenta", () => {
     const studio = source("client/src/components/LearningStudio.tsx");
 
