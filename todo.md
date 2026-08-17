@@ -162,20 +162,20 @@
 
 ## Continuidad de Edu AI
 - [x] Mantener el backend conversacional publicado como servicio de Edu AI sin depender de la interfaz estática
-- [ ] Usar exclusivamente api.textoavoz.xyz para la API sin redirigir ni modificar textoavoz.xyz
+- [x] Usar exclusivamente api.textoavoz.xyz para la API sin redirigir ni modificar textoavoz.xyz
 - [x] Documentar los límites de disponibilidad del proveedor sin presentar una garantía de permanencia absoluta
 
 ## Arquitectura durable con dominio propio
 - [x] Definir una ruta de alojamiento mantenible para el backend de Edu AI y api.textoavoz.xyz
 - [x] Mantener las credenciales del modelo exclusivamente en el servidor elegido
 - [x] Preparar una vinculación HTTPS verificable sin cambiar el dominio raíz textoavoz.xyz
-- [ ] Validar la continuidad del sitio público y de las conversaciones tras la migración
+- [x] Validar la continuidad del sitio público y de las conversaciones tras la migración
 
 ## Puerta de API en Cloudflare
 - [x] Inspeccionar la zona activa de textoavoz.xyz sin modificar DNS existentes
 - [x] Preparar un Worker que reenvíe solo la API de Edu AI y restrinja los orígenes permitidos
 - [x] Solicitar confirmación antes de desplegar el Worker o cambiar nameservers y registros
-- [ ] Vincular api.textoavoz.xyz, verificar HTTPS y migrar el sitio público a la nueva URL
+- [x] Vincular api.textoavoz.xyz, verificar HTTPS y migrar el sitio público a la nueva URL
 
 ## Interfaz trilingüe
 - [x] Añadir un selector persistente y accesible de idioma en español, inglés y ruso
@@ -187,7 +187,9 @@
 - [x] Configurar la autenticación privada entre el Worker y el backend publicado
 - [x] Verificar el Worker mediante workers.dev sin exponer la clave del modelo
 - [x] Vincular `api.textoavoz.xyz` cuando la zona de Cloudflare esté activa
-- [ ] Migrar GitHub Pages a la URL definitiva de la API y validar una conversación pública
-- [ ] Documentar el estado, guardar el checkpoint y publicar los cambios de configuración no secretos
+- [x] Migrar GitHub Pages a la URL definitiva de la API y validar una conversación pública
+- [x] Documentar el estado, guardar el checkpoint y publicar los cambios de configuración no secretos
 - [x] Rechazar el chat de producción si falta o no coincide la clave privada del gateway
 - [x] Resolver y verificar el reenvío autenticado Worker → backend tras activar el cierre por defecto
+- [x] Validar una conversación real desde GitHub Pages tras la migración a api.textoavoz.xyz
+- [x] Actualizar la documentación restante para reflejar api.textoavoz.xyz como endpoint público final

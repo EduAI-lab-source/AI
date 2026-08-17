@@ -7,9 +7,10 @@ La interfaz pública de Edu AI se publica desde la rama `gh-pages` del repositor
 | Parte | Dirección | Responsabilidad |
 | --- | --- | --- |
 | Interfaz pública | `https://eduai-lab-source.github.io/AI/` | Muestra el chat, conserva los hilos en el navegador y permite elegir español, inglés o ruso. |
-| Backend protegido | `https://edusearch-9qua9exp.manus.space` | Ejecuta el procedimiento tRPC de Edu AI y mantiene las credenciales del modelo fuera del navegador. |
+| Gateway público | `https://api.textoavoz.xyz` | Worker de Cloudflare que acepta el origen de GitHub Pages, reenvía únicamente el procedimiento conversacional y no expone credenciales. |
+| Backend protegido | `https://edusearch-9qua9exp.manus.space` | Ejecuta el procedimiento tRPC de Edu AI y mantiene las credenciales del modelo y la clave interna fuera del navegador. |
 
-El cliente reconoce automáticamente el dominio de GitHub Pages y se comunica con el backend protegido. Las solicitudes se limitan al origen público configurado y no incluyen credenciales de servidor en el navegador.
+El cliente reconoce automáticamente el dominio de GitHub Pages y se comunica con `https://api.textoavoz.xyz`. Las solicitudes se limitan al origen público configurado y no incluyen credenciales de servidor en el navegador. El Worker añade internamente una clave privada para el backend, por lo que los accesos directos al procedimiento conversacional quedan rechazados.
 
 ## Actualizar la interfaz
 
@@ -18,7 +19,7 @@ El cliente reconoce automáticamente el dominio de GitHub Pages y se comunica co
 3. Publica el contenido compilado en la rama `gh-pages`.
 4. Si existe caché en el navegador, abre el enlace con una recarga completa mediante **Ctrl/Cmd + Shift + R**.
 
-> GitHub Pages hospeda la interfaz estática. Las respuestas generativas dependen del backend protegido, que debe permanecer publicado para que Edu AI pueda responder desde el enlace público.
+> GitHub Pages hospeda la interfaz estática. Las respuestas generativas pasan por `api.textoavoz.xyz` y dependen del backend protegido, que debe permanecer publicado para que Edu AI pueda responder desde el enlace público.
 
 ## Principio de seguridad
 
