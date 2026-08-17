@@ -264,3 +264,8 @@
 - [x] Diagnosticar por qué un navegador del usuario aún muestra "No seguro" en textoavoz.xyz
 - [x] Verificar de forma independiente el certificado presentado, el DNS público y las rutas con y sin www
 - [x] Corregir la configuración de HTTPS y confirmar con el usuario que desaparece la advertencia
+
+## Revisión directa en el navegador del usuario
+- [x] Capturar el estado exacto de seguridad que persiste en la pestaña conectada del usuario
+- [x] Inspeccionar certificado, navegación final y posibles recursos inseguros desde ese navegador
+- [x] Corregir la causa observada y confirmar el candado seguro en la misma sesión del usuario
