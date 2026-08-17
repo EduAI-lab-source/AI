@@ -1,32 +1,152 @@
-import { useMemo, useState } from "react";
-import { ArrowUpRight, BookOpen, ChevronDown, Compass, Filter, Search, SlidersHorizontal, Sparkles, X } from "lucide-react";
-import { Link } from "wouter";
-import { CATEGORIES, categoryMeta, tools, type Category, type Pricing } from "@/data/tools";
-import { ToolCard } from "@/components/ToolCard";
-import { EduAiPanel } from "@/components/EduAiPanel";
-import { filterTools, type CatalogSort } from "@/lib/catalog";
-type Sort = CatalogSort;
+import { AIChatBox } from "@/components/AIChatBox";
+import {
+  loadChatState,
+  replaceThreadMessages,
+  saveChatState,
+  startFreshConversation,
+  type ConversationMessage,
+} from "@/lib/chatSession";
+import { trpc } from "@/lib/trpc";
+import { Bot, CirclePlus, Eraser, MessageSquareText, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+
+const STARTERS = [
+  "Tengo una idea y quiero ordenarla.",
+  "Ayúdame a crear un plan para aprender algo nuevo.",
+  "Necesito pensar una decisión con más claridad.",
+  "Quiero escribir algo, pero no sé cómo empezar.",
+];
 
 export default function Home() {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<Category | "Todas">("Todas");
-  const [pricing, setPricing] = useState<Pricing | "Todos">("Todos");
-  const [sort, setSort] = useState<CatalogSort>("popularidad");
-  const [showAll, setShowAll] = useState(false);
-  const filtered = useMemo(() => filterTools(tools, { query, category, pricing, sort }), [query, category, pricing, sort]);
-  const categoryCount = (item: Category) => tools.filter((tool) => tool.category === item).length;
-  const visible = showAll ? filtered : filtered.slice(0, 12);
-  const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  const clear = () => { setQuery(""); setCategory("Todas"); setPricing("Todos"); };
+  const [chatState, setChatState] = useState(loadChatState);
+  const [pendingThreadId, setPendingThreadId] = useState<string | null>(null);
+  const chat = trpc.eduAi.chat.useMutation();
+  const activeThread = useMemo(
+    () => chatState.threads.find(thread => thread.id === chatState.activeThreadId) ?? chatState.threads[0],
+    [chatState]
+  );
+
+  useEffect(() => saveChatState(chatState), [chatState]);
+
+  const startNewConversation = () => {
+    if (chat.isPending) return;
+    setChatState(current => startFreshConversation(current));
+  };
+
+  const clearActiveConversation = () => {
+    if (!activeThread || chat.isPending) return;
+    setChatState(current => replaceThreadMessages(current, activeThread.id, [activeThread.messages[0]]));
+  };
+
+  const sendMessage = (content: string) => {
+    if (!activeThread || chat.isPending) return;
+    const threadId = activeThread.id;
+    const nextMessages: ConversationMessage[] = [...activeThread.messages, { role: "user", content }];
+    setChatState(current => replaceThreadMessages(current, threadId, nextMessages));
+    setPendingThreadId(threadId);
+
+    chat.mutate(
+      { messages: nextMessages.slice(-18) },
+      {
+        onSuccess: response => {
+          setChatState(current => {
+            const thread = current.threads.find(item => item.id === threadId);
+            return thread
+              ? replaceThreadMessages(current, threadId, [...thread.messages, { role: "assistant", content: response.content }])
+              : current;
+          });
+        },
+        onError: error => {
+          setChatState(current => {
+            const thread = current.threads.find(item => item.id === threadId);
+            return thread
+              ? replaceThreadMessages(current, threadId, [
+                  ...thread.messages,
+                  { role: "assistant", content: error.message || "Tuve un problema al responder. Intenta enviarme el mensaje otra vez en unos segundos." },
+                ])
+              : current;
+          });
+        },
+        onSettled: () => setPendingThreadId(null),
+      }
+    );
+  };
+
+  if (!activeThread) return null;
+  const hasConversation = activeThread.messages.some(message => message.role === "user");
+  const isActivePending = pendingThreadId === activeThread.id;
+
   return (
-    <main>
-      <header className="site-header"><button className="brand" onClick={() => scrollTo("inicio")}><span className="brand-orb">e</span><span>Edu <em>AI</em></span></button><nav><button onClick={() => scrollTo("catalogo")}>Explorar</button><button onClick={() => scrollTo("edu-ai")}>Edu AI</button><Link href="/guia">Guía</Link></nav><button className="header-action" onClick={() => scrollTo("edu-ai")}><Sparkles size={16} /> Preguntar a Edu AI</button></header>
-      <section id="inicio" className="hero-section"><div className="hero-glow hero-glow-one" /><div className="hero-glow hero-glow-two" /><div className="hero-content"><div className="eyebrow"><Sparkles size={14} /> Directorio curado · 2026</div><h1>Encuentra la <span>IA correcta</span> para convertir ideas en avance.</h1><p>Un directorio claro y humano de herramientas para crear, investigar, diseñar, programar y automatizar con criterio.</p><div className="search-shell"><Search size={21} /><input value={query} onChange={(event) => { setQuery(event.target.value); setShowAll(true); }} placeholder="Busca por herramienta, objetivo o categoría…" aria-label="Buscar herramientas de IA" autoComplete="off" />{query && <button className="clear-search" onClick={() => setQuery("")} aria-label="Limpiar búsqueda"><X size={17} /></button>}<span className="search-count">{filtered.length} resultados</span></div><div className="popular-searches"><span>Explora:</span>{["Diseño", "Chatbots", "Video", "Programación"].map((item) => <button key={item} onClick={() => { setCategory(item as Category); setShowAll(true); scrollTo("catalogo"); }}>{item}</button>)}</div></div><div className="hero-metrics"><div><strong>{tools.length}+</strong><span>herramientas curadas</span></div><div><strong>{CATEGORIES.length}</strong><span>categorías prácticas</span></div><div><strong>1</strong><span>guía: Edu AI</span></div></div></section>
-      <section className="category-rail-wrap"><div className="section-heading"><div><span className="eyebrow">Elige un camino</span><h2>Categorías para empezar</h2></div><button onClick={() => { setCategory("Todas"); scrollTo("catalogo"); }}>Ver catálogo completo <ArrowUpRight size={16} /></button></div><div className="category-rail">{CATEGORIES.slice(0, 8).map((item) => <button key={item} className={`category-card ${category === item ? "is-active" : ""}`} onClick={() => { setCategory(item); setShowAll(true); scrollTo("catalogo"); }}><span className="category-icon" style={{ color: categoryMeta[item].accent, backgroundColor: `${categoryMeta[item].accent}12` }}>{item.slice(0, 2)}</span><span><strong>{item}</strong><small>{categoryCount(item)} herramientas</small></span><ArrowUpRight size={16} /></button>)}</div></section>
-      <section id="catalogo" className="catalog-section"><div className="catalog-header"><div><span className="eyebrow">Catálogo</span><h2>Explora con intención</h2><p>Filtra herramientas y abre cada ficha para conocer su contexto, sus límites y su sitio oficial.</p></div><div className="catalog-total"><strong>{tools.length}</strong><span>herramientas<br />en el directorio</span></div></div><div className="catalog-layout"><aside className="filters-panel"><div className="filter-title"><span><Filter size={16} /> Filtros</span>{(category !== "Todas" || pricing !== "Todos" || query) && <button onClick={clear}>Limpiar</button>}</div><div className="filter-group"><span>Categoría</span><button className={`filter-option ${category === "Todas" ? "selected" : ""}`} onClick={() => setCategory("Todas")}><span>Todas</span><small>{tools.length}</small></button>{CATEGORIES.map((item) => <button key={item} className={`filter-option ${category === item ? "selected" : ""}`} onClick={() => { setCategory(item); setShowAll(true); }}><span>{item}</span><small>{categoryCount(item)}</small></button>)}</div><div className="filter-group"><span>Precio</span>{(["Todos", "Gratis", "Freemium", "Pago"] as const).map((item) => <button key={item} className={`filter-option ${pricing === item ? "selected" : ""}`} onClick={() => setPricing(item)}><span>{item}</span><small>{item === "Todos" ? tools.length : tools.filter((tool) => tool.pricing === item).length}</small></button>)}</div></aside><div className="results-area"><div className="results-top"><p><strong>{filtered.length}</strong> {filtered.length === 1 ? "herramienta encontrada" : "herramientas encontradas"}{category !== "Todas" && <> en <strong>{category}</strong></>}</p><label className="sort-select"><SlidersHorizontal size={15} /><span>Ordenar:</span><select value={sort} onChange={(event) => setSort(event.target.value as Sort)}><option value="popularidad">Popularidad editorial</option><option value="nombre">Nombre A–Z</option><option value="categoria">Categoría</option><option value="precio">Precio</option></select><ChevronDown size={14} /></label></div>{visible.length > 0 ? <><div className="tool-grid">{visible.map((tool) => <ToolCard key={tool.slug} tool={tool} />)}</div>{filtered.length > visible.length && <button className="load-more" onClick={() => setShowAll(true)}>Mostrar las {filtered.length - visible.length} herramientas restantes</button>}</> : <div className="empty-results"><Search size={28} /><h3>Sin coincidencias aún</h3><p>Prueba otra palabra, categoría o quita algún filtro.</p><button onClick={clear}>Restablecer filtros</button></div>}</div></div></section>
-      <EduAiPanel />
-      <section id="metodo" className="method-section"><div className="method-card method-main"><BookOpen size={21} /><span className="eyebrow">Cómo usar Edu AI</span><h2>Menos ruido. Mejores decisiones.</h2><p>Busca por lo que quieres lograr, abre la ficha de cada opción y conversa con Edu AI para contrastar alternativas. El directorio no inventa valoraciones: cada herramienta explica su plan, sus puntos fuertes y sus límites.</p><Link href="/guia">Ver la guía completa <ArrowUpRight size={16} /></Link></div><div className="method-card method-note"><Compass size={22} /><h3>Una guía que respeta tu criterio.</h3><p>Los precios, límites y condiciones cambian. Edu AI recomienda, pero te invita a confirmar los detalles en el sitio oficial antes de tomar una decisión.</p><span>Catálogo curado · enlaces oficiales</span></div></section>
-      <footer><div className="brand"><span className="brand-orb">e</span><span>Edu <em>AI</em></span></div><p>Directorio educativo de herramientas de inteligencia artificial.</p><span>© 2026 Edu AI</span></footer>
+    <main className="edu-app">
+      <aside className="conversation-sidebar">
+        <div className="identity-lockup">
+          <span className="identity-orb"><Sparkles size={17} /></span>
+          <span><strong>Edu AI</strong><small>Tu espacio para pensar</small></span>
+        </div>
+        <button className="new-chat-button" onClick={startNewConversation} disabled={chat.isPending}>
+          <CirclePlus size={17} /> Nueva conversación
+        </button>
+        <div className="sidebar-copy">
+          <span>HILOS RECIENTES</span>
+          <p>Las conversaciones se conservan en este navegador para retomar tus ideas.</p>
+        </div>
+        <nav className="thread-list" aria-label="Conversaciones recientes">
+          {chatState.threads.slice(0, 6).map(thread => (
+            <button
+              key={thread.id}
+              className={thread.id === activeThread.id ? "thread-link active" : "thread-link"}
+              onClick={() => !chat.isPending && setChatState(current => ({ ...current, activeThreadId: thread.id }))}
+              disabled={chat.isPending}
+            >
+              <MessageSquareText size={14} /><span>{thread.title}</span>
+            </button>
+          ))}
+        </nav>
+        <div className="sidebar-bottom">
+          <div className="privacy-note"><Bot size={16} /><span>Edu AI conserva el contexto del hilo activo.</span></div>
+          <button className="erase-button" onClick={clearActiveConversation} disabled={chat.isPending}><Eraser size={14} /> Reiniciar este hilo</button>
+        </div>
+      </aside>
+
+      <section className="conversation-main">
+        <header className="conversation-header">
+          <div>
+            <span className="status-line"><i /> Edu AI está presente</span>
+            <h1>{activeThread.title === "Nueva conversación" ? "Conversa. Crea. Avanza." : activeThread.title}</h1>
+          </div>
+          <button className="mobile-new-chat" onClick={startNewConversation} disabled={chat.isPending} aria-label="Nueva conversación"><CirclePlus size={19} /></button>
+        </header>
+
+        <div className="conversation-stage">
+          {!hasConversation && (
+            <>
+              <div className="conversation-intro">
+                <div className="intro-mark"><Sparkles size={19} /></div>
+                <div>
+                  <p className="overline">UNA CONVERSACIÓN A LA VEZ</p>
+                  <h2>Un lugar tranquilo para tus próximas ideas.</h2>
+                  <p>Edu AI escucha el hilo, se adapta al ritmo de la conversación y te ayuda a pasar de una pregunta a un siguiente paso.</p>
+                </div>
+              </div>
+              <div className="starter-row" aria-label="Ideas para comenzar">
+                {STARTERS.map(starter => (
+                  <button key={starter} onClick={() => sendMessage(starter)} disabled={chat.isPending}>{starter}</button>
+                ))}
+              </div>
+            </>
+          )}
+
+          <AIChatBox
+            messages={activeThread.messages}
+            onSendMessage={sendMessage}
+            isLoading={isActivePending}
+            placeholder="Escribe lo que estás pensando…"
+            className={hasConversation ? "chat-canvas chat-canvas-active" : "chat-canvas"}
+            height={hasConversation ? "min(71vh, 760px)" : "min(59vh, 620px)"}
+          />
+          <p className="composer-caption">Edu AI puede equivocarse. Contrasta la información importante antes de actuar.</p>
+        </div>
+      </section>
     </main>
   );
 }

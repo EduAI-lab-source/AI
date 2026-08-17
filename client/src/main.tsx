@@ -9,6 +9,7 @@ import { startLogin } from "./const";
 import "./index.css";
 
 const queryClient = new QueryClient();
+const eduAiApiBase = (import.meta.env.VITE_EDU_AI_API_URL ?? "").replace(/\/$/, "");
 
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;
@@ -40,9 +41,10 @@ queryClient.getMutationCache().subscribe(event => {
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
-      url: "/api/trpc",
+      url: eduAiApiBase ? `${eduAiApiBase}/api/trpc` : "/api/trpc",
       transformer: superjson,
       headers() {
+        if (eduAiApiBase) return {};
         // Preview auto-login fallback: when the browser blocks iframe cookies
         // (Safari ITP / private browsing / WebView), the runtime mirrors the
         // session into sessionStorage so we can forward it as a Bearer token.
@@ -65,7 +67,7 @@ const trpcClient = trpc.createClient({
       fetch(input, init) {
         return globalThis.fetch(input, {
           ...(init ?? {}),
-          credentials: "include",
+          credentials: eduAiApiBase ? "omit" : "include",
         });
       },
     }),

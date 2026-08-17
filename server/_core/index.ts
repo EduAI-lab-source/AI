@@ -36,6 +36,22 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
+  app.use("/api/trpc", (req, res, next) => {
+    const origin = req.headers.origin;
+    const allowedOrigins = [
+      "https://eduai-lab-source.github.io",
+      process.env.EDU_AI_ALLOWED_ORIGIN,
+    ].filter((value): value is string => Boolean(value));
+
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
+      res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+      if (req.method === "OPTIONS") return res.sendStatus(204);
+    }
+    next();
+  });
   // tRPC API
   app.use(
     "/api/trpc",

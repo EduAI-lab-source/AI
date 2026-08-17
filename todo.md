@@ -104,3 +104,36 @@
 
 ## Comunicación de cierre
 - [x] Comunicar la nueva URL final de EdAI bajo `EduAI-lab-source`
+
+## Cambio de repositorio a AI
+- [x] Comprobar disponibilidad de `AI` como nombre de repositorio público
+- [x] Renombrar el repositorio de `EdAI` a `AI`
+- [x] Actualizar el remoto local y los metadatos públicos del repositorio
+- [x] Confirmar GitHub Pages en `https://eduai-lab-source.github.io/AI/`
+- [x] Entregar la nueva dirección pública
+
+## Verificaciones posteriores al renombrado
+- [x] Confirmar que todos los remotos locales apuntan a `EduAI-lab-source/AI`
+- [x] Confirmar que el enlace público del repositorio es `https://eduai-lab-source.github.io/AI/`
+- [x] Comunicar al usuario los enlaces finales de AI
+
+## Transformación a Edu AI independiente
+- [x] Retirar del recorrido principal el directorio y las recomendaciones de otras IA
+- [x] Definir el propósito, la personalidad y los límites propios de Edu AI
+- [x] Rediseñar la pantalla principal como una interfaz conversacional centrada en Edu AI
+- [ ] Implementar un backend seguro para respuestas generativas y contexto de conversación
+- [ ] Incorporar memoria de sesión y continuidad en preguntas de seguimiento
+- [ ] Preparar una base extensible para añadir futuras capacidades de Edu AI
+- [ ] Probar, publicar y verificar la nueva experiencia conversacional
+
+## Experiencia de chat principal
+- [x] Priorizar una conversación continua y natural por encima de catálogo, búsquedas y recomendaciones
+- [x] Diseñar una interfaz premium de chat: hilo de mensajes, estado de respuesta, sugerencias y cuadro de composición
+- [x] Definir la personalidad conversacional de Edu AI: cálida, clara, curiosa y orientada a ayudar
+- [x] Mantener contexto de mensajes recientes y gestionar conversaciones nuevas
+
+## Validación y publicación del chat
+- [x] Actualizar el título del navegador para reflejar Edu AI
+- [x] Verificar el reinicio de conversación y la memoria de contexto en sesión
+- [ ] Definir un endpoint protegido para que el chat generativo funcione fuera de la vista previa
+- [ ] Actualizar la publicación pública sin exponer ninguna clave de IA

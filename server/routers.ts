@@ -1,7 +1,37 @@
 import { COOKIE_NAME } from "@shared/const";
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
+import { buildEduAiMessages, getTextResponse } from "./eduAi";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { invokeLLM } from "./_core/llm";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
+
+const REQUEST_LIMIT = 18;
+const REQUEST_WINDOW_MS = 5 * 60 * 1000;
+const requestWindows = new Map<string, { count: number; resetAt: number }>();
+
+function assertRateLimit(request: { ip?: string; headers: Record<string, string | string[] | undefined> }) {
+  const forwarded = request.headers["x-forwarded-for"];
+  const forwardedIp = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(",")[0];
+  const key = forwardedIp?.trim() || request.ip || "anonymous";
+  const now = Date.now();
+  const current = requestWindows.get(key);
+
+  if (!current || current.resetAt <= now) {
+    requestWindows.set(key, { count: 1, resetAt: now + REQUEST_WINDOW_MS });
+    return;
+  }
+
+  if (current.count >= REQUEST_LIMIT) {
+    throw new TRPCError({
+      code: "TOO_MANY_REQUESTS",
+      message: "Edu AI está recibiendo muchas preguntas. Espera unos minutos antes de continuar.",
+    });
+  }
+
+  current.count += 1;
+}
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -16,13 +46,46 @@ export const appRouter = router({
       } as const;
     }),
   }),
+  eduAi: router({
+    chat: publicProcedure
+      .input(
+        z.object({
+          messages: z
+            .array(
+              z.object({
+                role: z.enum(["user", "assistant"]),
+                content: z.string().trim().min(1).max(6000),
+              })
+            )
+            .min(1)
+            .max(20),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        assertRateLimit(ctx.req);
 
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
+        try {
+          const response = await invokeLLM({
+            model: "gpt-5-mini",
+            messages: buildEduAiMessages(input.messages),
+          });
+          const content = getTextResponse(response.choices[0]?.message.content ?? "");
+
+          if (!content) {
+            throw new Error("El modelo no devolvió una respuesta de texto");
+          }
+
+          return { content };
+        } catch (error) {
+          console.error("[Edu AI] Chat request failed", error);
+          if (error instanceof TRPCError) throw error;
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Edu AI no pudo responder en este momento. Inténtalo de nuevo en unos segundos.",
+          });
+        }
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
