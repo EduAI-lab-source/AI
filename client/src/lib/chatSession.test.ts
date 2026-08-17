@@ -4,6 +4,7 @@ import {
   describeThreadRecency,
   deriveThreadTitle,
   replaceThreadMessages,
+  sanitizeAssistantMessage,
   startFreshConversation,
   type ChatState,
 } from "./chatSession";
@@ -35,6 +36,15 @@ describe("chatSession", () => {
     expect(result.activeThreadId).not.toBe(original.id);
   });
 
+  it("permite crear un hilo con un saludo localizado", () => {
+    const thread = createConversation({
+      title: "New conversation",
+      welcomeMessage: { role: "assistant", content: "Hello from Edu AI" },
+    });
+    expect(thread.title).toBe("New conversation");
+    expect(thread.messages[0]?.content).toBe("Hello from Edu AI");
+  });
+
   it("actualiza solo el hilo al que pertenece una respuesta", () => {
     const original = createConversation();
     const state: ChatState = { activeThreadId: original.id, threads: [original] };
@@ -44,5 +54,13 @@ describe("chatSession", () => {
     ]);
     expect(result.threads[0]?.title).toBe("Necesito ordenar una idea");
     expect(result.threads[0]?.messages).toHaveLength(2);
+  });
+
+  it("no conserva errores técnicos como mensajes de Edu AI", () => {
+    const message = sanitizeAssistantMessage({
+      role: "assistant",
+      content: "Unexpected token '<', \"<!doctype\" is not valid JSON",
+    });
+    expect(message.content).not.toMatch(/unexpected token|json|doctype/i);
   });
 });

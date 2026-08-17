@@ -6,10 +6,11 @@ import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import App from "./App";
 import { startLogin } from "./const";
+import { resolveEduAiApiBase } from "./lib/chatRuntime";
 import "./index.css";
 
 const queryClient = new QueryClient();
-const eduAiApiBase = (import.meta.env.VITE_EDU_AI_API_URL ?? "").replace(/\/$/, "");
+const eduAiApiBase = resolveEduAiApiBase(import.meta.env.VITE_EDU_AI_API_URL);
 
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;

@@ -50,6 +50,10 @@ button:active:not(:disabled) { transform: scale(.975); }
 
 .conversation-main { z-index: 1; min-width: 0; padding: 42px clamp(28px, 6vw, 94px) 38px; }
 .conversation-header { max-width: 1080px; margin: 0 auto; min-height: 146px; display: flex; justify-content: space-between; align-items: flex-start; }
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.language-picker { height: 42px; padding: 0 9px 0 10px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(97, 81, 198, .16); border-radius: 14px; background: rgba(255, 251, 244, .68); color: #5c50bf; box-shadow: 0 9px 24px rgba(95, 78, 181, .08); }
+.language-picker select { width: 70px; border: 0; outline: 0; appearance: none; background: transparent; color: #354f44; font: 700 10px var(--font-sans); cursor: pointer; }
+.language-picker:focus-within { outline: 3px solid rgba(112, 99, 222, .28); outline-offset: 3px; }
 .status-line { display: inline-flex; align-items: center; gap: 8px; color: #62796f; font-size: 11px; font-weight: 600; }
 .status-line i { width: 8px; height: 8px; border-radius: 50%; background: #6ccca3; box-shadow: 0 0 0 4px rgba(108, 204, 163, .18); }
 .conversation-header h1 { margin: 12px 0 0; color: #1b3f35; font: 500 clamp(37px, 4.2vw, 62px)/.96 var(--font-serif); letter-spacing: -.065em; }
@@ -93,13 +97,16 @@ button:active:not(:disabled) { transform: scale(.975); }
 .chat-canvas .prose p:last-child { margin-bottom: 0; }
 .chat-canvas .prose strong { color: #17463a; }
 .chat-canvas [data-slot="chat-composer"] { padding: 13px; gap: 9px; border-color: rgba(42, 79, 66, .12); background: rgba(247, 242, 233, .82); }
+.chat-canvas [data-slot="chat-composer"] { position: relative; }
 .chat-canvas textarea { min-height: 47px; padding: 13px 14px; border: 1px solid rgba(53, 91, 77, .13); border-radius: 15px; background: rgba(255,255,255,.76); color: #1b4035; font-size: 12px; box-shadow: none; }
+.chat-canvas textarea:disabled { cursor: not-allowed; color: #7e8d85; background: rgba(236, 233, 226, .78); }
 .chat-canvas textarea::placeholder { color: #87978e; }
 .chat-canvas textarea:focus { border-color: rgba(106, 93, 211, .5); box-shadow: 0 0 0 3px rgba(106, 93, 211, .10); }
 .chat-canvas button[type="submit"] { width: 47px; height: 47px; border-radius: 15px; background: #6d60d7; color: #fffdf9; box-shadow: 0 7px 17px rgba(99, 82, 198, .25); transition: transform .16s ease, background .16s ease; }
 .chat-canvas button[type="submit"]:hover:not(:disabled) { background: #584bc4; }
 .composer-caption { margin: 10px 8px 0; color: #78877f; font-size: 9px; text-align: center; }
 .composer-caption span { margin-right: 4px; color: #7a6ddd; font-weight: 700; }
+.chat-availability-note { position: absolute; right: 72px; bottom: 15px; max-width: min(58%, 360px); margin: 0; color: #6e786f; font-size: 9px; line-height: 1.35; text-align: right; pointer-events: none; }
 
 @media (max-width: 760px) {
   .edu-app { display: block; min-height: 100dvh; background: radial-gradient(circle at 92% 5%, rgba(218, 205, 252, .75), transparent 13rem), #f2eee5; }
@@ -115,6 +122,9 @@ button:active:not(:disabled) { transform: scale(.975); }
   .conversation-header h1 { font-size: clamp(35px, 10vw, 46px); }
   .header-subtitle { margin-top: 11px; font-size: 11px; }
   .header-mark { width: 35px; height: 35px; }
+  .header-actions { gap: 7px; }
+  .language-picker { height: 35px; padding: 0 7px; border-radius: 12px; }
+  .language-picker select { width: 62px; font-size: 9px; }
   .conversation-stage { margin-top: 4px; }
   .conversation-intro { min-height: auto; padding: 29px 20px 18px; display: block; border-radius: 23px; }
   .conversation-intro::after { right: -94px; bottom: -94px; width: 190px; height: 190px; border-width: 23px; box-shadow: 0 0 0 17px rgba(112, 99, 222, .08); }
@@ -131,6 +141,7 @@ button:active:not(:disabled) { transform: scale(.975); }
   .chat-canvas .prose { font-size: 12px; }
   .chat-canvas textarea { font-size: 16px; }
   .chat-canvas [data-slot="chat-composer"] { padding: 10px; }
+  .chat-availability-note { right: 68px; bottom: 12px; max-width: 55%; font-size: 8px; }
   .chat-canvas button[type="submit"] { width: 45px; height: 45px; }
   .composer-caption { max-width: 315px; margin: 9px auto 0; line-height: 1.5; }
   .mobile-history { position: fixed; z-index: 30; inset: 0; display: block; }

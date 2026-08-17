@@ -147,3 +147,14 @@
 
 ## Corrección de la versión pública
 - [x] Subir el nuevo rediseño al repositorio y comprobar que el enlace de GitHub Pages deje de mostrar la interfaz anterior
+
+## Corrección del chat público
+- [x] Diagnosticar por qué el chat público interpreta una respuesta HTML como JSON
+- [x] Impedir que Edu AI muestre mensajes de error técnicos o respuestas vacías al usuario
+- [ ] Conectar GitHub Pages a un endpoint generativo seguro antes de habilitar el envío de mensajes
+- [ ] Validar una conversación real desde el enlace público
+
+## Interfaz trilingüe
+- [x] Añadir un selector persistente y accesible de idioma en español, inglés y ruso
+- [x] Traducir los controles, mensajes de bienvenida, sugerencias y textos de interfaz al inglés y ruso
+- [x] Adaptar los atributos de idioma del documento y verificar el selector en computadora y celular

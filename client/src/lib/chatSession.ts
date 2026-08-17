@@ -16,6 +16,11 @@ export type ChatState = {
   threads: ConversationThread[];
 };
 
+export type ConversationSeed = {
+  title?: string;
+  welcomeMessage?: ConversationMessage;
+};
+
 const STORAGE_KEY = "edu-ai:chat-state:v2";
 const MAX_THREADS = 12;
 const MAX_MESSAGES_PER_THREAD = 60;
@@ -25,6 +30,16 @@ export const WELCOME_MESSAGE: ConversationMessage = {
   content:
     "Hola, soy **Edu AI**. Estoy aquí para ayudarte a pensar con claridad, aprender, crear y avanzar en lo que importa. ¿Qué te gustaría explorar hoy?",
 };
+
+const TECHNICAL_ERROR_PATTERN = /unexpected token|valid json|<!doctype|syntaxerror/i;
+
+export function sanitizeAssistantMessage(message: ConversationMessage): ConversationMessage {
+  if (message.role !== "assistant" || !TECHNICAL_ERROR_PATTERN.test(message.content)) return message;
+  return {
+    ...message,
+    content: "La conversación está preparando una conexión segura. Inténtalo de nuevo cuando esté disponible.",
+  };
+}
 
 function makeId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
@@ -39,8 +54,17 @@ export function deriveThreadTitle(messages: ConversationMessage[]) {
     : firstUserMessage;
 }
 
-export function describeThreadRecency(updatedAt: number, now = Date.now()) {
+export function describeThreadRecency(updatedAt: number, now = Date.now(), locale = "es-419") {
   const minutes = Math.max(0, Math.floor((now - updatedAt) / 60_000));
+  if (locale !== "es-419") {
+    const formatter = new Intl.RelativeTimeFormat(locale, { numeric: "auto", style: "short" });
+    if (minutes < 60) return formatter.format(-minutes, "minute");
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return formatter.format(-hours, "hour");
+    const days = Math.floor(hours / 24);
+    if (days < 7) return formatter.format(-days, "day");
+    return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(updatedAt);
+  }
   if (minutes < 2) return "Ahora mismo";
   if (minutes < 60) return `Hace ${minutes} min`;
   const hours = Math.floor(minutes / 60);
@@ -49,14 +73,14 @@ export function describeThreadRecency(updatedAt: number, now = Date.now()) {
   return new Intl.DateTimeFormat("es-419", { day: "numeric", month: "short" }).format(updatedAt);
 }
 
-export function createConversation(): ConversationThread {
+export function createConversation(seed: ConversationSeed = {}): ConversationThread {
   const now = Date.now();
   return {
     id: makeId(),
-    title: "Nueva conversación",
+    title: seed.title ?? "Nueva conversación",
     createdAt: now,
     updatedAt: now,
-    messages: [WELCOME_MESSAGE],
+    messages: [seed.welcomeMessage ?? WELCOME_MESSAGE],
   };
 }
 
@@ -71,7 +95,7 @@ function normalizeThread(value: unknown): ConversationThread | null {
   if (!value || typeof value !== "object") return null;
   const candidate = value as Partial<ConversationThread>;
   if (!candidate.id || !Array.isArray(candidate.messages)) return null;
-  const messages = candidate.messages.filter(isMessage).slice(-MAX_MESSAGES_PER_THREAD);
+  const messages = candidate.messages.filter(isMessage).slice(-MAX_MESSAGES_PER_THREAD).map(sanitizeAssistantMessage);
   if (!messages.length) return null;
   const updatedAt = typeof candidate.updatedAt === "number" ? candidate.updatedAt : Date.now();
   return {
@@ -130,7 +154,7 @@ export function replaceThreadMessages(
   return { ...state, threads: threads.sort((a, b) => b.updatedAt - a.updatedAt) };
 }
 
-export function startFreshConversation(state: ChatState): ChatState {
-  const thread = createConversation();
+export function startFreshConversation(state: ChatState, seed: ConversationSeed = {}): ChatState {
+  const thread = createConversation(seed);
   return { activeThreadId: thread.id, threads: [thread, ...state.threads].slice(0, MAX_THREADS) };
 }

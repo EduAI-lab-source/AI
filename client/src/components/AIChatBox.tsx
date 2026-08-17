@@ -57,6 +57,12 @@ export type AIChatBoxProps = {
    * Click to send directly
    */
   suggestedPrompts?: string[];
+
+  /** Whether the current runtime has a configured chat transport. */
+  disabled?: boolean;
+
+  /** Human-readable explanation shown when the composer is temporarily unavailable. */
+  disabledMessage?: string;
 };
 
 /**
@@ -119,6 +125,8 @@ export function AIChatBox({
   height = "600px",
   emptyStateMessage = "Start a conversation with AI",
   suggestedPrompts,
+  disabled = false,
+  disabledMessage,
 }: AIChatBoxProps) {
   const [input, setInput] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -168,7 +176,7 @@ export function AIChatBox({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedInput = input.trim();
-    if (!trimmedInput || isLoading) return;
+    if (!trimmedInput || isLoading || disabled) return;
 
     onSendMessage(trimmedInput);
     setInput("");
@@ -213,7 +221,7 @@ export function AIChatBox({
                     <button
                       key={index}
                       onClick={() => onSendMessage(prompt)}
-                      disabled={isLoading}
+                      disabled={isLoading || disabled}
                       className="rounded-lg border border-border bg-card px-4 py-2 text-sm transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {prompt}
@@ -319,13 +327,15 @@ export function AIChatBox({
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
+          disabled={disabled}
+          aria-describedby={disabledMessage ? "chat-availability-note" : undefined}
           className="flex-1 max-h-32 resize-none min-h-9"
           rows={1}
         />
         <Button
           type="submit"
           size="icon"
-          disabled={!input.trim() || isLoading}
+          disabled={!input.trim() || isLoading || disabled}
           className="shrink-0 h-[38px] w-[38px]"
         >
           {isLoading ? (
@@ -334,6 +344,7 @@ export function AIChatBox({
             <Send className="size-4" />
           )}
         </Button>
+        {disabledMessage && <p id="chat-availability-note" className="chat-availability-note" role="status">{disabledMessage}</p>}
       </form>
     </div>
   );
