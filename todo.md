@@ -53,3 +53,13 @@
 ## Cierre de entrega
 - [x] Guardar un checkpoint de la versión final del proyecto
 - [x] Entregar formalmente la versión y explicar la publicación en GitHub Pages
+
+## Publicación en GitHub Pages
+- [ ] Verificar el estado final del repositorio y de la compilación estática
+- [ ] Crear el repositorio público `edu-ai` y subir la rama `main`
+- [ ] Activar el despliegue con GitHub Pages y confirmar la URL publicada
+- [ ] Entregar el enlace público de Edu AI
+
+## Verificaciones de publicación
+- [ ] Confirmar en GitHub la disponibilidad o creación del repositorio público `edu-ai`
+- [ ] Incluir los cambios locales de publicación en el commit que se envíe a GitHub
