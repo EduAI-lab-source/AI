@@ -38,7 +38,7 @@ const MAX_MESSAGES_PER_THREAD = 60;
 export const WELCOME_MESSAGE: ConversationMessage = {
   role: "assistant",
   content:
-    "Hola, soy **Edu AI**. Estoy aquí para ayudarte a pensar con claridad, aprender, crear y avanzar en lo que importa. ¿Qué te gustaría explorar hoy?",
+    "Hola, soy **Edu AI**. Podemos tomar esa idea que tienes, mirarla con calma y darle una dirección útil. Cuéntame qué tienes en mente, tal como te salga.",
 };
 
 const TECHNICAL_ERROR_PATTERN = /unexpected token|valid json|<!doctype|syntaxerror/i;

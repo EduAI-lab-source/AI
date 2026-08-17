@@ -311,3 +311,4 @@
 - [x] Evaluar requisitos, políticas y viabilidad de monetización con Google AdSense para Edu AI antes de cualquier integración
 - [x] Crear y entregar un logotipo de marca distintivo para Edu AI, basado en la paleta cálida actual
 - [x] Rediseñar el logo de Edu AI con una dirección más singular y aplicarlo en la cabecera publicada
+- [x] Reforzar la personalidad conversacional de Edu AI para respuestas más humanas, contextuales y naturales, sin suplantar otra identidad

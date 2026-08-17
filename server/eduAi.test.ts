@@ -17,6 +17,9 @@ describe("Edu AI conversation contract", () => {
     expect(EDU_AI_SYSTEM_PROMPT).toContain("No afirmes tener una edad");
     expect(EDU_AI_SYSTEM_PROMPT).toContain("sin fingir una biografía humana");
     expect(EDU_AI_SYSTEM_PROMPT).toContain("no fuerces modismos");
+    expect(EDU_AI_SYSTEM_PROMPT).toContain("CONVERSA COMO ALGUIEN QUE ESTÁ PRESTANDO ATENCIÓN");
+    expect(EDU_AI_SYSTEM_PROMPT).toContain("Ofrece una idea útil antes de hacer una pregunta");
+    expect(EDU_AI_SYSTEM_PROMPT).toContain("No inventes emociones");
   });
 
   it("adapts the system guidance to the selected response style", () => {
@@ -30,7 +33,7 @@ describe("Edu AI conversation contract", () => {
 
   it("uses a distinct instruction for each response preference", () => {
     const prompt = [{ role: "user" as const, content: "Help me learn this in English / Помоги изучить это" }];
-    expect(String(buildEduAiMessages(prompt, "brief")[0]?.content)).toContain("breve, clara y accionable");
+    expect(String(buildEduAiMessages(prompt, "brief")[0]?.content)).toContain("dos a cinco frases");
     expect(String(buildEduAiMessages(prompt, "deep")[0]?.content)).toContain("profundidad amable");
     expect(String(buildEduAiMessages(prompt, "creative")[0]?.content)).toContain("imaginación práctica");
     expect(String(buildEduAiMessages(prompt, "study")[0]?.content)).toContain("práctica breve");
