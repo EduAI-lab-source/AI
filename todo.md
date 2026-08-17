@@ -144,3 +144,6 @@
 - [x] Adaptar la navegación, el historial y el compositor para una experiencia móvil nativa y cuidada
 - [x] Refinar tipografía, color, superficies, estados de interacción y movimiento con criterios de accesibilidad
 - [x] Verificar visualmente el rediseño en computadora y celular
+
+## Corrección de la versión pública
+- [ ] Subir el nuevo rediseño al repositorio y comprobar que el enlace de GitHub Pages deje de mostrar la interfaz anterior
