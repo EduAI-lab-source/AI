@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { encryptedWorkspaces, InsertUser, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,24 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function getEncryptedWorkspace(syncId: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select({ ciphertext: encryptedWorkspaces.ciphertext, updatedAt: encryptedWorkspaces.updatedAt })
+    .from(encryptedWorkspaces)
+    .where(eq(encryptedWorkspaces.syncId, syncId))
+    .limit(1);
+
+  return result[0];
+}
+
+export async function saveEncryptedWorkspace(syncId: string, ciphertext: string) {
+  const db = await getDb();
+  if (!db) throw new Error("La sincronización privada no está disponible en este momento.");
+
+  await db.insert(encryptedWorkspaces).values({ syncId, ciphertext }).onDuplicateKeyUpdate({
+    set: { ciphertext, updatedAt: new Date() },
+  });
+}

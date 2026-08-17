@@ -153,7 +153,7 @@ export default function Home() {
           <div className="header-actions"><button className="learning-entry" onClick={() => setIsLearningOpen(current => !current)} aria-pressed={isLearningOpen}><LibraryBig size={15} />{learningLabel}</button><LanguagePicker language={language} copy={copy} onChange={setLanguage} /><span className="header-mark" aria-hidden="true"><Sparkles size={17} /></span></div>
         </header>
         <div className="conversation-stage">
-          {isLearningOpen ? <LearningStudio language={language} latestAssistantMessage={latestAssistantMessage} onAskEdu={sendMessage} onClose={() => setIsLearningOpen(false)} responseStyle={responseStyle} onResponseStyleChange={setResponseStyle} /> : <>
+          {isLearningOpen ? <LearningStudio language={language} latestAssistantMessage={latestAssistantMessage} onAskEdu={sendMessage} onClose={() => setIsLearningOpen(false)} responseStyle={responseStyle} onResponseStyleChange={setResponseStyle} chatState={chatState} onRestoreWorkspace={snapshot => { setChatState(snapshot.chatState); setLanguage(snapshot.language); setResponseStyle(snapshot.responseStyle); }} /> : <>
             {!hasConversation && <section className="conversation-intro">
               <div className="intro-mark"><span /><Sparkles size={20} /></div>
               <div className="intro-copy"><p className="overline">{copy.introOverline}</p><h2>{copy.introTitle}<br /><em>{copy.introEmphasis}</em></h2><p>{copy.introDescription}</p><div className="intro-whisper"><span>{copy.introWhisper}</span><ArrowUpRight size={15} /></div></div>

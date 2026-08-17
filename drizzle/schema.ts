@@ -131,6 +131,13 @@ export const sharedLearningLinks = mysqlTable("shared_learning_links", {
   index("shared_learning_links_owner_created_idx").on(table.userId, table.createdAt),
 ]);
 
+/** Client-encrypted workspace snapshots can be restored across devices with a private recovery key. */
+export const encryptedWorkspaces = mysqlTable("encrypted_workspaces", {
+  syncId: varchar("syncId", { length: 96 }).primaryKey(),
+  ciphertext: text("ciphertext").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export type ConversationFolder = typeof conversationFolders.$inferSelect;
 export type Conversation = typeof conversations.$inferSelect;
 export type ConversationMessageRow = typeof conversationMessages.$inferSelect;

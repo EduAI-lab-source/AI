@@ -4,7 +4,7 @@ const ALLOWED_ORIGINS = new Set([
   "https://textoavoz.xyz",
   "https://www.textoavoz.xyz",
 ]);
-const CHAT_PATH = "/api/trpc/eduAi.chat";
+const ALLOWED_PATHS = new Set(["/api/trpc/eduAi.chat", "/api/trpc/workspace.sync"]);
 
 interface Env {
   EDU_AI_GATEWAY_SECRET: string;
@@ -50,7 +50,7 @@ export default {
     }
 
     if (!origin || !ALLOWED_ORIGINS.has(origin)) return forbidden("Origen no autorizado", origin);
-    if (request.method !== "POST" || url.pathname !== CHAT_PATH) {
+    if (request.method !== "POST" || !ALLOWED_PATHS.has(url.pathname)) {
       return withCors(
         new Response(JSON.stringify({ error: "Ruta no disponible" }), {
           status: 404,

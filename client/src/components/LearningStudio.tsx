@@ -8,10 +8,14 @@ import {
   Check,
   ChevronRight,
   ClipboardPenLine,
+  CloudDownload,
+  CloudUpload,
+  Copy,
   Download,
   GraduationCap,
   LibraryBig,
   ListChecks,
+  KeyRound,
   PenLine,
   Share2,
   ShieldCheck,
@@ -21,6 +25,9 @@ import {
   WandSparkles,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { createSyncCode, decryptWorkspace, encryptWorkspace, isWorkspaceSnapshot, loadSyncCode, parseSyncCode, persistSyncCode, type WorkspaceSnapshot } from "@/lib/workspaceSync";
+import type { ChatState } from "@/lib/chatSession";
 
 type StudioTab = "library" | "tools" | "notes" | "study" | "progress" | "preferences";
 export type ResponseStyle = "brief" | "deep" | "creative" | "study";
@@ -32,6 +39,8 @@ type LearningStudioProps = {
   onClose: () => void;
   responseStyle: ResponseStyle;
   onResponseStyleChange: (style: ResponseStyle) => void;
+  chatState: ChatState;
+  onRestoreWorkspace: (snapshot: WorkspaceSnapshot) => void;
 };
 
 type StudioNote = { id: string; content: string; createdAt: number };
@@ -115,7 +124,7 @@ function escapePrintHtml(value: string) {
   return value.replace(/[&<>'"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character] ?? character);
 }
 
-export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onClose, responseStyle, onResponseStyleChange }: LearningStudioProps) {
+export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onClose, responseStyle, onResponseStyleChange, chatState, onRestoreWorkspace }: LearningStudioProps) {
   const [tab, setTab] = useState<StudioTab>("library");
   const [readingList, setReadingList] = useState(() => loadStringList(READING_STORAGE_KEY));
   const [notes, setNotes] = useState(() => loadNotes());
@@ -124,6 +133,10 @@ export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onC
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [copyState, setCopyState] = useState(false);
   const [progress, setProgress] = useState(loadProgress);
+  const [syncCode, setSyncCode] = useState(loadSyncCode);
+  const [syncStatus, setSyncStatus] = useState("");
+  const [syncCopied, setSyncCopied] = useState(false);
+  const workspaceSync = trpc.workspace.sync.useMutation();
   const copy = LIBRARY_COPY[language];
   const challenge = useMemo(() => WEEKLY_CHALLENGES[language][Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000)) % WEEKLY_CHALLENGES[language].length], [language]);
 
@@ -214,6 +227,57 @@ export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onC
     };
     reader.readAsText(file);
   };
+  const syncCopy = {
+    heading: language === "es" ? "Copia privada entre dispositivos" : language === "ru" ? "Личная копия между устройствами" : "Private copy across devices",
+    detail: language === "es" ? "Tu espacio se cifra en este navegador antes de enviarse. El servidor no puede leer tus conversaciones, notas ni progreso." : language === "ru" ? "Ваше пространство шифруется в этом браузере перед отправкой. Сервер не может прочитать ваши беседы, заметки или прогресс." : "Your space is encrypted in this browser before it is sent. The server cannot read your conversations, notes, or progress.",
+    codeLabel: language === "es" ? "Código privado de recuperación" : language === "ru" ? "Личный код восстановления" : "Private recovery code",
+    create: language === "es" ? "Crear código" : language === "ru" ? "Создать код" : "Create code",
+    copy: language === "es" ? "Copiar" : language === "ru" ? "Копировать" : "Copy",
+    copied: language === "es" ? "Copiado" : language === "ru" ? "Скопировано" : "Copied",
+    upload: language === "es" ? "Guardar copia cifrada" : language === "ru" ? "Сохранить зашифрованную копию" : "Save encrypted copy",
+    download: language === "es" ? "Recuperar mi copia" : language === "ru" ? "Восстановить мою копию" : "Restore my copy",
+    warning: language === "es" ? "Guarda este código fuera de este dispositivo. Sin él, nadie —incluido Edu AI— puede abrir tu copia." : language === "ru" ? "Сохраните этот код вне этого устройства. Без него никто, включая Edu AI, не сможет открыть вашу копию." : "Keep this code outside this device. Without it, nobody — including Edu AI — can open your copy.",
+  };
+  const snapshot = (): WorkspaceSnapshot => ({ version: 1, chatState, learning: { notes, readingList, progress }, language, responseStyle, syncedAt: new Date().toISOString() });
+  const createPrivateCode = () => {
+    const code = createSyncCode();
+    persistSyncCode(code);
+    setSyncCode(code);
+    setSyncStatus(language === "es" ? "Código creado. Cópialo y guárdalo antes de usar otra pantalla." : language === "ru" ? "Код создан. Скопируйте и сохраните его перед использованием другого устройства." : "Code created. Copy and store it before using another device.");
+  };
+  const copySyncCode = async () => {
+    if (!parseSyncCode(syncCode)) return;
+    try { await navigator.clipboard.writeText(syncCode); setSyncCopied(true); window.setTimeout(() => setSyncCopied(false), 1800); } catch { setSyncStatus(language === "es" ? "Selecciona y copia el código manualmente." : language === "ru" ? "Выделите и скопируйте код вручную." : "Select and copy the code manually."); }
+  };
+  const uploadWorkspace = async () => {
+    if (!persistSyncCode(syncCode)) { setSyncStatus(language === "es" ? "Introduce un código privado válido o crea uno nuevo." : language === "ru" ? "Введите действительный личный код или создайте новый." : "Enter a valid private code or create a new one."); return; }
+    try {
+      setSyncStatus(language === "es" ? "Cifrando y guardando tu copia…" : language === "ru" ? "Шифрование и сохранение вашей копии…" : "Encrypting and saving your copy…");
+      const encrypted = await encryptWorkspace(syncCode, snapshot());
+      await workspaceSync.mutateAsync({ action: "put", ...encrypted });
+      setSyncStatus(language === "es" ? "Copia cifrada guardada. Puedes usar el mismo código en otro dispositivo." : language === "ru" ? "Зашифрованная копия сохранена. Вы можете использовать тот же код на другом устройстве." : "Encrypted copy saved. You can use this same code on another device.");
+    } catch {
+      setSyncStatus(language === "es" ? "No se pudo guardar la copia ahora. Tu contenido local sigue intacto." : language === "ru" ? "Не удалось сохранить копию. Ваши локальные данные остались нетронутыми." : "Your copy could not be saved right now. Your local content remains untouched.");
+    }
+  };
+  const restoreWorkspace = async () => {
+    const token = parseSyncCode(syncCode);
+    if (!token || !persistSyncCode(syncCode)) { setSyncStatus(language === "es" ? "Introduce el código privado con el que creaste la copia." : language === "ru" ? "Введите личный код, с которым была создана копия." : "Enter the private code used to create the copy."); return; }
+    try {
+      setSyncStatus(language === "es" ? "Buscando y descifrando tu copia…" : language === "ru" ? "Поиск и расшифровка вашей копии…" : "Finding and decrypting your copy…");
+      const remote = await workspaceSync.mutateAsync({ action: "get", syncId: token.syncId });
+      if (!remote.found || !remote.ciphertext) { setSyncStatus(language === "es" ? "No encontramos una copia asociada a ese código." : language === "ru" ? "Копия, связанная с этим кодом, не найдена." : "We could not find a copy associated with that code."); return; }
+      const restored = await decryptWorkspace(syncCode, remote.ciphertext);
+      if (!isWorkspaceSnapshot(restored)) throw new Error("Invalid workspace");
+      onRestoreWorkspace(restored);
+      setNotes(restored.learning.notes);
+      setReadingList(restored.learning.readingList);
+      setProgress(restored.learning.progress);
+      setSyncStatus(language === "es" ? "Copia recuperada de forma privada. Tu espacio ya está actualizado." : language === "ru" ? "Копия восстановлена конфиденциально. Ваше пространство обновлено." : "Copy restored privately. Your space is now up to date.");
+    } catch {
+      setSyncStatus(language === "es" ? "No fue posible abrir esta copia. Verifica que el código sea correcto." : language === "ru" ? "Не удалось открыть эту копию. Проверьте правильность кода." : "This copy could not be opened. Check that the code is correct.");
+    }
+  };
 
   const navigation: Array<{ id: StudioTab; label: string; icon: typeof LibraryBig }> = [
     { id: "library", label: copy.library, icon: LibraryBig }, { id: "tools", label: copy.tools, icon: WandSparkles }, { id: "notes", label: copy.notes, icon: ClipboardPenLine }, { id: "study", label: copy.study, icon: GraduationCap }, { id: "progress", label: language === "es" ? "Progreso" : language === "ru" ? "Прогресс" : "Progress", icon: CalendarDays }, { id: "preferences", label: copy.preferences, icon: Brain },
@@ -257,7 +321,7 @@ export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onC
 
       {tab === "study" && <div className="studio-panel study-panel"><p className="studio-intro">{copy.studyIntro}</p><div className="study-form"><BookText size={23} /><input value={studyTopic} onChange={event => setStudyTopic(event.target.value)} placeholder={copy.studyPlaceholder} onKeyDown={event => event.key === "Enter" && startStudy()} /><button onClick={startStudy}><ListChecks size={15} />{copy.startStudy}</button></div><WeeklyChallenge copy={copy} challenge={challenge} /></div>}
 
-      {tab === "progress" && <div className="studio-panel progress-panel"><div className="progress-heading"><div><p className="overline">{language === "es" ? "TABLERO PERSONAL" : language === "ru" ? "ЛИЧНАЯ ПАНЕЛЬ" : "PERSONAL DASHBOARD"}</p><h3>{language === "es" ? "Un paso que sí cuenta" : language === "ru" ? "Шаг, который имеет значение" : "A step that counts"}</h3><p>{language === "es" ? "Tu avance se guarda de forma privada en este dispositivo. Puedes llevarte una copia cuando quieras." : language === "ru" ? "Ваш прогресс хранится приватно на этом устройстве. Вы можете забрать копию в любой момент." : "Your progress stays private on this device. You can take a copy whenever you want."}</p></div><ShieldCheck size={22} /></div><div className="progress-grid"><article><span>{language === "es" ? "Racha" : language === "ru" ? "Серия" : "Streak"}</span><strong>{streak}</strong><small>{language === "es" ? "días con intención" : language === "ru" ? "дней с намерением" : "intentional days"}</small></article><article><span>{language === "es" ? "Semana" : language === "ru" ? "Неделя" : "Week"}</span><strong>{Math.min(completedThisWeek, progress.weeklyGoal)}/{progress.weeklyGoal}</strong><small>{language === "es" ? "meta personal" : language === "ru" ? "личная цель" : "personal goal"}</small></article><article><span>{language === "es" ? "Cuaderno" : language === "ru" ? "Блокнот" : "Notebook"}</span><strong>{notes.length}</strong><small>{language === "es" ? "ideas guardadas" : language === "ru" ? "сохранённых идей" : "saved ideas"}</small></article></div><div className="progress-actions"><button className={isTodayComplete ? "progress-check complete" : "progress-check"} onClick={toggleToday}><Check size={16} />{isTodayComplete ? (language === "es" ? "Hoy ya cuenta" : language === "ru" ? "Сегодня уже отмечено" : "Today counts") : (language === "es" ? "Marcar mi avance de hoy" : language === "ru" ? "Отметить прогресс сегодня" : "Mark today’s progress")}</button><label>{language === "es" ? "Meta semanal" : language === "ru" ? "Недельная цель" : "Weekly goal"}<input type="range" min="1" max="7" value={progress.weeklyGoal} onChange={event => setProgress(current => ({ ...current, weeklyGoal: Number(event.target.value) }))} /><b>{progress.weeklyGoal}</b></label></div><div className="workspace-export"><button onClick={exportNotes}><Download size={15} />{language === "es" ? "Exportar cuaderno (.md)" : language === "ru" ? "Экспортировать блокнот (.md)" : "Export notebook (.md)"}</button><button onClick={exportNotesPdf}><Download size={15} />{language === "es" ? "Guardar cuaderno (.pdf)" : language === "ru" ? "Сохранить блокнот (.pdf)" : "Save notebook (.pdf)"}</button><button onClick={exportBackup}><Download size={15} />{language === "es" ? "Crear respaldo" : language === "ru" ? "Создать резервную копию" : "Create backup"}</button><label><Download size={15} />{language === "es" ? "Restaurar respaldo" : language === "ru" ? "Восстановить копию" : "Restore backup"}<input type="file" accept="application/json" onChange={event => { const file = event.target.files?.[0]; if (file) restoreBackup(file); event.currentTarget.value = ""; }} /></label></div></div>}
+      {tab === "progress" && <div className="studio-panel progress-panel"><div className="progress-heading"><div><p className="overline">{language === "es" ? "TABLERO PERSONAL" : language === "ru" ? "ЛИЧНАЯ ПАНЕЛЬ" : "PERSONAL DASHBOARD"}</p><h3>{language === "es" ? "Un paso que sí cuenta" : language === "ru" ? "Шаг, который имеет значение" : "A step that counts"}</h3><p>{language === "es" ? "Tu avance se guarda de forma privada en este dispositivo. Puedes llevarte una copia cuando quieras." : language === "ru" ? "Ваш прогресс хранится приватно на этом устройстве. Вы можете забрать копию в любой момент." : "Your progress stays private on this device. You can take a copy whenever you want."}</p></div><ShieldCheck size={22} /></div><div className="progress-grid"><article><span>{language === "es" ? "Racha" : language === "ru" ? "Серия" : "Streak"}</span><strong>{streak}</strong><small>{language === "es" ? "días con intención" : language === "ru" ? "дней с намерением" : "intentional days"}</small></article><article><span>{language === "es" ? "Semana" : language === "ru" ? "Неделя" : "Week"}</span><strong>{Math.min(completedThisWeek, progress.weeklyGoal)}/{progress.weeklyGoal}</strong><small>{language === "es" ? "meta personal" : language === "ru" ? "личная цель" : "personal goal"}</small></article><article><span>{language === "es" ? "Cuaderno" : language === "ru" ? "Блокнот" : "Notebook"}</span><strong>{notes.length}</strong><small>{language === "es" ? "ideas guardadas" : language === "ru" ? "сохранённых идей" : "saved ideas"}</small></article></div><div className="progress-actions"><button className={isTodayComplete ? "progress-check complete" : "progress-check"} onClick={toggleToday}><Check size={16} />{isTodayComplete ? (language === "es" ? "Hoy ya cuenta" : language === "ru" ? "Сегодня уже отмечено" : "Today counts") : (language === "es" ? "Marcar mi avance de hoy" : language === "ru" ? "Отметить прогресс сегодня" : "Mark today’s progress")}</button><label>{language === "es" ? "Meta semanal" : language === "ru" ? "Недельная цель" : "Weekly goal"}<input type="range" min="1" max="7" value={progress.weeklyGoal} onChange={event => setProgress(current => ({ ...current, weeklyGoal: Number(event.target.value) }))} /><b>{progress.weeklyGoal}</b></label></div><div className="workspace-export"><button onClick={exportNotes}><Download size={15} />{language === "es" ? "Exportar cuaderno (.md)" : language === "ru" ? "Экспортировать блокнот (.md)" : "Export notebook (.md)"}</button><button onClick={exportNotesPdf}><Download size={15} />{language === "es" ? "Guardar cuaderno (.pdf)" : language === "ru" ? "Сохранить блокнот (.pdf)" : "Save notebook (.pdf)"}</button><button onClick={exportBackup}><Download size={15} />{language === "es" ? "Crear respaldo" : language === "ru" ? "Создать резервную копию" : "Create backup"}</button><label><Download size={15} />{language === "es" ? "Restaurar respaldo" : language === "ru" ? "Восстановить копию" : "Restore backup"}<input type="file" accept="application/json" onChange={event => { const file = event.target.files?.[0]; if (file) restoreBackup(file); event.currentTarget.value = ""; }} /></label></div><section className="workspace-sync"><div className="workspace-sync-heading"><KeyRound size={18} /><div><h4>{syncCopy.heading}</h4><p>{syncCopy.detail}</p></div></div><label className="sync-code-field">{syncCopy.codeLabel}<input value={syncCode} onChange={event => setSyncCode(event.target.value)} placeholder="••••••••.••••••••" spellCheck="false" autoCapitalize="none" /></label><div className="workspace-sync-actions"><button onClick={createPrivateCode} disabled={workspaceSync.isPending}><KeyRound size={15} />{syncCopy.create}</button><button onClick={copySyncCode} disabled={!parseSyncCode(syncCode) || workspaceSync.isPending}><Copy size={15} />{syncCopied ? syncCopy.copied : syncCopy.copy}</button><button className="sync-save" onClick={uploadWorkspace} disabled={workspaceSync.isPending}><CloudUpload size={15} />{syncCopy.upload}</button><button className="sync-restore" onClick={restoreWorkspace} disabled={workspaceSync.isPending}><CloudDownload size={15} />{syncCopy.download}</button></div><p className="sync-warning"><ShieldCheck size={14} />{syncCopy.warning}</p>{syncStatus && <p className="sync-status" role="status">{syncStatus}</p>}</section></div>}
 
       {tab === "preferences" && <div className="studio-panel preferences-panel"><p className="studio-intro">{copy.preferencesIntro}</p><div className="preference-grid">{(["brief", "deep", "creative", "study"] as ResponseStyle[]).map(style => <button key={style} className={responseStyle === style ? "active" : ""} onClick={() => onResponseStyleChange(style)}><Sparkles size={15} /><span>{copy[style === "study" ? "studyStyle" : style]}</span>{responseStyle === style && <Check size={14} />}</button>)}</div>
         {latestAssistantMessage && <div className="insight-card"><p className="book-kicker">EDU AI</p><blockquote>{latestAssistantMessage}</blockquote><div><button onClick={toggleSpeech}>{isSpeaking ? <VolumeX size={15} /> : <Volume2 size={15} />}{isSpeaking ? copy.stop : copy.speak}</button><button onClick={shareInsight}><Share2 size={15} />{copyState ? copy.copied : copy.share}</button></div></div>}

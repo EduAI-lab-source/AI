@@ -20,7 +20,7 @@ describe("puerta de API de Edu AI", () => {
     expect(response.status).toBe(403);
   });
 
-  it("reenvía solo el procedimiento conversacional con CORS del sitio público", async () => {
+  it("reenvía el procedimiento conversacional con CORS del sitio público", async () => {
     const upstream = vi.fn().mockResolvedValue(new Response('{"ok":true}', { status: 200 }));
     vi.stubGlobal("fetch", upstream);
 
@@ -40,6 +40,42 @@ describe("puerta de API de Edu AI", () => {
     expect(url.toString()).toBe("https://edusearch-9qua9exp.manus.space/api/trpc/eduAi.chat?batch=1");
     expect(init.method).toBe("POST");
     expect(new Headers(init.headers).get("x-gateway-secret")).toBe("test-gateway-secret");
+  });
+
+  it("reenvía la sincronización cifrada sin exponer la clave del gateway al navegador", async () => {
+    const upstream = vi.fn().mockResolvedValue(new Response('{"result":{"data":{"saved":true}}}', { status: 200 }));
+    vi.stubGlobal("fetch", upstream);
+
+    const response = await worker.fetch(
+      new Request("https://api.textoavoz.xyz/api/trpc/workspace.sync", {
+        method: "POST",
+        headers: { origin: officialOrigin, "content-type": "application/json" },
+        body: "{}",
+      }),
+      env
+    );
+
+    expect(response.status).toBe(200);
+    const [url, init] = upstream.mock.calls[0] as [URL, RequestInit];
+    expect(url.toString()).toBe("https://edusearch-9qua9exp.manus.space/api/trpc/workspace.sync");
+    expect(new Headers(init.headers).get("x-gateway-secret")).toBe("test-gateway-secret");
+  });
+
+  it("rechaza procedimientos que no se encuentran explícitamente permitidos", async () => {
+    const upstream = vi.fn();
+    vi.stubGlobal("fetch", upstream);
+
+    const response = await worker.fetch(
+      new Request("https://api.textoavoz.xyz/api/trpc/workspace.delete", {
+        method: "POST",
+        headers: { origin: officialOrigin, "content-type": "application/json" },
+        body: "{}",
+      }),
+      env
+    );
+
+    expect(response.status).toBe(404);
+    expect(upstream).not.toHaveBeenCalled();
   });
 
   it.each([officialOrigin, "https://www.textoavoz.xyz"])("autoriza el origen público %s", async origin => {

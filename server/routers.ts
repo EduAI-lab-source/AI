@@ -7,6 +7,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM } from "./_core/llm";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
+import { getEncryptedWorkspace, saveEncryptedWorkspace } from "./db";
 
 const REQUEST_LIMIT = 18;
 const REQUEST_WINDOW_MS = 5 * 60 * 1000;
@@ -96,6 +97,35 @@ export const appRouter = router({
             message: "Edu AI no pudo responder en este momento. Inténtalo de nuevo en unos segundos.",
           });
         }
+      }),
+  }),
+  workspace: router({
+    sync: publicProcedure
+      .input(z.object({
+        action: z.enum(["get", "put"]),
+        syncId: z.string().regex(/^[A-Za-z0-9_-]{32,96}$/, "El identificador de sincronización no es válido."),
+        ciphertext: z.string().min(32).max(1_500_000).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (!hasValidEduAiGateway(ctx.req.headers, process.env.EDU_AI_GATEWAY_SECRET)) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "La puerta segura de Edu AI no autorizó la sincronización." });
+        }
+        assertRateLimit(ctx.req);
+
+        if (input.action === "get") {
+          const workspace = await getEncryptedWorkspace(input.syncId);
+          return {
+            found: Boolean(workspace),
+            ciphertext: workspace?.ciphertext ?? null,
+            updatedAt: workspace?.updatedAt?.toISOString() ?? null,
+          };
+        }
+
+        if (!input.ciphertext) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Falta la instantánea cifrada para sincronizar." });
+        }
+        await saveEncryptedWorkspace(input.syncId, input.ciphertext);
+        return { saved: true, updatedAt: new Date().toISOString() };
       }),
   }),
 });
