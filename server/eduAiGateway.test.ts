@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { hasValidEduAiGateway } from "./eduAiGateway";
 
 describe("protección del gateway de Edu AI", () => {
-  it("permite la compatibilidad temporal mientras no haya clave configurada", () => {
-    expect(hasValidEduAiGateway({}, undefined)).toBe(true);
+  it("deniega la solicitud si falta la clave de configuración", () => {
+    expect(hasValidEduAiGateway({}, undefined)).toBe(false);
   });
 
   it("acepta solo la clave compartida cuando se configura el gateway", () => {

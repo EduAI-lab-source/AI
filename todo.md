@@ -189,3 +189,4 @@
 - [ ] Vincular `api.textoavoz.xyz` cuando la zona de Cloudflare esté activa
 - [ ] Migrar GitHub Pages a la URL definitiva de la API y validar una conversación pública
 - [ ] Documentar el estado, guardar el checkpoint y publicar los cambios de configuración no secretos
+- [ ] Rechazar el chat de producción si falta o no coincide la clave privada del gateway
