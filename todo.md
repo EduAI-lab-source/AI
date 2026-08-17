@@ -136,7 +136,7 @@
 - [x] Actualizar el título del navegador para reflejar Edu AI
 - [x] Verificar el reinicio de conversación y la memoria de contexto en sesión
 - [ ] Definir un endpoint protegido para que el chat generativo funcione fuera de la vista previa
-- [ ] Actualizar la publicación pública sin exponer ninguna clave de IA
+- [x] Actualizar la publicación pública sin exponer ninguna clave de IA
 
 ## Rediseño visual distintivo y responsivo
 - [x] Crear una dirección de arte propia, cálida y memorable para Edu AI, lejos de una interfaz genérica de IA
