@@ -55,11 +55,52 @@
 - [x] Entregar formalmente la versión y explicar la publicación en GitHub Pages
 
 ## Publicación en GitHub Pages
-- [ ] Verificar el estado final del repositorio y de la compilación estática
-- [ ] Crear el repositorio público `edu-ai` y subir la rama `main`
-- [ ] Activar el despliegue con GitHub Pages y confirmar la URL publicada
-- [ ] Entregar el enlace público de Edu AI
+- [x] Verificar el estado final del repositorio y de la compilación estática
+- [x] Crear el repositorio público `edu-ai` y subir la rama `main`
+- [x] Activar el despliegue con GitHub Pages y confirmar la URL publicada
+- [x] Entregar el enlace público de Edu AI
 
 ## Verificaciones de publicación
-- [ ] Confirmar en GitHub la disponibilidad o creación del repositorio público `edu-ai`
-- [ ] Incluir los cambios locales de publicación en el commit que se envíe a GitHub
+- [x] Confirmar en GitHub la disponibilidad o creación del repositorio público `edu-ai`
+- [x] Incluir los cambios locales de publicación en el commit que se envíe a GitHub
+
+## Método alternativo de GitHub Pages
+- [x] Publicar el código fuente sin el workflow restringido por el token
+- [x] Subir la compilación estática a la rama `gh-pages`
+- [x] Configurar GitHub Pages para servir la rama `gh-pages`
+
+## Cambio de dirección pública
+- [ ] Renombrar el repositorio de `edu-ai` a `EdwardAI`
+- [ ] Confirmar que GitHub Pages publica desde `gh-pages` tras el cambio
+- [ ] Verificar `https://compressnow.github.io/EdwardAI/` y comunicar el enlace actualizado
+
+## Cambio final de nombre
+- [x] Renombrar el repositorio de `EdwardAI` a `EdAI`
+- [x] Confirmar GitHub Pages en `https://compressnow.github.io/EdAI/`
+- [x] Entregar el enlace actualizado de EdAI
+
+## Cambio de usuario de GitHub
+- [ ] Comprobar disponibilidad de `EduAI` y registrar el cambio global de usuario
+- [ ] Actualizar el nombre de usuario de GitHub de `CompressNow` a `EduAI`
+- [ ] Verificar el repositorio EdAI y GitHub Pages bajo el nuevo usuario
+- [ ] Entregar la nueva URL pública sin `compressnow`
+
+## Nombre alternativo seleccionado
+- [ ] Cambiar el nombre de usuario de GitHub de `CompressNow` a `EduAI-lab`
+- [ ] Verificar `EdAI` y GitHub Pages bajo `EduAI-lab`
+- [ ] Entregar la URL pública `https://eduai-lab.github.io/EdAI/`
+
+## Segundo nombre alternativo disponible
+- [x] Cambiar el nombre de usuario de GitHub de `CompressNow` a `EduAI-lab-source`
+- [x] Verificar EdAI y GitHub Pages bajo `EduAI-lab-source`
+- [x] Entregar la URL pública con el nuevo nombre de usuario
+
+## Enlaces posteriores al cambio de usuario
+- [x] Actualizar el enlace público asociado al repositorio EdAI
+- [x] Actualizar el remoto local de Git al nuevo propietario del repositorio
+
+## Resultado de disponibilidad
+- [x] Confirmar que los nombres `EduAI` y `EduAI-lab` no estaban disponibles en GitHub
+
+## Comunicación de cierre
+- [x] Comunicar la nueva URL final de EdAI bajo `EduAI-lab-source`

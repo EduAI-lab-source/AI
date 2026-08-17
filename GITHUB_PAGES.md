@@ -2,14 +2,14 @@
 
 Edu AI está preparado para funcionar como un **sitio estático**. El catálogo, la búsqueda instantánea, los filtros, el ordenamiento, las fichas detalladas y el modo catálogo de Edu AI se publican sin base de datos, sin servidor y sin claves privadas. Esto lo hace apropiado para GitHub Pages.
 
-## Publicación automática
+## Publicación desde una rama estática
 
-El repositorio incluye `.github/workflows/deploy-pages.yml`. Una vez que el código esté en GitHub:
+La versión pública se publica desde la rama `gh-pages`. Esta rama contiene únicamente la compilación estática, por lo que no necesita base de datos, servidor ni secretos.
 
 1. Abre **Settings → Pages** dentro del repositorio.
-2. En **Build and deployment**, elige **GitHub Actions** como fuente.
-3. Haz `push` a la rama `main`, o ejecuta manualmente el flujo **Desplegar Edu AI en GitHub Pages** desde la pestaña **Actions**.
-4. GitHub mostrará la URL pública en la ejecución del flujo y en **Settings → Pages**.
+2. En **Build and deployment**, elige **Deploy from a branch**.
+3. Selecciona la rama `gh-pages` y la carpeta raíz (`/`).
+4. GitHub mostrará la URL pública en **Settings → Pages** cuando termine de preparar el sitio.
 
 > GitHub Pages hospeda archivos estáticos. Su disponibilidad, límites y condiciones dependen de GitHub, por lo que no es posible prometer alojamiento indefinido de forma absoluta. Sin embargo, mientras el repositorio, GitHub Pages y sus condiciones sigan activos, el directorio no requiere pagos mensuales, servidor propio ni una base de datos para funcionar.
 
