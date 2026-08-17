@@ -8,6 +8,10 @@
     {
       "pattern": "api.textoavoz.xyz",
       "custom_domain": true
+    },
+    {
+      "pattern": "textoavoz.xyz/api/oauth/callback*",
+      "zone_name": "textoavoz.xyz"
     }
   ],
   "observability": {

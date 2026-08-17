@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { encryptedWorkspaces, InsertUser, users } from "../drizzle/schema";
+import { accountEncryptedWorkspaces, encryptedWorkspaces, InsertUser, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -107,6 +107,28 @@ export async function saveEncryptedWorkspace(syncId: string, ciphertext: string)
   if (!db) throw new Error("La sincronización privada no está disponible en este momento.");
 
   await db.insert(encryptedWorkspaces).values({ syncId, ciphertext }).onDuplicateKeyUpdate({
+    set: { ciphertext, updatedAt: new Date() },
+  });
+}
+
+export async function getAccountEncryptedWorkspace(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select({ ciphertext: accountEncryptedWorkspaces.ciphertext, updatedAt: accountEncryptedWorkspaces.updatedAt })
+    .from(accountEncryptedWorkspaces)
+    .where(eq(accountEncryptedWorkspaces.userId, userId))
+    .limit(1);
+
+  return result[0];
+}
+
+export async function saveAccountEncryptedWorkspace(userId: number, ciphertext: string) {
+  const db = await getDb();
+  if (!db) throw new Error("La sincronización de cuenta no está disponible en este momento.");
+
+  await db.insert(accountEncryptedWorkspaces).values({ userId, ciphertext }).onDuplicateKeyUpdate({
     set: { ciphertext, updatedAt: new Date() },
   });
 }

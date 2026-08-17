@@ -48,7 +48,6 @@ const trpcClient = trpc.createClient({
       url: eduAiApiBase ? `${eduAiApiBase}/api/trpc` : "/api/trpc",
       transformer: superjson,
       headers() {
-        if (eduAiApiBase) return {};
         // Preview auto-login fallback: when the browser blocks iframe cookies
         // (Safari ITP / private browsing / WebView), the runtime mirrors the
         // session into sessionStorage so we can forward it as a Bearer token.
@@ -71,7 +70,9 @@ const trpcClient = trpc.createClient({
       fetch(input, init) {
         return globalThis.fetch(input, {
           ...(init ?? {}),
-          credentials: eduAiApiBase ? "omit" : "include",
+          // The public API accepts the host-scoped OAuth session cookie after
+          // the narrow callback proxy has completed the login handshake.
+          credentials: "include",
         });
       },
     }),

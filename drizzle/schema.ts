@@ -138,6 +138,13 @@ export const encryptedWorkspaces = mysqlTable("encrypted_workspaces", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+/** One opaque workspace snapshot per authenticated account. The browser encrypts it before storage. */
+export const accountEncryptedWorkspaces = mysqlTable("account_encrypted_workspaces", {
+  userId: int("userId").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  ciphertext: text("ciphertext").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export type ConversationFolder = typeof conversationFolders.$inferSelect;
 export type Conversation = typeof conversations.$inferSelect;
 export type ConversationMessageRow = typeof conversationMessages.$inferSelect;

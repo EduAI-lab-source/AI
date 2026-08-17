@@ -6,8 +6,8 @@ import { hasValidEduAiGateway } from "./eduAiGateway";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM } from "./_core/llm";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
-import { getEncryptedWorkspace, saveEncryptedWorkspace } from "./db";
+import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { getAccountEncryptedWorkspace, getEncryptedWorkspace, saveAccountEncryptedWorkspace, saveEncryptedWorkspace } from "./db";
 
 const REQUEST_LIMIT = 18;
 const REQUEST_WINDOW_MS = 5 * 60 * 1000;
@@ -125,6 +125,26 @@ export const appRouter = router({
           throw new TRPCError({ code: "BAD_REQUEST", message: "Falta la instantánea cifrada para sincronizar." });
         }
         await saveEncryptedWorkspace(input.syncId, input.ciphertext);
+        return { saved: true, updatedAt: new Date().toISOString() };
+      }),
+    accountSync: protectedProcedure
+      .input(z.object({
+        action: z.enum(["get", "put"]),
+        ciphertext: z.string().min(32).max(1_500_000).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (!hasValidEduAiGateway(ctx.req.headers, process.env.EDU_AI_GATEWAY_SECRET)) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "La puerta segura de Edu AI no autorizó la sincronización de cuenta." });
+        }
+
+        if (input.action === "get") {
+          const workspace = await getAccountEncryptedWorkspace(ctx.user.id);
+          return { found: Boolean(workspace), ciphertext: workspace?.ciphertext ?? null, updatedAt: workspace?.updatedAt?.toISOString() ?? null };
+        }
+        if (!input.ciphertext) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Falta la instantánea cifrada para sincronizar." });
+        }
+        await saveAccountEncryptedWorkspace(ctx.user.id, input.ciphertext);
         return { saved: true, updatedAt: new Date().toISOString() };
       }),
   }),

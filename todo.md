@@ -284,13 +284,16 @@
 - [x] Publicar y verificar en el navegador conectado que Chrome muestra una conexión segura
 
 ## Evolución integral de Edu AI
-- [ ] Diseñar modelos persistentes y privados para conversaciones, carpetas, notas, preferencias y progreso por usuario
-- [ ] Crear sincronización autenticada para conservar el espacio personal entre dispositivos sin perder el modo local actual
-- [ ] Añadir carpetas, etiquetas, títulos editables, favoritos y búsqueda dentro del historial de conversaciones
-- [ ] Incorporar un panel de progreso con metas semanales, rachas, actividad y avance de rutas de estudio
-- [ ] Permitir cargar documentos e imágenes para obtener un resumen, explicación, tarjetas de estudio o plan de aprendizaje
-- [ ] Añadir dictado por voz con controles claros de inicio, transcripción, revisión y envío
-- [ ] Permitir exportar notas, conversaciones y rutas de estudio como Markdown y PDF
+- [x] Habilitar el callback OAuth y el transporte de sesión desde `textoavoz.xyz` hacia la API pública sin exponer credenciales
+- [x] Mostrar un acceso voluntario de cuenta y su estado de sesión para activar la futura sincronización por cuenta
+- [ ] Publicar la interfaz de cuenta y validar el estado de sesión desde `textoavoz.xyz`
+- [x] Diseñar modelos persistentes y privados para conversaciones, carpetas, notas, preferencias y progreso por usuario
+- [x] Crear sincronización autenticada para conservar el espacio personal entre dispositivos sin perder el modo local actual
+- [x] Añadir carpetas, etiquetas, títulos editables, favoritos y búsqueda dentro del historial de conversaciones
+- [x] Incorporar un panel de progreso con metas semanales, rachas, actividad y avance de rutas de estudio
+- [x] Permitir cargar documentos e imágenes para obtener un resumen, explicación, tarjetas de estudio o plan de aprendizaje
+- [x] Añadir dictado por voz con controles claros de inicio, transcripción, revisión y envío
+- [x] Permitir exportar notas, conversaciones y rutas de estudio como Markdown y PDF
 - [ ] Crear enlaces compartibles con selección consciente de contenido, vista previa y revocación
 - [ ] Mantener soporte trilingüe, accesibilidad, privacidad de datos y diseño responsive en cada flujo nuevo
 - [ ] Añadir pruebas, validación visual en escritorio y móvil, y publicación de la versión integral
