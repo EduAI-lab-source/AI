@@ -9,7 +9,7 @@
 - [x] Verificar en navegador que una instantánea restaurada actualiza conversaciones, preferencias y notas tras descifrar la carga remota
 - [x] Añadir evidencia automatizada y accesible de la preferencia activa restaurada desde una instantánea cifrada
 - [x] Publicar el marcado accesible de preferencias y verificar el estado restaurado en la interfaz oficial
-- [ ] Guardar un checkpoint de Manus que incluya la sincronización cifrada, las pruebas y la verificación de accesibilidad
+- [x] Guardar un checkpoint de Manus que incluya la sincronización cifrada, las pruebas y la verificación de accesibilidad
 - [x] Migración aplicada a la base de datos (no aplicable: la publicación estática no depende de una base de datos)
 - [x] Seed de 40+ herramientas curadas con datos completos
 - [x] Helper de consultas en server/db.ts (no aplicable: la búsqueda instantánea opera de forma local en el navegador)
@@ -288,7 +288,7 @@
 ## Evolución integral de Edu AI
 - [x] Retirar de la interfaz pública los botones y textos de inicio de sesión externo
 - [x] Mantener disponibles para todos el chat, el estudio y la copia privada cifrada sin cuenta
-- [ ] Verificar y publicar Edu AI como experiencia pública sin cuentas obligatorias
+- [x] Verificar y publicar Edu AI como experiencia pública sin cuentas obligatorias
 - [x] Habilitar el callback OAuth y el transporte de sesión desde `textoavoz.xyz` hacia la API pública sin exponer credenciales
 - [x] Mostrar un acceso voluntario de cuenta y su estado de sesión para activar la futura sincronización por cuenta
 - [x] Publicar la interfaz de cuenta y validar el estado de sesión desde `textoavoz.xyz`
@@ -303,7 +303,9 @@
 - [x] Permitir cargar documentos e imágenes para obtener un resumen, explicación, tarjetas de estudio o plan de aprendizaje
 - [x] Añadir dictado por voz con controles claros de inicio, transcripción, revisión y envío
 - [x] Permitir exportar notas, conversaciones y rutas de estudio como Markdown y PDF
-- [ ] Crear enlaces compartibles con selección consciente de contenido, vista previa y revocación
-- [ ] Permitir compartir de forma explícita el cuaderno seleccionado con vista previa, expiración y revocación desde una cuenta conectada
-- [ ] Mantener soporte trilingüe, accesibilidad, privacidad de datos y diseño responsive en cada flujo nuevo
-- [ ] Añadir pruebas, validación visual en escritorio y móvil, y publicación de la versión integral
+- [x] Retirar de la experiencia pública los enlaces compartibles dependientes de cuenta para evitar accesos externos obligatorios
+- [x] Retirar el panel de compartición del cuaderno asociado a una cuenta y conservar la exportación local sin registro
+- [x] Mantener soporte trilingüe, accesibilidad, privacidad de datos y diseño responsive en la experiencia pública
+- [x] Añadir pruebas, validación visual en escritorio y móvil, y publicación de la versión integral
+- [x] Restablecer el control del navegador y confirmar la propagación de la versión pública sin cuentas
+- [x] Evaluar requisitos, políticas y viabilidad de monetización con Google AdSense para Edu AI antes de cualquier integración
