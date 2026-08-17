@@ -286,6 +286,9 @@
 - [x] Publicar y verificar en el navegador conectado que Chrome muestra una conexión segura
 
 ## Evolución integral de Edu AI
+- [x] Retirar de la interfaz pública los botones y textos de inicio de sesión externo
+- [x] Mantener disponibles para todos el chat, el estudio y la copia privada cifrada sin cuenta
+- [ ] Verificar y publicar Edu AI como experiencia pública sin cuentas obligatorias
 - [x] Habilitar el callback OAuth y el transporte de sesión desde `textoavoz.xyz` hacia la API pública sin exponer credenciales
 - [x] Mostrar un acceso voluntario de cuenta y su estado de sesión para activar la futura sincronización por cuenta
 - [x] Publicar la interfaz de cuenta y validar el estado de sesión desde `textoavoz.xyz`

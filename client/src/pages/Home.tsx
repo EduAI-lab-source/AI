@@ -19,13 +19,10 @@ import { COPY, LANGUAGE_OPTIONS, getLocale, loadLanguage, saveLanguage, type App
 import { trpc } from "@/lib/trpc";
 import { workspaceStateFromSnapshot } from "@/lib/workspaceRestore";
 import { parseSharedNotebookSnapshot } from "@/lib/sharedNotebook";
-import { startLogin } from "@/const";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { ArrowUpRight, Bot, BookOpen, CirclePlus, Cloud, Eraser, FolderPlus, Languages, LibraryBig, Link2, LogIn, Menu, MessageSquareText, Search, ShieldCheck, Sparkles, Star, Trash2, UserRound, X } from "lucide-react";
+import { ArrowUpRight, Bot, BookOpen, CirclePlus, Eraser, FolderPlus, Languages, LibraryBig, Link2, Menu, MessageSquareText, Search, ShieldCheck, Sparkles, Star, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 export default function Home() {
-  const { user, isAuthenticated, loading: isAuthLoading } = useAuth();
   const [sharedToken, setSharedToken] = useState(() => getSharedToken());
   const [chatState, setChatState] = useState(loadChatState);
   const [pendingThreadId, setPendingThreadId] = useState<string | null>(null);
@@ -145,12 +142,6 @@ export default function Home() {
     onOpenLearning: () => { setIsLearningOpen(true); setIsHistoryOpen(false); },
   };
   const learningLabel = language === "es" ? "Mi espacio" : language === "ru" ? "Моё пространство" : "My space";
-  const accountLabel = isAuthenticated
-    ? (user?.name ? user.name.split(" ")[0] : language === "es" ? "Mi cuenta" : language === "ru" ? "Мой аккаунт" : "My account")
-    : language === "es" ? "Guardar con cuenta" : language === "ru" ? "Сохранить с аккаунтом" : "Save with account";
-  const accountHint = isAuthenticated
-    ? (language === "es" ? "Cuenta conectada" : language === "ru" ? "Аккаунт подключён" : "Account connected")
-    : language === "es" ? "Conecta tu cuenta para sincronizar próximamente" : language === "ru" ? "Подключите аккаунт для будущей синхронизации" : "Connect your account for upcoming sync";
   const latestAssistantMessage = [...activeThread.messages].reverse().find(message => message.role === "assistant")?.content;
   const deleteTarget = chatState.threads.find(thread => thread.id === deleteTargetId);
 
@@ -170,10 +161,10 @@ export default function Home() {
         </div>
         <header className="conversation-header">
           <div><span className="status-line"><i /> {copy.statusLine}</span><h1>{hasConversation ? activeThread.title : <>{copy.heroTitle}<br /><em>{copy.heroEmphasis}</em></>}</h1><p className="header-subtitle">{copy.headerSubtitle}</p></div>
-          <div className="header-actions"><button className="learning-entry" onClick={() => setIsLearningOpen(current => !current)} aria-pressed={isLearningOpen}><LibraryBig size={15} />{learningLabel}</button><button className={`account-entry${isAuthenticated ? " account-entry-active" : ""}`} onClick={() => { if (!isAuthenticated && !isAuthLoading) startLogin(); }} disabled={isAuthLoading} aria-label={accountHint} title={accountHint}>{isAuthenticated ? <UserRound size={14} /> : <LogIn size={14} />}<span>{isAuthLoading ? (language === "es" ? "Comprobando…" : language === "ru" ? "Проверка…" : "Checking…") : accountLabel}</span>{isAuthenticated && <Cloud size={12} aria-hidden="true" />}</button><LanguagePicker language={language} copy={copy} onChange={setLanguage} /><span className="header-mark" aria-hidden="true"><Sparkles size={17} /></span></div>
+          <div className="header-actions"><button className="learning-entry" onClick={() => setIsLearningOpen(current => !current)} aria-pressed={isLearningOpen}><LibraryBig size={15} />{learningLabel}</button><LanguagePicker language={language} copy={copy} onChange={setLanguage} /><span className="header-mark" aria-hidden="true"><Sparkles size={17} /></span></div>
         </header>
         <div className="conversation-stage">
-          {isLearningOpen ? <LearningStudio language={language} latestAssistantMessage={latestAssistantMessage} onAskEdu={sendMessage} onClose={() => setIsLearningOpen(false)} responseStyle={responseStyle} onResponseStyleChange={setResponseStyle} chatState={chatState} accountConnected={isAuthenticated} onConnectAccount={() => { if (!isAuthLoading) startLogin(); }} onRestoreWorkspace={snapshot => { const restored = workspaceStateFromSnapshot(snapshot); setChatState(restored.chatState); setLanguage(restored.language); setResponseStyle(restored.responseStyle); }} /> : <>
+          {isLearningOpen ? <LearningStudio language={language} latestAssistantMessage={latestAssistantMessage} onAskEdu={sendMessage} onClose={() => setIsLearningOpen(false)} responseStyle={responseStyle} onResponseStyleChange={setResponseStyle} chatState={chatState} onRestoreWorkspace={snapshot => { const restored = workspaceStateFromSnapshot(snapshot); setChatState(restored.chatState); setLanguage(restored.language); setResponseStyle(restored.responseStyle); }} /> : <>
             {!hasConversation && <section className="conversation-intro">
               <div className="intro-mark"><span /><Sparkles size={20} /></div>
               <div className="intro-copy"><p className="overline">{copy.introOverline}</p><h2>{copy.introTitle}<br /><em>{copy.introEmphasis}</em></h2><p>{copy.introDescription}</p><div className="intro-whisper"><span>{copy.introWhisper}</span><ArrowUpRight size={15} /></div></div>

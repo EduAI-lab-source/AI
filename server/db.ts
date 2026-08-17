@@ -1,5 +1,5 @@
-import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import { and, eq } from "drizzle-orm";
 import { accountEncryptedWorkspaces, encryptedWorkspaces, InsertUser, sharedLearningLinks, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
