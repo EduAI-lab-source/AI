@@ -9,7 +9,7 @@ describe("chatRuntime", () => {
 
   it("conecta GitHub Pages al backend público protegido", () => {
     expect(getEduAiApiBase(undefined, "eduai-lab-source.github.io")).toBe(EDU_AI_PUBLIC_BACKEND);
-    expect(EDU_AI_PUBLIC_BACKEND).toBe("https://eduai-api.edufirevip.workers.dev");
+    expect(EDU_AI_PUBLIC_BACKEND).toBe("https://api.textoavoz.xyz");
     expect(isChatTransportAvailable({ hostname: "eduai-lab-source.github.io" })).toBe(true);
   });
 

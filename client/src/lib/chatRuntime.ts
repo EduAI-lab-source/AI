@@ -3,9 +3,8 @@ export type ChatRuntimeConfig = {
   hostname?: string;
 };
 
-// El Worker conserva las credenciales del modelo fuera de GitHub Pages. Cuando
-// `api.textoavoz.xyz` termine de propagarse, esta URL se sustituirá por el dominio propio.
-export const EDU_AI_PUBLIC_BACKEND = "https://eduai-api.edufirevip.workers.dev";
+// El Worker conserva las credenciales del modelo fuera de GitHub Pages.
+export const EDU_AI_PUBLIC_BACKEND = "https://api.textoavoz.xyz";
 const GITHUB_PAGES_HOSTNAME = "eduai-lab-source.github.io";
 
 export function resolveEduAiApiBase(value?: string) {

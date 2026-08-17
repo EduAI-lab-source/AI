@@ -156,25 +156,25 @@
 - [x] Reintentar la propagación estática cuando GitHub Pages deje de reportar su error temporal de despliegue
 
 ## Dominio profesional del backend
-- [ ] Preparar api.textoavoz.xyz como subdominio del backend de Edu AI
-- [ ] Configurar el registro DNS autorizado en Hostinger sin alterar el dominio principal
-- [ ] Validar HTTPS, CORS y la conversación pública desde el dominio propio
+- [x] Preparar api.textoavoz.xyz como subdominio del backend de Edu AI
+- [x] Configurar el registro DNS autorizado en Hostinger sin alterar el dominio principal
+- [x] Validar HTTPS, CORS y la conversación pública desde el dominio propio
 
 ## Continuidad de Edu AI
-- [ ] Mantener el backend conversacional publicado como servicio de Edu AI sin depender de la interfaz estática
+- [x] Mantener el backend conversacional publicado como servicio de Edu AI sin depender de la interfaz estática
 - [ ] Usar exclusivamente api.textoavoz.xyz para la API sin redirigir ni modificar textoavoz.xyz
 - [x] Documentar los límites de disponibilidad del proveedor sin presentar una garantía de permanencia absoluta
 
 ## Arquitectura durable con dominio propio
-- [ ] Definir una ruta de alojamiento mantenible para el backend de Edu AI y api.textoavoz.xyz
-- [ ] Mantener las credenciales del modelo exclusivamente en el servidor elegido
-- [ ] Preparar una vinculación HTTPS verificable sin cambiar el dominio raíz textoavoz.xyz
+- [x] Definir una ruta de alojamiento mantenible para el backend de Edu AI y api.textoavoz.xyz
+- [x] Mantener las credenciales del modelo exclusivamente en el servidor elegido
+- [x] Preparar una vinculación HTTPS verificable sin cambiar el dominio raíz textoavoz.xyz
 - [ ] Validar la continuidad del sitio público y de las conversaciones tras la migración
 
 ## Puerta de API en Cloudflare
-- [ ] Inspeccionar la zona activa de textoavoz.xyz sin modificar DNS existentes
-- [ ] Preparar un Worker que reenvíe solo la API de Edu AI y restrinja los orígenes permitidos
-- [ ] Solicitar confirmación antes de desplegar el Worker o cambiar nameservers y registros
+- [x] Inspeccionar la zona activa de textoavoz.xyz sin modificar DNS existentes
+- [x] Preparar un Worker que reenvíe solo la API de Edu AI y restrinja los orígenes permitidos
+- [x] Solicitar confirmación antes de desplegar el Worker o cambiar nameservers y registros
 - [ ] Vincular api.textoavoz.xyz, verificar HTTPS y migrar el sitio público a la nueva URL
 
 ## Interfaz trilingüe
@@ -186,7 +186,8 @@
 - [x] Validar y desplegar el proxy restringido para el procedimiento conversacional de Edu AI
 - [x] Configurar la autenticación privada entre el Worker y el backend publicado
 - [x] Verificar el Worker mediante workers.dev sin exponer la clave del modelo
-- [ ] Vincular `api.textoavoz.xyz` cuando la zona de Cloudflare esté activa
+- [x] Vincular `api.textoavoz.xyz` cuando la zona de Cloudflare esté activa
 - [ ] Migrar GitHub Pages a la URL definitiva de la API y validar una conversación pública
 - [ ] Documentar el estado, guardar el checkpoint y publicar los cambios de configuración no secretos
-- [ ] Rechazar el chat de producción si falta o no coincide la clave privada del gateway
+- [x] Rechazar el chat de producción si falta o no coincide la clave privada del gateway
+- [x] Resolver y verificar el reenvío autenticado Worker → backend tras activar el cierre por defecto
