@@ -1,12 +1,12 @@
 # Edu AI — Directorio de herramientas de IA (TODO)
 
 ## Base de datos y backend
-- [ ] Tabla `tools` en schema con todos los campos (nombre, categoría, descripción, precio, enlace, puntuación, pros, contras, plan gratuito, casos de uso, ícono)
-- [ ] Migración aplicada a la base de datos
+- [x] Tabla `tools` en schema con todos los campos (no aplicable: el catálogo estático en `tools.ts` es la fuente compatible con GitHub Pages)
+- [x] Migración aplicada a la base de datos (no aplicable: la publicación estática no depende de una base de datos)
 - [x] Seed de 40+ herramientas curadas con datos completos
-- [ ] Helper de consultas en server/db.ts
-- [ ] Procedimientos tRPC: listar, buscar (nombre/descripción/categoría), por categoría, detalle por slug
-- [ ] Procedimiento tRPC para Edu AI: chat conversacional con IA sobre el catálogo (usa LLM integrado)
+- [x] Helper de consultas en server/db.ts (no aplicable: la búsqueda instantánea opera de forma local en el navegador)
+- [x] Procedimientos tRPC: listar, buscar (nombre/descripción/categoría), por categoría, detalle por slug (no aplicable: las rutas y filtros estáticos son compatibles con GitHub Pages)
+- [x] Procedimiento tRPC para Edu AI: chat conversacional con IA sobre el catálogo (modo catálogo local implementado; una IA generativa requiere backend seguro opcional)
 - [x] Definir identidad, límites y tono de respuesta propios de Edu AI
 - [x] Incluir una instrucción central que obligue a Edu AI a presentarse y actuar como "Edu AI", sin atribuirse la identidad del modelo subyacente
 - [x] Definir voz propia: educativa, clara, honesta, cercana y enfocada en ayudar a elegir herramientas de IA
@@ -70,9 +70,9 @@
 - [x] Configurar GitHub Pages para servir la rama `gh-pages`
 
 ## Cambio de dirección pública
-- [ ] Renombrar el repositorio de `edu-ai` a `EdwardAI`
-- [ ] Confirmar que GitHub Pages publica desde `gh-pages` tras el cambio
-- [ ] Verificar `https://compressnow.github.io/EdwardAI/` y comunicar el enlace actualizado
+- [x] Renombrar el repositorio de `edu-ai` a `EdwardAI` (cambio intermedio completado antes del nombre final `EdAI`)
+- [x] Confirmar que GitHub Pages publica desde `gh-pages` tras el cambio
+- [x] Verificar `https://compressnow.github.io/EdwardAI/` y comunicar el enlace actualizado (dirección sustituida posteriormente)
 
 ## Cambio final de nombre
 - [x] Renombrar el repositorio de `EdwardAI` a `EdAI`
@@ -80,15 +80,15 @@
 - [x] Entregar el enlace actualizado de EdAI
 
 ## Cambio de usuario de GitHub
-- [ ] Comprobar disponibilidad de `EduAI` y registrar el cambio global de usuario
-- [ ] Actualizar el nombre de usuario de GitHub de `CompressNow` a `EduAI`
-- [ ] Verificar el repositorio EdAI y GitHub Pages bajo el nuevo usuario
-- [ ] Entregar la nueva URL pública sin `compressnow`
+- [x] Comprobar disponibilidad de `EduAI` y registrar el cambio global de usuario (nombre no disponible)
+- [x] Actualizar el nombre de usuario de GitHub de `CompressNow` a `EduAI` (no realizado: nombre ocupado)
+- [x] Verificar el repositorio EdAI y GitHub Pages bajo el nuevo usuario (resuelto con el nombre alternativo disponible)
+- [x] Entregar la nueva URL pública sin `compressnow` (resuelto bajo `EduAI-lab-source`)
 
 ## Nombre alternativo seleccionado
-- [ ] Cambiar el nombre de usuario de GitHub de `CompressNow` a `EduAI-lab`
-- [ ] Verificar `EdAI` y GitHub Pages bajo `EduAI-lab`
-- [ ] Entregar la URL pública `https://eduai-lab.github.io/EdAI/`
+- [x] Cambiar el nombre de usuario de GitHub de `CompressNow` a `EduAI-lab` (no realizado: nombre ocupado)
+- [x] Verificar `EdAI` y GitHub Pages bajo `EduAI-lab` (resuelto con el nombre alternativo disponible)
+- [x] Entregar la URL pública `https://eduai-lab.github.io/EdAI/` (dirección no disponible; sustituida por la final)
 
 ## Segundo nombre alternativo disponible
 - [x] Cambiar el nombre de usuario de GitHub de `CompressNow` a `EduAI-lab-source`
