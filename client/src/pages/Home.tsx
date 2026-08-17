@@ -1,5 +1,6 @@
 import { AIChatBox } from "@/components/AIChatBox";
 import { LearningStudio, type ResponseStyle } from "@/components/LearningStudio";
+import type { ChatImageAttachment } from "@/components/AIChatBox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import {
   describeThreadRecency,
@@ -8,12 +9,15 @@ import {
   replaceThreadMessages,
   saveChatState,
   startFreshConversation,
+  addConversationFolder,
+  updateConversationOrganization,
+  type ConversationFolder,
   type ConversationMessage,
 } from "@/lib/chatSession";
 import { getEduAiApiBase, humanizeChatError, isChatTransportAvailable } from "@/lib/chatRuntime";
 import { COPY, LANGUAGE_OPTIONS, getLocale, loadLanguage, saveLanguage, type AppCopy, type AppLanguage } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
-import { ArrowUpRight, Bot, CirclePlus, Eraser, Languages, LibraryBig, Menu, MessageSquareText, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowUpRight, Bot, CirclePlus, Eraser, FolderPlus, Languages, LibraryBig, Menu, MessageSquareText, Search, Sparkles, Star, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 export default function Home() {
@@ -76,14 +80,14 @@ export default function Home() {
     setDeleteTargetId(null);
   };
 
-  const sendMessage = (content: string) => {
+  const sendMessage = (content: string, imageAttachment?: ChatImageAttachment) => {
     if (!activeThread || chat.isPending || !isChatAvailable) return;
     const threadId = activeThread.id;
     const nextMessages: ConversationMessage[] = [...activeThread.messages, { role: "user", content }];
     setChatState(current => replaceThreadMessages(current, threadId, nextMessages));
     setPendingThreadId(threadId);
     chat.mutate(
-      { messages: nextMessages.slice(-18), responseStyle },
+      { messages: nextMessages.slice(-18), responseStyle, imageAttachment: imageAttachment ? { name: imageAttachment.name, dataUrl: imageAttachment.dataUrl } : undefined },
       {
         onSuccess: response => setChatState(current => {
           const thread = current.threads.find(item => item.id === threadId);
@@ -106,16 +110,24 @@ export default function Home() {
     setChatState(current => ({ ...current, activeThreadId: threadId }));
     setIsHistoryOpen(false);
   };
+  const organizeThread = (threadId: string, changes: Parameters<typeof updateConversationOrganization>[2]) => {
+    if (chat.isPending) return;
+    setChatState(current => updateConversationOrganization(current, threadId, changes));
+  };
+  const addFolder = (name: string) => setChatState(current => addConversationFolder(current, name, ["violet", "peach", "mint"][(current.folders?.length ?? 0) % 3] as ConversationFolder["color"]));
   const sidebarProps = {
     activeThreadId: activeThread.id,
     isPending: chat.isPending,
     threads: chatState.threads,
+    folders: chatState.folders ?? [],
     copy,
     locale: getLocale(language),
     onNewConversation: startNewConversation,
     onSelectThread: selectThread,
     onClearConversation: clearActiveConversation,
     onDeleteThread: (threadId: string) => setDeleteTargetId(threadId),
+    onOrganizeThread: organizeThread,
+    onAddFolder: addFolder,
     onOpenLearning: () => { setIsLearningOpen(true); setIsHistoryOpen(false); },
   };
   const learningLabel = language === "es" ? "Mi espacio" : language === "ru" ? "Моё пространство" : "My space";
@@ -147,7 +159,7 @@ export default function Home() {
               <div className="intro-copy"><p className="overline">{copy.introOverline}</p><h2>{copy.introTitle}<br /><em>{copy.introEmphasis}</em></h2><p>{copy.introDescription}</p><div className="intro-whisper"><span>{copy.introWhisper}</span><ArrowUpRight size={15} /></div></div>
               <div className="starter-row" aria-label={copy.introTitle}>{copy.starters.map((starter, index) => <button key={starter} onClick={() => sendMessage(starter)} disabled={chat.isPending || !isChatAvailable}><span className="starter-number">0{index + 1}</span>{starter}<ArrowUpRight size={14} /></button>)}</div>
             </section>}
-            <AIChatBox messages={activeThread.messages} onSendMessage={sendMessage} isLoading={isActivePending} placeholder={isChatAvailable ? copy.composerPlaceholder : copy.unavailablePlaceholder} disabled={!isChatAvailable} disabledMessage={!isChatAvailable ? copy.unavailableMessage : undefined} className={hasConversation ? "chat-canvas chat-canvas-active" : "chat-canvas"} height={hasConversation ? "min(67vh, 740px)" : "min(38vh, 420px)"} />
+            <AIChatBox messages={activeThread.messages} onSendMessage={sendMessage} isLoading={isActivePending} placeholder={isChatAvailable ? copy.composerPlaceholder : copy.unavailablePlaceholder} disabled={!isChatAvailable} disabledMessage={!isChatAvailable ? copy.unavailableMessage : undefined} voiceLanguage={language === "es" ? "es-VE" : language === "ru" ? "ru-RU" : "en-US"} className={hasConversation ? "chat-canvas chat-canvas-active" : "chat-canvas"} height={hasConversation ? "min(67vh, 740px)" : "min(38vh, 420px)"} />
             <p className="composer-caption"><span>↗</span> {copy.disclaimer}</p>
           </>}
         </div>
@@ -171,18 +183,45 @@ export default function Home() {
 
 type SidebarContentsProps = {
   activeThreadId: string; isPending: boolean; threads: ReturnType<typeof loadChatState>["threads"]; copy: AppCopy; locale: string;
-  onNewConversation: () => void; onSelectThread: (threadId: string) => void; onClearConversation: () => void; onDeleteThread: (threadId: string) => void; onOpenLearning: () => void;
+  folders: ConversationFolder[];
+  onNewConversation: () => void; onSelectThread: (threadId: string) => void; onClearConversation: () => void; onDeleteThread: (threadId: string) => void; onOrganizeThread: (threadId: string, changes: Parameters<typeof updateConversationOrganization>[2]) => void; onAddFolder: (name: string) => void; onOpenLearning: () => void;
 };
 
-function SidebarContents({ activeThreadId, isPending, threads, copy, locale, onNewConversation, onSelectThread, onClearConversation, onDeleteThread, onOpenLearning }: SidebarContentsProps) {
+function SidebarContents({ activeThreadId, isPending, threads, folders, copy, locale, onNewConversation, onSelectThread, onClearConversation, onDeleteThread, onOrganizeThread, onAddFolder, onOpenLearning }: SidebarContentsProps) {
   const learningText = copy.languageLabel === "Idioma" ? "Mi espacio de aprendizaje" : copy.languageLabel === "Язык" ? "Моё пространство для учёбы" : "My learning space";
+  const labels = copy.languageLabel === "Idioma"
+    ? { search: "Buscar conversaciones", all: "Todas", favorites: "Favoritas", folder: "Nueva carpeta", empty: "No hay conversaciones aquí" }
+    : copy.languageLabel === "Язык"
+      ? { search: "Поиск разговоров", all: "Все", favorites: "Избранное", folder: "Новая папка", empty: "Здесь пока нет разговоров" }
+      : { search: "Search conversations", all: "All", favorites: "Favorites", folder: "New folder", empty: "No conversations here yet" };
+  const [query, setQuery] = useState("");
+  const [folderFilter, setFolderFilter] = useState("all");
+  const [showFavoriteOnly, setShowFavoriteOnly] = useState(false);
+  const [isAddingFolder, setIsAddingFolder] = useState(false);
+  const [folderName, setFolderName] = useState("");
+  const visibleThreads = threads.filter(thread => {
+    const search = `${thread.title} ${(thread.tags ?? []).join(" ")}`.toLowerCase().includes(query.trim().toLowerCase());
+    const folder = folderFilter === "all" || thread.folderId === folderFilter;
+    return search && folder && (!showFavoriteOnly || thread.isFavorite);
+  });
+  const submitFolder = () => {
+    if (!folderName.trim()) return;
+    onAddFolder(folderName);
+    setFolderName("");
+    setIsAddingFolder(false);
+  };
   return <>
     <div className="sidebar-main">
       <div className="identity-lockup"><span className="identity-orb"><Sparkles size={17} /></span><span><strong>Edu AI</strong><small>{copy.brandSubtitle}</small></span></div>
       <button type="button" className="new-chat-button" onClick={onNewConversation} disabled={isPending}><CirclePlus size={17} /> <span>{copy.newConversation}</span><span className="new-chat-key">N</span></button>
       <button type="button" className="sidebar-learning-link" onClick={onOpenLearning}><LibraryBig size={15} /><span>{learningText}</span></button>
       <div className="sidebar-copy"><span>{copy.notebookLabel}</span><p>{copy.notebookDescription}</p></div>
-      <nav className="thread-list" aria-label={copy.notebookLabel}>{threads.slice(0, 6).map(thread => <div className={thread.id === activeThreadId ? "thread-entry active" : "thread-entry"} key={thread.id}><button type="button" className={thread.id === activeThreadId ? "thread-link active" : "thread-link"} onClick={() => onSelectThread(thread.id)} disabled={isPending} aria-current={thread.id === activeThreadId ? "page" : undefined}><MessageSquareText size={15} /><span className="thread-text"><strong>{thread.title}</strong><small>{describeThreadRecency(thread.updatedAt, undefined, locale)}</small></span><span className="thread-arrow" aria-hidden="true">↗</span></button><button type="button" className="thread-delete" onClick={() => onDeleteThread(thread.id)} disabled={isPending} aria-label={copy.deleteThreadLabel.replace("{title}", thread.title)} title={copy.deleteThreadLabel.replace("{title}", thread.title)}><Trash2 size={13} /></button></div>)}</nav>
+      <div className="thread-organizer">
+        <label className="thread-search"><Search size={14} /><span className="sr-only">{labels.search}</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder={labels.search} /></label>
+        <div className="thread-filters"><select value={folderFilter} onChange={event => setFolderFilter(event.target.value)} aria-label={labels.folder}><option value="all">{labels.all}</option>{folders.map(folder => <option key={folder.id} value={folder.id}>{folder.name}</option>)}</select><button className={showFavoriteOnly ? "thread-filter active" : "thread-filter"} onClick={() => setShowFavoriteOnly(current => !current)} aria-pressed={showFavoriteOnly} title={labels.favorites}><Star size={13} /></button><button className="thread-filter" onClick={() => setIsAddingFolder(current => !current)} title={labels.folder}><FolderPlus size={13} /></button></div>
+        {isAddingFolder && <div className="folder-composer"><input value={folderName} onChange={event => setFolderName(event.target.value)} onKeyDown={event => event.key === "Enter" && submitFolder()} placeholder={labels.folder} maxLength={36} /><button onClick={submitFolder}>+</button></div>}
+      </div>
+      <nav className="thread-list" aria-label={copy.notebookLabel}>{visibleThreads.length ? visibleThreads.slice(0, 12).map(thread => <div className={thread.id === activeThreadId ? "thread-entry active" : "thread-entry"} key={thread.id}><button type="button" className={thread.id === activeThreadId ? "thread-link active" : "thread-link"} onClick={() => onSelectThread(thread.id)} disabled={isPending} aria-current={thread.id === activeThreadId ? "page" : undefined}><MessageSquareText size={15} /><span className="thread-text"><strong>{thread.title}</strong><small>{describeThreadRecency(thread.updatedAt, undefined, locale)}{thread.tags?.length ? ` · ${thread.tags.join(", ")}` : ""}</small></span><span className="thread-arrow" aria-hidden="true">↗</span></button><button type="button" className={thread.isFavorite ? "thread-favorite active" : "thread-favorite"} onClick={() => onOrganizeThread(thread.id, { isFavorite: !thread.isFavorite })} disabled={isPending} aria-label={labels.favorites}><Star size={13} /></button><button type="button" className="thread-delete" onClick={() => onDeleteThread(thread.id)} disabled={isPending} aria-label={copy.deleteThreadLabel.replace("{title}", thread.title)} title={copy.deleteThreadLabel.replace("{title}", thread.title)}><Trash2 size={13} /></button></div>) : <p className="thread-empty">{labels.empty}</p>}</nav>
     </div>
     <div className="sidebar-bottom"><a className="social-icon-link" href="https://www.facebook.com/EduardovipJ" target="_blank" rel="noreferrer" aria-label="Seguir a Edu AI en Facebook"><FacebookGlyph /></a><div className="privacy-note"><Bot size={16} /><span>{copy.privacyNote}</span></div><button className="erase-button" onClick={onClearConversation} disabled={isPending}><Eraser size={14} /> {copy.resetThread}</button></div>
   </>;

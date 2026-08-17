@@ -8,6 +8,13 @@
       "when": 1786981067823,
       "tag": "0000_spicy_nehzno",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1787001875030,
+      "tag": "0001_wise_cable",
+      "breakpoints": true
     }
   ]
 }

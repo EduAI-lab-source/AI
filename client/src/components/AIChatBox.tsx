@@ -2,9 +2,31 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { Loader2, Send, User, Sparkles } from "lucide-react";
+import { FileText, ImagePlus, Loader2, Mic, Paperclip, Send, Sparkles, Square, User, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Streamdown } from "streamdown";
+
+type PdfTextItem = { str?: string };
+type PdfRuntime = {
+  GlobalWorkerOptions: { workerSrc: string };
+  getDocument: (source: { data: Uint8Array }) => {
+    promise: Promise<{
+      numPages: number;
+      getPage: (pageNumber: number) => Promise<{
+        getTextContent: () => Promise<{ items: PdfTextItem[] }>;
+      }>;
+    }>;
+  };
+};
+
+const PDF_READER_URL = "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.2.108/build/pdf.min.mjs";
+const PDF_WORKER_URL = "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.2.108/build/pdf.worker.min.mjs";
+
+async function loadPdfRuntime() {
+  const pdf = await import(/* @vite-ignore */ PDF_READER_URL) as unknown as PdfRuntime;
+  pdf.GlobalWorkerOptions.workerSrc = PDF_WORKER_URL;
+  return pdf;
+}
 
 /**
  * Message type matching server-side LLM Message interface
@@ -13,6 +35,32 @@ export type Message = {
   role: "system" | "user" | "assistant";
   content: string;
 };
+
+export type ChatImageAttachment = {
+  kind: "image";
+  name: string;
+  dataUrl: string;
+};
+
+type SpeechRecognitionLike = {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  start: () => void;
+  stop: () => void;
+  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  onerror: (() => void) | null;
+  onend: (() => void) | null;
+};
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
+
+declare global {
+  interface Window {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  }
+}
 
 export type AIChatBoxProps = {
   /**
@@ -25,7 +73,7 @@ export type AIChatBoxProps = {
    * Callback when user sends a message.
    * Typically you'll call a tRPC mutation here to invoke the LLM.
    */
-  onSendMessage: (content: string) => void;
+  onSendMessage: (content: string, attachment?: ChatImageAttachment) => void;
 
   /**
    * Whether the AI is currently generating a response
@@ -63,6 +111,9 @@ export type AIChatBoxProps = {
 
   /** Human-readable explanation shown when the composer is temporarily unavailable. */
   disabledMessage?: string;
+
+  /** Locale used by the optional browser-native dictation control. */
+  voiceLanguage?: string;
 };
 
 /**
@@ -127,12 +178,17 @@ export function AIChatBox({
   suggestedPrompts,
   disabled = false,
   disabledMessage,
+  voiceLanguage = "es-VE",
 }: AIChatBoxProps) {
   const [input, setInput] = useState("");
+  const [attachment, setAttachment] = useState<ChatImageAttachment | null>(null);
+  const [isListening, setIsListening] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputAreaRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   // Filter out system messages
   const displayMessages = messages.filter((msg) => msg.role !== "system");
@@ -178,14 +234,88 @@ export function AIChatBox({
     const trimmedInput = input.trim();
     if (!trimmedInput || isLoading || disabled) return;
 
-    onSendMessage(trimmedInput);
+    onSendMessage(trimmedInput, attachment ?? undefined);
     setInput("");
+    setAttachment(null);
 
     // Scroll immediately after sending
     scrollToBottom();
 
     // Keep focus on input
     textareaRef.current?.focus();
+  };
+
+  useEffect(() => () => recognitionRef.current?.stop(), []);
+
+  const toggleDictation = () => {
+    if (disabled) return;
+    if (isListening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+    const Recognition = window.SpeechRecognition ?? window.webkitSpeechRecognition;
+    if (!Recognition) {
+      textareaRef.current?.focus();
+      return;
+    }
+    const recognition = new Recognition();
+    recognitionRef.current = recognition;
+    recognition.lang = voiceLanguage;
+    recognition.interimResults = false;
+    recognition.continuous = false;
+    recognition.onresult = event => {
+      const transcript = Array.from(event.results).map(result => result[0]?.transcript ?? "").join(" ").trim();
+      if (transcript) setInput(current => `${current}${current ? " " : ""}${transcript}`);
+    };
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+    setIsListening(true);
+    recognition.start();
+  };
+
+  const readSelectedFile = async (file: File) => {
+    if (file.size > 2_500_000) return;
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") setAttachment({ kind: "image", name: file.name, dataUrl: reader.result });
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+      try {
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        const pdf = await loadPdfRuntime();
+        const document = await pdf.getDocument({ data: bytes }).promise;
+        const pages = Math.min(document.numPages, 12);
+        const extractedPages = await Promise.all(
+          Array.from({ length: pages }, async (_, index) => {
+            const page = await document.getPage(index + 1);
+            const content = await page.getTextContent();
+            return content.items
+              .map(item => item.str ?? "")
+              .join(" ");
+          })
+        );
+        const text = extractedPages.join("\n\n").trim().slice(0, 18_000);
+        if (!text) return;
+        setInput(current => `${current}${current ? "\n\n" : ""}[PDF: ${file.name}]\n${text}`);
+      } catch {
+        setInput(current => `${current}${current ? "\n\n" : ""}[PDF: ${file.name}]\nNo pude extraer texto de este PDF. Describe qué parte quieres analizar o prueba con una versión que permita seleccionar texto.`);
+      }
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result !== "string") return;
+      const text = reader.result.trim().slice(0, 18_000);
+      if (!text) return;
+      setInput(current => `${current}${current ? "\n\n" : ""}[Archivo: ${file.name}]\n${text}`);
+    };
+    reader.readAsText(file);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -321,17 +451,24 @@ export function AIChatBox({
         onSubmit={handleSubmit}
         className="flex gap-2 p-4 border-t bg-background/50 items-end"
       >
-        <Textarea
-          ref={textareaRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          disabled={disabled}
-          aria-describedby={disabledMessage ? "chat-availability-note" : undefined}
-          className="flex-1 max-h-32 resize-none min-h-9"
-          rows={1}
-        />
+        <input ref={fileInputRef} type="file" className="sr-only" accept="image/*,application/pdf,.txt,.md,.csv,.json" onChange={event => { const file = event.target.files?.[0]; if (file) void readSelectedFile(file); event.currentTarget.value = ""; }} />
+        <button type="button" className="chat-tool-button" onClick={() => fileInputRef.current?.click()} disabled={disabled || isLoading} aria-label="Adjuntar una imagen, PDF o documento de texto" title="Adjuntar imagen, PDF o documento de texto"><Paperclip className="size-4" /></button>
+        <button type="button" className={isListening ? "chat-tool-button listening" : "chat-tool-button"} onClick={toggleDictation} disabled={disabled || isLoading} aria-label={isListening ? "Detener dictado" : "Dictar un mensaje"} title={isListening ? "Detener dictado" : "Dictar un mensaje"}>{isListening ? <Square className="size-3.5" /> : <Mic className="size-4" />}</button>
+        <div className="chat-composer-input">
+          {attachment && <div className="chat-attachment-chip"><ImagePlus className="size-3.5" /><span>{attachment.name}</span><button type="button" onClick={() => setAttachment(null)} aria-label={`Quitar ${attachment.name}`}><X className="size-3.5" /></button></div>}
+          {!attachment && input.startsWith("[Archivo:") && <div className="chat-text-file-hint"><FileText className="size-3.5" />Documento de texto listo para analizar</div>}
+          <Textarea
+            ref={textareaRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            disabled={disabled}
+            aria-describedby={disabledMessage ? "chat-availability-note" : undefined}
+            className="flex-1 max-h-32 resize-none min-h-9"
+            rows={1}
+          />
+        </div>
         <Button
           type="submit"
           size="icon"

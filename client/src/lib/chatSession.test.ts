@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  addConversationFolder,
   createConversation,
   describeThreadRecency,
   deriveThreadTitle,
@@ -8,6 +9,7 @@ import {
   sanitizeAssistantMessage,
   startFreshConversation,
   type ChatState,
+  updateConversationOrganization,
 } from "./chatSession";
 
 describe("chatSession", () => {
@@ -92,5 +94,22 @@ describe("chatSession", () => {
       content: "Unexpected token '<', \"<!doctype\" is not valid JSON",
     });
     expect(message.content).not.toMatch(/unexpected token|json|doctype/i);
+  });
+
+  it("crea carpetas personales sin duplicar nombres", () => {
+    const thread = createConversation();
+    const state: ChatState = { activeThreadId: thread.id, threads: [thread], folders: [] };
+    const withFolder = addConversationFolder(state, "Ideas para aprender", "mint");
+    const duplicate = addConversationFolder(withFolder, "ideas para aprender", "violet");
+    expect(withFolder.folders).toHaveLength(1);
+    expect(withFolder.folders?.[0]).toMatchObject({ name: "Ideas para aprender", color: "mint" });
+    expect(duplicate.folders).toHaveLength(1);
+  });
+
+  it("organiza una conversación mediante favorito, etiquetas y carpeta", () => {
+    const thread = createConversation();
+    const state: ChatState = { activeThreadId: thread.id, threads: [thread], folders: [{ id: "folder-1", name: "Estudio", color: "violet" }] };
+    const result = updateConversationOrganization(state, thread.id, { isFavorite: true, folderId: "folder-1", tags: ["plan", "prioridad"], title: "Plan semanal" });
+    expect(result.threads[0]).toMatchObject({ isFavorite: true, folderId: "folder-1", tags: ["plan", "prioridad"], title: "Plan semanal" });
   });
 });

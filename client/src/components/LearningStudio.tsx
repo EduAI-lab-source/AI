@@ -4,14 +4,17 @@ import {
   BookOpen,
   BookText,
   Brain,
+  CalendarDays,
   Check,
   ChevronRight,
   ClipboardPenLine,
+  Download,
   GraduationCap,
   LibraryBig,
   ListChecks,
   PenLine,
   Share2,
+  ShieldCheck,
   Sparkles,
   Volume2,
   VolumeX,
@@ -19,7 +22,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-type StudioTab = "library" | "tools" | "notes" | "study" | "preferences";
+type StudioTab = "library" | "tools" | "notes" | "study" | "progress" | "preferences";
 export type ResponseStyle = "brief" | "deep" | "creative" | "study";
 
 type LearningStudioProps = {
@@ -32,9 +35,11 @@ type LearningStudioProps = {
 };
 
 type StudioNote = { id: string; content: string; createdAt: number };
+type StudioProgress = { weeklyGoal: number; completedDays: string[] };
 
 const READING_STORAGE_KEY = "edu-ai:library:v1";
 const NOTES_STORAGE_KEY = "edu-ai:notes:v1";
+const PROGRESS_STORAGE_KEY = "edu-ai:progress:v1";
 
 const TOOL_PROMPTS: Record<AppLanguage, Array<{ label: string; description: string; prompt: string; icon: "summary" | "plan" | "write" | "decision" | "study" }>> = {
   es: [
@@ -86,6 +91,30 @@ function loadNotes() {
   }
 }
 
+function loadProgress(): StudioProgress {
+  if (typeof window === "undefined") return { weeklyGoal: 3, completedDays: [] };
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(PROGRESS_STORAGE_KEY) ?? "{}");
+    return {
+      weeklyGoal: typeof stored.weeklyGoal === "number" ? Math.min(7, Math.max(1, stored.weeklyGoal)) : 3,
+      completedDays: Array.isArray(stored.completedDays) ? stored.completedDays.filter((day: unknown): day is string => typeof day === "string").slice(-60) : [],
+    };
+  } catch { return { weeklyGoal: 3, completedDays: [] }; }
+}
+
+function downloadText(filename: string, content: string, type = "text/markdown;charset=utf-8") {
+  const url = URL.createObjectURL(new Blob([content], { type }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function escapePrintHtml(value: string) {
+  return value.replace(/[&<>'"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character] ?? character);
+}
+
 export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onClose, responseStyle, onResponseStyleChange }: LearningStudioProps) {
   const [tab, setTab] = useState<StudioTab>("library");
   const [readingList, setReadingList] = useState(() => loadStringList(READING_STORAGE_KEY));
@@ -94,11 +123,13 @@ export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onC
   const [studyTopic, setStudyTopic] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [copyState, setCopyState] = useState(false);
+  const [progress, setProgress] = useState(loadProgress);
   const copy = LIBRARY_COPY[language];
   const challenge = useMemo(() => WEEKLY_CHALLENGES[language][Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000)) % WEEKLY_CHALLENGES[language].length], [language]);
 
   useEffect(() => { window.localStorage.setItem(READING_STORAGE_KEY, JSON.stringify(readingList)); }, [readingList]);
   useEffect(() => { window.localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes)); }, [notes]);
+  useEffect(() => { window.localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(progress)); }, [progress]);
   useEffect(() => () => window.speechSynthesis?.cancel(), []);
 
   const toggleBook = (id: string) => setReadingList(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
@@ -145,9 +176,47 @@ export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onC
       window.setTimeout(() => setCopyState(false), 1800);
     } catch { /* The person may cancel native sharing; there is no error state needed. */ }
   };
+  const today = new Date().toISOString().slice(0, 10);
+  const isTodayComplete = progress.completedDays.includes(today);
+  const toggleToday = () => setProgress(current => ({ ...current, completedDays: current.completedDays.includes(today) ? current.completedDays.filter(day => day !== today) : [...current.completedDays, today] }));
+  const completedThisWeek = progress.completedDays.filter(day => Date.now() - new Date(`${day}T12:00:00`).getTime() < 7 * 86_400_000).length;
+  const streak = (() => {
+    let count = 0;
+    const days = new Set(progress.completedDays);
+    const pointer = new Date();
+    if (!days.has(today)) pointer.setDate(pointer.getDate() - 1);
+    while (days.has(pointer.toISOString().slice(0, 10))) { count += 1; pointer.setDate(pointer.getDate() - 1); }
+    return count;
+  })();
+  const exportNotes = () => downloadText("edu-ai-cuaderno.md", `# Cuaderno de ideas — Edu AI\n\n${notes.map(note => `## ${new Date(note.createdAt).toLocaleDateString(language === "es" ? "es-VE" : language === "ru" ? "ru-RU" : "en-US")}\n\n${note.content}`).join("\n\n") || "Aún no has guardado notas."}`);
+  const exportNotesPdf = () => {
+    const popup = window.open("", "_blank", "noopener,noreferrer");
+    if (!popup) return;
+    const locale = language === "es" ? "es-VE" : language === "ru" ? "ru-RU" : "en-US";
+    const entries = notes.length
+      ? notes.map(note => `<article><time>${new Date(note.createdAt).toLocaleDateString(locale)}</time><p>${escapePrintHtml(note.content).replace(/\n/g, "<br />")}</p></article>`).join("")
+      : `<p>${language === "es" ? "Aún no has guardado notas." : language === "ru" ? "У вас пока нет сохранённых заметок." : "You have no saved notes yet."}</p>`;
+    popup.document.write(`<!doctype html><html lang="${language}"><head><title>Edu AI — Cuaderno</title><style>body{font-family:Georgia,serif;max-width:760px;margin:48px auto;color:#173d35;line-height:1.6;padding:0 24px}h1{font-size:32px;margin-bottom:4px}small,time{color:#6a776f;font-family:Arial,sans-serif}article{border-top:1px solid #d9ded8;padding:20px 0;break-inside:avoid}p{white-space:normal}@media print{body{margin:0 auto}}</style></head><body><h1>Cuaderno de ideas</h1><small>Edu AI · ${new Date().toLocaleDateString(locale)}</small>${entries}</body></html>`);
+    popup.document.close();
+    popup.focus();
+    popup.setTimeout(() => popup.print(), 250);
+  };
+  const exportBackup = () => downloadText("edu-ai-respaldo.json", JSON.stringify({ version: 1, notes, readingList, progress, exportedAt: new Date().toISOString() }, null, 2), "application/json");
+  const restoreBackup = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const backup = JSON.parse(String(reader.result));
+        if (Array.isArray(backup.notes)) setNotes(backup.notes.filter((note: StudioNote) => note && typeof note.content === "string").slice(0, 24));
+        if (Array.isArray(backup.readingList)) setReadingList(backup.readingList.filter((item: unknown): item is string => typeof item === "string"));
+        if (backup.progress && typeof backup.progress === "object") setProgress({ weeklyGoal: typeof backup.progress.weeklyGoal === "number" ? backup.progress.weeklyGoal : 3, completedDays: Array.isArray(backup.progress.completedDays) ? backup.progress.completedDays.filter((day: unknown): day is string => typeof day === "string") : [] });
+      } catch { /* An invalid backup leaves the current private workspace unchanged. */ }
+    };
+    reader.readAsText(file);
+  };
 
   const navigation: Array<{ id: StudioTab; label: string; icon: typeof LibraryBig }> = [
-    { id: "library", label: copy.library, icon: LibraryBig }, { id: "tools", label: copy.tools, icon: WandSparkles }, { id: "notes", label: copy.notes, icon: ClipboardPenLine }, { id: "study", label: copy.study, icon: GraduationCap }, { id: "preferences", label: copy.preferences, icon: Brain },
+    { id: "library", label: copy.library, icon: LibraryBig }, { id: "tools", label: copy.tools, icon: WandSparkles }, { id: "notes", label: copy.notes, icon: ClipboardPenLine }, { id: "study", label: copy.study, icon: GraduationCap }, { id: "progress", label: language === "es" ? "Progreso" : language === "ru" ? "Прогресс" : "Progress", icon: CalendarDays }, { id: "preferences", label: copy.preferences, icon: Brain },
   ];
 
   return (
@@ -187,6 +256,8 @@ export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onC
         {notes.length ? <div className="note-list">{notes.map(note => <article key={note.id}><p>{note.content}</p><button onClick={() => setNotes(current => current.filter(item => item.id !== note.id))}>{copy.remove}</button></article>)}</div> : <p className="empty-copy">{copy.emptyNotes}</p>}</div>}
 
       {tab === "study" && <div className="studio-panel study-panel"><p className="studio-intro">{copy.studyIntro}</p><div className="study-form"><BookText size={23} /><input value={studyTopic} onChange={event => setStudyTopic(event.target.value)} placeholder={copy.studyPlaceholder} onKeyDown={event => event.key === "Enter" && startStudy()} /><button onClick={startStudy}><ListChecks size={15} />{copy.startStudy}</button></div><WeeklyChallenge copy={copy} challenge={challenge} /></div>}
+
+      {tab === "progress" && <div className="studio-panel progress-panel"><div className="progress-heading"><div><p className="overline">{language === "es" ? "TABLERO PERSONAL" : language === "ru" ? "ЛИЧНАЯ ПАНЕЛЬ" : "PERSONAL DASHBOARD"}</p><h3>{language === "es" ? "Un paso que sí cuenta" : language === "ru" ? "Шаг, который имеет значение" : "A step that counts"}</h3><p>{language === "es" ? "Tu avance se guarda de forma privada en este dispositivo. Puedes llevarte una copia cuando quieras." : language === "ru" ? "Ваш прогресс хранится приватно на этом устройстве. Вы можете забрать копию в любой момент." : "Your progress stays private on this device. You can take a copy whenever you want."}</p></div><ShieldCheck size={22} /></div><div className="progress-grid"><article><span>{language === "es" ? "Racha" : language === "ru" ? "Серия" : "Streak"}</span><strong>{streak}</strong><small>{language === "es" ? "días con intención" : language === "ru" ? "дней с намерением" : "intentional days"}</small></article><article><span>{language === "es" ? "Semana" : language === "ru" ? "Неделя" : "Week"}</span><strong>{Math.min(completedThisWeek, progress.weeklyGoal)}/{progress.weeklyGoal}</strong><small>{language === "es" ? "meta personal" : language === "ru" ? "личная цель" : "personal goal"}</small></article><article><span>{language === "es" ? "Cuaderno" : language === "ru" ? "Блокнот" : "Notebook"}</span><strong>{notes.length}</strong><small>{language === "es" ? "ideas guardadas" : language === "ru" ? "сохранённых идей" : "saved ideas"}</small></article></div><div className="progress-actions"><button className={isTodayComplete ? "progress-check complete" : "progress-check"} onClick={toggleToday}><Check size={16} />{isTodayComplete ? (language === "es" ? "Hoy ya cuenta" : language === "ru" ? "Сегодня уже отмечено" : "Today counts") : (language === "es" ? "Marcar mi avance de hoy" : language === "ru" ? "Отметить прогресс сегодня" : "Mark today’s progress")}</button><label>{language === "es" ? "Meta semanal" : language === "ru" ? "Недельная цель" : "Weekly goal"}<input type="range" min="1" max="7" value={progress.weeklyGoal} onChange={event => setProgress(current => ({ ...current, weeklyGoal: Number(event.target.value) }))} /><b>{progress.weeklyGoal}</b></label></div><div className="workspace-export"><button onClick={exportNotes}><Download size={15} />{language === "es" ? "Exportar cuaderno (.md)" : language === "ru" ? "Экспортировать блокнот (.md)" : "Export notebook (.md)"}</button><button onClick={exportNotesPdf}><Download size={15} />{language === "es" ? "Guardar cuaderno (.pdf)" : language === "ru" ? "Сохранить блокнот (.pdf)" : "Save notebook (.pdf)"}</button><button onClick={exportBackup}><Download size={15} />{language === "es" ? "Crear respaldo" : language === "ru" ? "Создать резервную копию" : "Create backup"}</button><label><Download size={15} />{language === "es" ? "Restaurar respaldo" : language === "ru" ? "Восстановить копию" : "Restore backup"}<input type="file" accept="application/json" onChange={event => { const file = event.target.files?.[0]; if (file) restoreBackup(file); event.currentTarget.value = ""; }} /></label></div></div>}
 
       {tab === "preferences" && <div className="studio-panel preferences-panel"><p className="studio-intro">{copy.preferencesIntro}</p><div className="preference-grid">{(["brief", "deep", "creative", "study"] as ResponseStyle[]).map(style => <button key={style} className={responseStyle === style ? "active" : ""} onClick={() => onResponseStyleChange(style)}><Sparkles size={15} /><span>{copy[style === "study" ? "studyStyle" : style]}</span>{responseStyle === style && <Check size={14} />}</button>)}</div>
         {latestAssistantMessage && <div className="insight-card"><p className="book-kicker">EDU AI</p><blockquote>{latestAssistantMessage}</blockquote><div><button onClick={toggleSpeech}>{isSpeaking ? <VolumeX size={15} /> : <Volume2 size={15} />}{isSpeaking ? copy.stop : copy.speak}</button><button onClick={shareInsight}><Share2 size={15} />{copyState ? copy.copied : copy.share}</button></div></div>}

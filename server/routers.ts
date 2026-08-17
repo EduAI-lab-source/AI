@@ -61,6 +61,10 @@ export const appRouter = router({
             .min(1)
             .max(20),
           responseStyle: z.enum(["brief", "deep", "creative", "study"]).optional(),
+          imageAttachment: z.object({
+            name: z.string().trim().min(1).max(120),
+            dataUrl: z.string().max(3_400_000).regex(/^data:image\/(png|jpeg|webp|gif);base64,/, "La imagen adjunta debe ser un formato compatible."),
+          }).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -75,7 +79,7 @@ export const appRouter = router({
         try {
           const response = await invokeLLM({
             model: "gpt-5-mini",
-            messages: buildEduAiMessages(input.messages, input.responseStyle),
+            messages: buildEduAiMessages(input.messages, input.responseStyle, input.imageAttachment),
           });
           const content = getTextResponse(response.choices[0]?.message.content ?? "");
 

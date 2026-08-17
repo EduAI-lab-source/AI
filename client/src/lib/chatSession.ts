@@ -9,11 +9,21 @@ export type ConversationThread = {
   createdAt: number;
   updatedAt: number;
   messages: ConversationMessage[];
+  folderId?: string;
+  tags?: string[];
+  isFavorite?: boolean;
+};
+
+export type ConversationFolder = {
+  id: string;
+  name: string;
+  color: "violet" | "peach" | "mint";
 };
 
 export type ChatState = {
   activeThreadId: string;
   threads: ConversationThread[];
+  folders?: ConversationFolder[];
 };
 
 export type ConversationSeed = {
@@ -81,6 +91,8 @@ export function createConversation(seed: ConversationSeed = {}): ConversationThr
     createdAt: now,
     updatedAt: now,
     messages: [seed.welcomeMessage ?? WELCOME_MESSAGE],
+    tags: [],
+    isFavorite: false,
   };
 }
 
@@ -104,6 +116,9 @@ function normalizeThread(value: unknown): ConversationThread | null {
     createdAt: typeof candidate.createdAt === "number" ? candidate.createdAt : updatedAt,
     updatedAt,
     messages,
+    folderId: typeof candidate.folderId === "string" ? candidate.folderId : undefined,
+    tags: Array.isArray(candidate.tags) ? candidate.tags.filter((tag): tag is string => typeof tag === "string").slice(0, 6) : [],
+    isFavorite: candidate.isFavorite === true,
   };
 }
 
@@ -119,10 +134,13 @@ export function loadChatState(): ChatState {
       ? parsed.threads.map(normalizeThread).filter((thread): thread is ConversationThread => Boolean(thread)).slice(0, MAX_THREADS)
       : [];
     if (!threads.length) return { activeThreadId: fallback.id, threads: [fallback] };
+    const folders = Array.isArray(parsed.folders)
+      ? parsed.folders.filter((folder): folder is ConversationFolder => Boolean(folder && typeof folder.id === "string" && typeof folder.name === "string" && ["violet", "peach", "mint"].includes(folder.color))).slice(0, 12)
+      : [];
     const activeThreadId = threads.some(thread => thread.id === parsed.activeThreadId)
       ? parsed.activeThreadId!
       : threads[0].id;
-    return { activeThreadId, threads };
+    return { activeThreadId, threads, folders };
   } catch {
     return { activeThreadId: fallback.id, threads: [fallback] };
   }
@@ -134,7 +152,7 @@ export function saveChatState(state: ChatState) {
     .sort((a, b) => b.updatedAt - a.updatedAt)
     .slice(0, MAX_THREADS)
     .map(thread => ({ ...thread, messages: thread.messages.slice(-MAX_MESSAGES_PER_THREAD) }));
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ activeThreadId: state.activeThreadId, threads }));
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ activeThreadId: state.activeThreadId, threads, folders: state.folders ?? [] }));
 }
 
 export function replaceThreadMessages(
@@ -175,4 +193,26 @@ export function removeConversation(state: ChatState, threadId: string, seed: Con
       : remainingThreads[0].id;
 
   return { activeThreadId, threads: remainingThreads };
+}
+
+export function updateConversationOrganization(
+  state: ChatState,
+  threadId: string,
+  changes: Partial<Pick<ConversationThread, "folderId" | "tags" | "isFavorite" | "title">>
+): ChatState {
+  return {
+    ...state,
+    threads: state.threads.map(thread => thread.id === threadId ? { ...thread, ...changes, updatedAt: Date.now() } : thread),
+  };
+}
+
+export function addConversationFolder(
+  state: ChatState,
+  name: string,
+  color: ConversationFolder["color"] = "violet"
+): ChatState {
+  const trimmed = name.trim().slice(0, 36);
+  if (!trimmed || (state.folders ?? []).some(folder => folder.name.toLowerCase() === trimmed.toLowerCase())) return state;
+  const folder: ConversationFolder = { id: makeId(), name: trimmed, color };
+  return { ...state, folders: [...(state.folders ?? []), folder].slice(0, 12) };
 }

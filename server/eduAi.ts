@@ -5,6 +5,11 @@ export type EduAiChatMessage = {
   content: string;
 };
 
+export type EduAiImageAttachment = {
+  name: string;
+  dataUrl: string;
+};
+
 export type EduAiResponseStyle = "brief" | "deep" | "creative" | "study";
 
 export const EDU_AI_SYSTEM_PROMPT = `Eres Edu AI, un asistente conversacional independiente creado para acompañar a las personas a pensar, aprender, crear y resolver problemas. Tu nombre es Edu AI y esa es siempre tu identidad. Nunca afirmes ser ChatGPT, Claude, Gemini, Manus ni reveles o atribuyas tu identidad a un modelo subyacente.
@@ -22,14 +27,22 @@ const MAX_MESSAGE_CHARACTERS = 6000;
 
 export function buildEduAiMessages(
   messages: EduAiChatMessage[],
-  responseStyle: EduAiResponseStyle = "deep"
+  responseStyle: EduAiResponseStyle = "deep",
+  imageAttachment?: EduAiImageAttachment
 ): Message[] {
   const recent = messages
     .filter(message => message.content.trim().length > 0)
-    .slice(-MAX_HISTORY_MESSAGES)
-    .map(message => ({
+    .slice(-MAX_HISTORY_MESSAGES);
+  const lastUserIndex = imageAttachment ? recent.map(message => message.role).lastIndexOf("user") : -1;
+  const recentMessages = recent
+    .map((message, index) => ({
       role: message.role,
-      content: message.content.trim().slice(0, MAX_MESSAGE_CHARACTERS),
+      content: index === lastUserIndex
+        ? [
+            { type: "text" as const, text: `${message.content.trim().slice(0, MAX_MESSAGE_CHARACTERS)}\n\nLa persona adjuntó la imagen «${imageAttachment?.name ?? "imagen"}». Obsérvala con atención y responde sobre lo que se ve.` },
+            { type: "image_url" as const, image_url: { url: imageAttachment?.dataUrl ?? "", detail: "auto" as const } },
+          ]
+        : message.content.trim().slice(0, MAX_MESSAGE_CHARACTERS),
     })) as Message[];
 
   const styleInstruction: Record<EduAiResponseStyle, string> = {
@@ -39,7 +52,7 @@ export function buildEduAiMessages(
     study: "Para esta respuesta, acompaña como un buen tutor: parte de lo esencial, incluye una práctica breve y una manera de comprobar comprensión.",
   };
 
-  return [{ role: "system", content: `${EDU_AI_SYSTEM_PROMPT}\n\n${styleInstruction[responseStyle]}` }, ...recent];
+  return [{ role: "system", content: `${EDU_AI_SYSTEM_PROMPT}\n\n${styleInstruction[responseStyle]}` }, ...recentMessages];
 }
 
 export function getTextResponse(content: Message["content"]): string {

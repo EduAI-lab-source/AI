@@ -274,3 +274,15 @@
 - [x] Identificar el recurso o configuración que Chrome marca como conexión insegura pese al certificado válido
 - [x] Eliminar o actualizar toda referencia de contenido funcional cargada por HTTP
 - [x] Publicar y verificar en el navegador conectado que Chrome muestra una conexión segura
+
+## Evolución integral de Edu AI
+- [ ] Diseñar modelos persistentes y privados para conversaciones, carpetas, notas, preferencias y progreso por usuario
+- [ ] Crear sincronización autenticada para conservar el espacio personal entre dispositivos sin perder el modo local actual
+- [ ] Añadir carpetas, etiquetas, títulos editables, favoritos y búsqueda dentro del historial de conversaciones
+- [ ] Incorporar un panel de progreso con metas semanales, rachas, actividad y avance de rutas de estudio
+- [ ] Permitir cargar documentos e imágenes para obtener un resumen, explicación, tarjetas de estudio o plan de aprendizaje
+- [ ] Añadir dictado por voz con controles claros de inicio, transcripción, revisión y envío
+- [ ] Permitir exportar notas, conversaciones y rutas de estudio como Markdown y PDF
+- [ ] Crear enlaces compartibles con selección consciente de contenido, vista previa y revocación
+- [ ] Mantener soporte trilingüe, accesibilidad, privacidad de datos y diseño responsive en cada flujo nuevo
+- [ ] Añadir pruebas, validación visual en escritorio y móvil, y publicación de la versión integral
