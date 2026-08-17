@@ -3,8 +3,12 @@
 ## Base de datos y backend
 - [x] Tabla `tools` en schema con todos los campos (no aplicable: el catálogo estático en `tools.ts` es la fuente compatible con GitHub Pages)
 - [x] Aplicar y exponer la sincronización privada de instantáneas cifradas entre dispositivos
-- [ ] Publicar la nueva interfaz de sincronización privada en `gh-pages` / `textoavoz.xyz` y confirmar que el control aparece en producción
-- [ ] Verificar de extremo a extremo el flujo de guardar y recuperar una copia cifrada contra `api.textoavoz.xyz`
+- [x] Publicar la nueva interfaz de sincronización privada en `gh-pages` / `textoavoz.xyz` y confirmar que el control aparece en producción
+- [x] Verificar de extremo a extremo el flujo de guardar y recuperar una copia cifrada contra `api.textoavoz.xyz`
+- [x] Probar en `https://textoavoz.xyz/` el flujo real de sincronización: crear código, guardar copia cifrada y recuperar/restaurar desde la interfaz publicada
+- [x] Verificar en navegador que una instantánea restaurada actualiza conversaciones, preferencias y notas tras descifrar la carga remota
+- [x] Añadir evidencia automatizada y accesible de la preferencia activa restaurada desde una instantánea cifrada
+- [ ] Publicar el marcado accesible de preferencias y verificar el estado restaurado en la interfaz oficial
 - [x] Migración aplicada a la base de datos (no aplicable: la publicación estática no depende de una base de datos)
 - [x] Seed de 40+ herramientas curadas con datos completos
 - [x] Helper de consultas en server/db.ts (no aplicable: la búsqueda instantánea opera de forma local en el navegador)
