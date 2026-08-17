@@ -1,5 +1,9 @@
 const UPSTREAM_ORIGIN = "https://edusearch-9qua9exp.manus.space";
-const ALLOWED_ORIGIN = "https://eduai-lab-source.github.io";
+const ALLOWED_ORIGINS = new Set([
+  "https://eduai-lab-source.github.io",
+  "https://textoavoz.xyz",
+  "https://www.textoavoz.xyz",
+]);
 const CHAT_PATH = "/api/trpc/eduAi.chat";
 
 interface Env {
@@ -7,10 +11,10 @@ interface Env {
 }
 
 function corsHeaders(origin: string | null) {
-  if (origin !== ALLOWED_ORIGIN) return new Headers();
+  if (!origin || !ALLOWED_ORIGINS.has(origin)) return new Headers();
 
   return new Headers({
-    "access-control-allow-origin": ALLOWED_ORIGIN,
+    "access-control-allow-origin": origin,
     "access-control-allow-methods": "POST, OPTIONS",
     "access-control-allow-headers": "content-type, x-trpc-source",
     "access-control-max-age": "86400",
@@ -41,11 +45,11 @@ export default {
     const origin = request.headers.get("origin");
 
     if (request.method === "OPTIONS") {
-      if (origin !== ALLOWED_ORIGIN) return forbidden("Origen no autorizado", origin);
+      if (!origin || !ALLOWED_ORIGINS.has(origin)) return forbidden("Origen no autorizado", origin);
       return new Response(null, { status: 204, headers: corsHeaders(origin) });
     }
 
-    if (origin !== ALLOWED_ORIGIN) return forbidden("Origen no autorizado", origin);
+    if (!origin || !ALLOWED_ORIGINS.has(origin)) return forbidden("Origen no autorizado", origin);
     if (request.method !== "POST" || url.pathname !== CHAT_PATH) {
       return withCors(
         new Response(JSON.stringify({ error: "Ruta no disponible" }), {

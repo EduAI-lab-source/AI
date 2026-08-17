@@ -7,10 +7,16 @@ describe("chatRuntime", () => {
     expect(isChatTransportAvailable({ apiBaseUrl: "https://api.eduai.example/", hostname: "eduai-lab-source.github.io" })).toBe(true);
   });
 
-  it("conecta GitHub Pages al backend público protegido", () => {
-    expect(getEduAiApiBase(undefined, "eduai-lab-source.github.io")).toBe(EDU_AI_PUBLIC_BACKEND);
+  it.each(["eduai-lab-source.github.io", "textoavoz.xyz", "www.textoavoz.xyz"])(
+    "conecta %s al backend público protegido",
+    hostname => {
+      expect(getEduAiApiBase(undefined, hostname)).toBe(EDU_AI_PUBLIC_BACKEND);
+      expect(isChatTransportAvailable({ hostname })).toBe(true);
+    }
+  );
+
+  it("usa api.textoavoz.xyz como el gateway público", () => {
     expect(EDU_AI_PUBLIC_BACKEND).toBe("https://api.textoavoz.xyz");
-    expect(isChatTransportAvailable({ hostname: "eduai-lab-source.github.io" })).toBe(true);
   });
 
   it("convierte una respuesta HTML inválida en un mensaje humano", () => {

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import worker from "./index";
 
 const pageOrigin = "https://eduai-lab-source.github.io";
+const officialOrigin = "https://textoavoz.xyz";
 const env = { EDU_AI_GATEWAY_SECRET: "test-gateway-secret" };
 
 describe("puerta de API de Edu AI", () => {
@@ -39,5 +40,23 @@ describe("puerta de API de Edu AI", () => {
     expect(url.toString()).toBe("https://edusearch-9qua9exp.manus.space/api/trpc/eduAi.chat?batch=1");
     expect(init.method).toBe("POST");
     expect(new Headers(init.headers).get("x-gateway-secret")).toBe("test-gateway-secret");
+  });
+
+  it.each([officialOrigin, "https://www.textoavoz.xyz"])("autoriza el origen público %s", async origin => {
+    const upstream = vi.fn().mockResolvedValue(new Response('{"ok":true}', { status: 200 }));
+    vi.stubGlobal("fetch", upstream);
+
+    const response = await worker.fetch(
+      new Request("https://api.textoavoz.xyz/api/trpc/eduAi.chat", {
+        method: "POST",
+        headers: { origin, "content-type": "application/json" },
+        body: "{}",
+      }),
+      env
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("access-control-allow-origin")).toBe(origin);
+    expect(upstream).toHaveBeenCalledTimes(1);
   });
 });

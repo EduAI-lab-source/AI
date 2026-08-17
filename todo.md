@@ -193,3 +193,15 @@
 - [x] Resolver y verificar el reenvío autenticado Worker → backend tras activar el cierre por defecto
 - [x] Validar una conversación real desde GitHub Pages tras la migración a api.textoavoz.xyz
 - [x] Actualizar la documentación restante para reflejar api.textoavoz.xyz como endpoint público final
+
+## Dominio público de Edu AI
+- [x] Preparar `textoavoz.xyz` como dirección pública principal y `www.textoavoz.xyz` como acceso equivalente
+- [x] Configurar GitHub Pages y Cloudflare para servir la aplicación estática desde el dominio propio
+- [x] Verificar HTTPS, carga de interfaz y conversación mediante `api.textoavoz.xyz`
+- [ ] Actualizar la documentación, guardar el checkpoint y comunicar el enlace público definitivo
+- [x] Corregir o descartar el conflicto de importación de `Toaster` tras validar TypeScript y 29 pruebas
+- [x] Autorizar `textoavoz.xyz` y `www.textoavoz.xyz` en la política CORS del Worker de Edu AI
+- [x] Desplegar y validar una conversación real desde el dominio oficial tras el ajuste CORS
+- [x] Resolver la API segura para textoavoz.xyz y www.textoavoz.xyz desde el cliente estático
+- [x] Documentar `textoavoz.xyz` como enlace oficial, `www` como redirección y GitHub Pages como respaldo
+- [ ] Guardar un checkpoint posterior a la migración del dominio raíz y comunicar el enlace definitivo

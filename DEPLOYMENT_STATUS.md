@@ -10,6 +10,7 @@
 | Publicación final | GitHub Pages ya sirve el paquete que apunta a `api.textoavoz.xyz`; el 17 de agosto de 2026 se envió desde la interfaz pública “Responde únicamente: conversación pública confirmada.” y Edu AI respondió “conversación pública confirmada.” | `https://eduai-lab-source.github.io/AI/?v=6f5101a` |
 | Worker de Cloudflare | El Worker `eduai-api` está desplegado, acepta únicamente el origen de GitHub Pages y reenvía el chat con una clave privada. | `https://eduai-api.edufirevip.workers.dev` |
 | Dominio profesional | La zona de Cloudflare está activa; `api.textoavoz.xyz` tiene DNS y HTTPS operativos, con preflight CORS y respuesta conversacional comprobados. | `https://api.textoavoz.xyz` |
+| Dominio principal en preparación | GitHub Pages ya reconoce `textoavoz.xyz` como dominio personalizado y está comprobando DNS. Los registros A se configuran en modo DNS-only con las cuatro direcciones oficiales: `185.199.108.153`, `185.199.109.153`, `185.199.110.153` y `185.199.111.153`. Los dos primeros ya están guardados; se está añadiendo el tercero y después se ajustarán el cuarto y `www`. | `https://textoavoz.xyz` |
 
 > GitHub Pages entrega únicamente la interfaz. El modelo y sus credenciales permanecen en el backend publicado, fuera del navegador.
 

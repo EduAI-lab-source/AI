@@ -5,7 +5,11 @@ export type ChatRuntimeConfig = {
 
 // El Worker conserva las credenciales del modelo fuera de GitHub Pages.
 export const EDU_AI_PUBLIC_BACKEND = "https://api.textoavoz.xyz";
-const GITHUB_PAGES_HOSTNAME = "eduai-lab-source.github.io";
+const EDU_AI_STATIC_APP_HOSTNAMES = new Set([
+  "eduai-lab-source.github.io",
+  "textoavoz.xyz",
+  "www.textoavoz.xyz",
+]);
 
 export function resolveEduAiApiBase(value?: string) {
   return (value ?? "").replace(/\/$/, "");
@@ -14,12 +18,12 @@ export function resolveEduAiApiBase(value?: string) {
 export function getEduAiApiBase(value?: string, hostname = "") {
   const configuredBase = resolveEduAiApiBase(value);
   if (configuredBase) return configuredBase;
-  return hostname === GITHUB_PAGES_HOSTNAME ? EDU_AI_PUBLIC_BACKEND : "";
+  return EDU_AI_STATIC_APP_HOSTNAMES.has(hostname) ? EDU_AI_PUBLIC_BACKEND : "";
 }
 
 export function isChatTransportAvailable({ apiBaseUrl, hostname = "" }: ChatRuntimeConfig) {
   if (getEduAiApiBase(apiBaseUrl, hostname)) return true;
-  return !hostname.endsWith("github.io");
+  return !hostname.endsWith("github.io") && !EDU_AI_STATIC_APP_HOSTNAMES.has(hostname);
 }
 
 export function humanizeChatError(error: unknown) {
