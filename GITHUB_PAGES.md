@@ -14,6 +14,12 @@ La interfaz pública de Edu AI se publica desde la rama `gh-pages` del repositor
 
 El cliente reconoce automáticamente los dominios públicos de Edu AI y se comunica con `https://api.textoavoz.xyz`. Las solicitudes se limitan a `textoavoz.xyz`, `www.textoavoz.xyz` y la publicación de GitHub Pages, sin incluir credenciales de servidor en el navegador. El Worker añade internamente una clave privada para el backend, por lo que los accesos directos al procedimiento conversacional quedan rechazados.
 
+## Espacio de aprendizaje
+
+La interfaz incluye un espacio personal con una biblioteca editorial de recomendaciones, estados de lectura y enlaces de consulta; un cuaderno de notas persistente en el navegador; herramientas rápidas para enviar encargos a Edu AI; rutas de estudio; preferencias de estilo de respuesta; lectura en voz alta cuando el navegador la permite; un reto semanal y una tarjeta de aprendizaje compartible. Los datos personales de lectura, notas y preferencias se conservan localmente en el navegador del visitante.
+
+El ícono de Facebook lleva al perfil oficial configurado. Discord no se muestra mientras no exista una invitación pública verificable, para evitar enlaces sin destino.
+
 ## Actualizar la interfaz
 
 1. Ejecuta `pnpm build:pages` para crear el contenido estático.

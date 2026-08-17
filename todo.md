@@ -198,10 +198,33 @@
 - [x] Preparar `textoavoz.xyz` como dirección pública principal y `www.textoavoz.xyz` como acceso equivalente
 - [x] Configurar GitHub Pages y Cloudflare para servir la aplicación estática desde el dominio propio
 - [x] Verificar HTTPS, carga de interfaz y conversación mediante `api.textoavoz.xyz`
-- [ ] Actualizar la documentación, guardar el checkpoint y comunicar el enlace público definitivo
+- [x] Actualizar la documentación, guardar el checkpoint y comunicar el enlace público definitivo
 - [x] Corregir o descartar el conflicto de importación de `Toaster` tras validar TypeScript y 29 pruebas
 - [x] Autorizar `textoavoz.xyz` y `www.textoavoz.xyz` en la política CORS del Worker de Edu AI
 - [x] Desplegar y validar una conversación real desde el dominio oficial tras el ajuste CORS
 - [x] Resolver la API segura para textoavoz.xyz y www.textoavoz.xyz desde el cliente estático
 - [x] Documentar `textoavoz.xyz` como enlace oficial, `www` como redirección y GitHub Pages como respaldo
-- [ ] Guardar un checkpoint posterior a la migración del dominio raíz y comunicar el enlace definitivo
+- [x] Guardar un checkpoint posterior a la migración del dominio raíz y comunicar el enlace definitivo
+
+## Biblioteca y voz humana de Edu AI
+- [x] Investigar y seleccionar libros populares y obras menos conocidas con alta valoración editorial internacional
+- [x] Diseñar una sección de libros útil, atractiva y coherente con la experiencia conversacional de Edu AI
+- [x] Incorporar la biblioteca recomendada al sitio con enlaces de consulta y criterios editoriales transparentes
+- [x] Refinar la identidad de Edu AI con una voz cálida de joven venezolano de 27 años del oriente, sin estereotipos ni afirmaciones biográficas falsas
+- [x] Ajustar el prompt y las pruebas para conservar una conversación humana, útil y coherente en español, inglés y ruso
+- [ ] Validar, publicar y documentar la ampliación de biblioteca y personalidad
+- [x] Añadir un ícono accesible de Facebook vinculado al perfil oficial del propietario
+- [x] Mantener Discord oculto hasta contar con una invitación pública real, sin crear un enlace ficticio
+- [x] Verificar en el componente que solo se renderiza Facebook y que Discord permanece ausente sin una URL pública
+
+## Espacio de aprendizaje y pensamiento
+- [x] Crear una biblioteca personal con estados de lectura guardados localmente
+- [x] Añadir herramientas rápidas para resumir, planificar, escribir, estudiar y decidir
+- [x] Implementar un cuaderno de ideas persistente para guardar respuestas y notas propias
+- [x] Incorporar un modo de estudio para generar rutas de aprendizaje, práctica y repaso
+- [x] Añadir preferencias de conversación para respuestas breves, profundas, creativas o de estudio
+- [x] Habilitar lectura en voz alta de respuestas cuando el navegador lo permita
+- [x] Diseñar retos semanales y una tarjeta de ideas compartible mediante las funciones del navegador
+- [ ] Validar la experiencia completa en escritorio y celular, con textos en español, inglés y ruso
+- [x] Corregir la aserción de identidad de Edu AI detectada por las pruebas automatizadas
+- [x] Reejecutar la suite tras ajustar la aserción de identidad y confirmar la validación final

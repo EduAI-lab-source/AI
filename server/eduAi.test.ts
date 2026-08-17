@@ -14,6 +14,26 @@ describe("Edu AI conversation contract", () => {
     expect(messages[0]).toMatchObject({ role: "system" });
     expect(EDU_AI_SYSTEM_PROMPT).toContain("Eres Edu AI");
     expect(EDU_AI_SYSTEM_PROMPT).toContain("Nunca afirmes ser ChatGPT");
+    expect(EDU_AI_SYSTEM_PROMPT).toContain("No afirmes tener una edad");
+    expect(EDU_AI_SYSTEM_PROMPT).toContain("sin fingir una biografía humana");
+    expect(EDU_AI_SYSTEM_PROMPT).toContain("no fuerces modismos");
+  });
+
+  it("adapts the system guidance to the selected response style", () => {
+    const messages = buildEduAiMessages(
+      [{ role: "user", content: "Explícame la fotosíntesis" }],
+      "study"
+    );
+
+    expect(String(messages[0]?.content)).toContain("como un buen tutor");
+  });
+
+  it("uses a distinct instruction for each response preference", () => {
+    const prompt = [{ role: "user" as const, content: "Help me learn this in English / Помоги изучить это" }];
+    expect(String(buildEduAiMessages(prompt, "brief")[0]?.content)).toContain("breve, clara y accionable");
+    expect(String(buildEduAiMessages(prompt, "deep")[0]?.content)).toContain("profundidad amable");
+    expect(String(buildEduAiMessages(prompt, "creative")[0]?.content)).toContain("imaginación práctica");
+    expect(String(buildEduAiMessages(prompt, "study")[0]?.content)).toContain("práctica breve");
   });
 
   it("keeps recent context while removing empty messages", () => {

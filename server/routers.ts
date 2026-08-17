@@ -60,6 +60,7 @@ export const appRouter = router({
             )
             .min(1)
             .max(20),
+          responseStyle: z.enum(["brief", "deep", "creative", "study"]).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -74,7 +75,7 @@ export const appRouter = router({
         try {
           const response = await invokeLLM({
             model: "gpt-5-mini",
-            messages: buildEduAiMessages(input.messages),
+            messages: buildEduAiMessages(input.messages, input.responseStyle),
           });
           const content = getTextResponse(response.choices[0]?.message.content ?? "");
 
