@@ -7,7 +7,7 @@ import {
   startFreshConversation,
   type ConversationMessage,
 } from "@/lib/chatSession";
-import { humanizeChatError, isChatTransportAvailable } from "@/lib/chatRuntime";
+import { getEduAiApiBase, humanizeChatError, isChatTransportAvailable } from "@/lib/chatRuntime";
 import { COPY, LANGUAGE_OPTIONS, getLocale, loadLanguage, saveLanguage, type AppCopy, type AppLanguage } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { ArrowUpRight, Bot, CirclePlus, Eraser, Languages, Menu, MessageSquareText, Sparkles, X } from "lucide-react";
@@ -21,7 +21,7 @@ export default function Home() {
   const chat = trpc.eduAi.chat.useMutation();
   const copy = COPY[language];
   const isChatAvailable = isChatTransportAvailable({
-    apiBaseUrl: import.meta.env.VITE_EDU_AI_API_URL,
+    apiBaseUrl: getEduAiApiBase(import.meta.env.VITE_EDU_AI_API_URL, typeof window === "undefined" ? "" : window.location.hostname),
     hostname: typeof window === "undefined" ? "" : window.location.hostname,
   });
   const activeThread = useMemo(

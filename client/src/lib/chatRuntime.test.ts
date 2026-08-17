@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { humanizeChatError, isChatTransportAvailable, resolveEduAiApiBase } from "./chatRuntime";
+import { EDU_AI_PUBLIC_BACKEND, getEduAiApiBase, humanizeChatError, isChatTransportAvailable, resolveEduAiApiBase } from "./chatRuntime";
 
 describe("chatRuntime", () => {
   it("usa un endpoint externo sin conservar barras finales", () => {
@@ -7,8 +7,9 @@ describe("chatRuntime", () => {
     expect(isChatTransportAvailable({ apiBaseUrl: "https://api.eduai.example/", hostname: "eduai-lab-source.github.io" })).toBe(true);
   });
 
-  it("no intenta llamar a una ruta tRPC inexistente desde GitHub Pages", () => {
-    expect(isChatTransportAvailable({ hostname: "eduai-lab-source.github.io" })).toBe(false);
+  it("conecta GitHub Pages al backend público protegido", () => {
+    expect(getEduAiApiBase(undefined, "eduai-lab-source.github.io")).toBe(EDU_AI_PUBLIC_BACKEND);
+    expect(isChatTransportAvailable({ hostname: "eduai-lab-source.github.io" })).toBe(true);
   });
 
   it("convierte una respuesta HTML inválida en un mensaje humano", () => {

@@ -3,12 +3,21 @@ export type ChatRuntimeConfig = {
   hostname?: string;
 };
 
+export const EDU_AI_PUBLIC_BACKEND = "https://edusearch-9qua9exp.manus.space";
+const GITHUB_PAGES_HOSTNAME = "eduai-lab-source.github.io";
+
 export function resolveEduAiApiBase(value?: string) {
   return (value ?? "").replace(/\/$/, "");
 }
 
+export function getEduAiApiBase(value?: string, hostname = "") {
+  const configuredBase = resolveEduAiApiBase(value);
+  if (configuredBase) return configuredBase;
+  return hostname === GITHUB_PAGES_HOSTNAME ? EDU_AI_PUBLIC_BACKEND : "";
+}
+
 export function isChatTransportAvailable({ apiBaseUrl, hostname = "" }: ChatRuntimeConfig) {
-  if (resolveEduAiApiBase(apiBaseUrl)) return true;
+  if (getEduAiApiBase(apiBaseUrl, hostname)) return true;
   return !hostname.endsWith("github.io");
 }
 

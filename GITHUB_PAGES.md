@@ -1,35 +1,25 @@
-# Publicar Edu AI gratis en GitHub Pages
+# Edu AI en GitHub Pages
 
-Edu AI está preparado para funcionar como un **sitio estático**. El catálogo, la búsqueda instantánea, los filtros, el ordenamiento, las fichas detalladas y el modo catálogo de Edu AI se publican sin base de datos, sin servidor y sin claves privadas. Esto lo hace apropiado para GitHub Pages.
+La interfaz pública de Edu AI se publica desde la rama `gh-pages` del repositorio. Esta rama contiene únicamente archivos estáticos: nunca contiene claves, tokens ni credenciales de IA.
 
-## Publicación desde una rama estática
+## Arquitectura publicada
 
-La versión pública se publica desde la rama `gh-pages`. Esta rama contiene únicamente la compilación estática, por lo que no necesita base de datos, servidor ni secretos.
-
-1. Abre **Settings → Pages** dentro del repositorio.
-2. En **Build and deployment**, elige **Deploy from a branch**.
-3. Selecciona la rama `gh-pages` y la carpeta raíz (`/`).
-4. GitHub mostrará la URL pública en **Settings → Pages** cuando termine de preparar el sitio.
-
-> GitHub Pages hospeda archivos estáticos. Su disponibilidad, límites y condiciones dependen de GitHub, por lo que no es posible prometer alojamiento indefinido de forma absoluta. Sin embargo, mientras el repositorio, GitHub Pages y sus condiciones sigan activos, el directorio no requiere pagos mensuales, servidor propio ni una base de datos para funcionar.
-
-## Edu AI: identidad y respuestas
-
-El archivo `client/src/data/eduAiProfile.ts` contiene el nombre, la voz, las reglas y ejemplos de **Edu AI**. Puedes editarlo para que el asistente evolucione sin cambiar el resto del sitio.
-
-La publicación estática habilita de inmediato el **modo catálogo**: Edu AI se reconoce por su nombre, responde con tono propio, mantiene el contexto breve de la conversación en la página, recomienda, filtra por necesidad/presupuesto y compara herramientas del directorio.
-
-Para habilitar respuestas generativas abiertas se necesita un endpoint de backend seguro. No coloques jamás una clave de proveedor de IA en el repositorio, en GitHub Pages ni en el navegador. Puedes conectar, más adelante, un endpoint propio que acepte el contrato generado por `createEduAiPayload` en `client/src/lib/eduAi.ts`; el frontend enviará peticiones allí solo si existe `VITE_EDU_AI_ENDPOINT` durante la compilación. Ese endpoint debe proteger su clave como secreto y validar el origen de las solicitudes.
-
-| Capacidad | GitHub Pages estático | Con endpoint seguro opcional |
+| Parte | Dirección | Responsabilidad |
 | --- | --- | --- |
-| Catálogo, fichas, búsqueda y filtros | Sí | Sí |
-| Identidad y personalidad de Edu AI | Sí | Sí |
-| Recomendación y comparación del catálogo | Sí | Sí |
-| Contexto breve durante la sesión | Sí | Sí |
-| Preguntas abiertas generativas | No | Sí |
-| Claves privadas expuestas al visitante | No | No |
+| Interfaz pública | `https://eduai-lab-source.github.io/AI/` | Muestra el chat, conserva los hilos en el navegador y permite elegir español, inglés o ruso. |
+| Backend protegido | `https://edusearch-9qua9exp.manus.space` | Ejecuta el procedimiento tRPC de Edu AI y mantiene las credenciales del modelo fuera del navegador. |
 
-## Actualizar el catálogo
+El cliente reconoce automáticamente el dominio de GitHub Pages y se comunica con el backend protegido. Las solicitudes se limitan al origen público configurado y no incluyen credenciales de servidor en el navegador.
 
-Las herramientas viven en `client/src/data/tools.ts`. Para agregar una, conserva los campos obligatorios: `name`, `initials`, `category`, `description`, `pricing`, `officialUrl`, `freePlan`, `pros`, `cons`, `useCases`, `popularity` y `accent`. Edu AI usa automáticamente esos datos para buscar y recomendar.
+## Actualizar la interfaz
+
+1. Ejecuta `pnpm build:pages` para crear el contenido estático.
+2. Sube el código fuente a `main`.
+3. Publica el contenido compilado en la rama `gh-pages`.
+4. Si existe caché en el navegador, abre el enlace con una recarga completa mediante **Ctrl/Cmd + Shift + R**.
+
+> GitHub Pages hospeda la interfaz estática. Las respuestas generativas dependen del backend protegido, que debe permanecer publicado para que Edu AI pueda responder desde el enlace público.
+
+## Principio de seguridad
+
+No agregues claves de modelos, proveedores de IA o secretos al repositorio, a la rama `gh-pages` ni a variables expuestas como `VITE_*`. El backend publicado es el único lugar donde se ejecuta la integración con el modelo.
