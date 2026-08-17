@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { accountEncryptedWorkspaces, encryptedWorkspaces, InsertUser, users } from "../drizzle/schema";
+import { accountEncryptedWorkspaces, encryptedWorkspaces, InsertUser, sharedLearningLinks, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -131,4 +131,31 @@ export async function saveAccountEncryptedWorkspace(userId: number, ciphertext: 
   await db.insert(accountEncryptedWorkspaces).values({ userId, ciphertext }).onDuplicateKeyUpdate({
     set: { ciphertext, updatedAt: new Date() },
   });
+}
+
+export async function createSharedLearningLink(input: { id: string; token: string; userId: number; kind: string; title: string; snapshot: string; expiresAt: Date | null }) {
+  const db = await getDb();
+  if (!db) throw new Error("La compartición no está disponible en este momento.");
+  await db.insert(sharedLearningLinks).values(input);
+}
+
+export async function listSharedLearningLinks(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select({ id: sharedLearningLinks.id, token: sharedLearningLinks.token, kind: sharedLearningLinks.kind, title: sharedLearningLinks.title, expiresAt: sharedLearningLinks.expiresAt, revokedAt: sharedLearningLinks.revokedAt, createdAt: sharedLearningLinks.createdAt }).from(sharedLearningLinks).where(eq(sharedLearningLinks.userId, userId));
+}
+
+export async function revokeSharedLearningLink(userId: number, id: string) {
+  const db = await getDb();
+  if (!db) throw new Error("La compartición no está disponible en este momento.");
+  await db.update(sharedLearningLinks).set({ revokedAt: new Date() }).where(and(eq(sharedLearningLinks.id, id), eq(sharedLearningLinks.userId, userId)));
+}
+
+export async function getPublicSharedLearningLink(token: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select({ kind: sharedLearningLinks.kind, title: sharedLearningLinks.title, snapshot: sharedLearningLinks.snapshot, expiresAt: sharedLearningLinks.expiresAt, revokedAt: sharedLearningLinks.revokedAt }).from(sharedLearningLinks).where(eq(sharedLearningLinks.token, token)).limit(1);
+  const link = result[0];
+  if (!link || link.revokedAt || (link.expiresAt && link.expiresAt.getTime() <= Date.now())) return undefined;
+  return link;
 }

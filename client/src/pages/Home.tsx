@@ -18,13 +18,15 @@ import { getEduAiApiBase, humanizeChatError, isChatTransportAvailable } from "@/
 import { COPY, LANGUAGE_OPTIONS, getLocale, loadLanguage, saveLanguage, type AppCopy, type AppLanguage } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { workspaceStateFromSnapshot } from "@/lib/workspaceRestore";
+import { parseSharedNotebookSnapshot } from "@/lib/sharedNotebook";
 import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { ArrowUpRight, Bot, CirclePlus, Cloud, Eraser, FolderPlus, Languages, LibraryBig, LogIn, Menu, MessageSquareText, Search, Sparkles, Star, Trash2, UserRound, X } from "lucide-react";
+import { ArrowUpRight, Bot, BookOpen, CirclePlus, Cloud, Eraser, FolderPlus, Languages, LibraryBig, Link2, LogIn, Menu, MessageSquareText, Search, ShieldCheck, Sparkles, Star, Trash2, UserRound, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 export default function Home() {
   const { user, isAuthenticated, loading: isAuthLoading } = useAuth();
+  const [sharedToken, setSharedToken] = useState(() => getSharedToken());
   const [chatState, setChatState] = useState(loadChatState);
   const [pendingThreadId, setPendingThreadId] = useState<string | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
@@ -37,6 +39,7 @@ export default function Home() {
     return saved === "brief" || saved === "deep" || saved === "creative" || saved === "study" ? saved : "deep";
   });
   const chat = trpc.eduAi.chat.useMutation();
+  const sharedNotebook = trpc.sharing.get.useQuery({ token: sharedToken ?? "invalid" }, { enabled: Boolean(sharedToken), retry: false, refetchOnWindowFocus: false });
   const copy = COPY[language];
   const isChatAvailable = isChatTransportAvailable({
     apiBaseUrl: getEduAiApiBase(import.meta.env.VITE_EDU_AI_API_URL, typeof window === "undefined" ? "" : window.location.hostname),
@@ -54,6 +57,13 @@ export default function Home() {
     document.title = copy.documentTitle;
   }, [copy.documentTitle, language]);
   useEffect(() => window.localStorage.setItem("edu-ai:response-style:v1", responseStyle), [responseStyle]);
+  useEffect(() => {
+    const onHashChange = () => setSharedToken(getSharedToken());
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  if (sharedToken) return <SharedNotebookPage data={sharedNotebook.data} isLoading={sharedNotebook.isLoading} hasError={sharedNotebook.isError} onBack={() => { window.location.hash = ""; }} />;
 
   const startNewConversation = () => {
     if (chat.isPending) return;
@@ -189,6 +199,21 @@ export default function Home() {
       </AlertDialog>
     </main>
   );
+}
+
+function getSharedToken() {
+  if (typeof window === "undefined") return null;
+  const match = window.location.hash.match(/^#share=([A-Za-z0-9_-]{32,96})$/);
+  return match?.[1] ?? null;
+}
+
+function SharedNotebookPage({ data, isLoading, hasError, onBack }: { data?: { title: string; snapshot: string; expiresAt: string | null }; isLoading: boolean; hasError: boolean; onBack: () => void }) {
+  const notes = data ? parseSharedNotebookSnapshot(data.snapshot) : [];
+  return <main className="shared-notebook-page"><section className="shared-notebook-card">
+    <div className="shared-notebook-brand"><span><Sparkles size={15} /></span><strong>Edu AI</strong></div>
+    {isLoading ? <p className="shared-notebook-state">Abriendo un cuaderno compartido de forma segura…</p> : hasError || !data ? <><div className="shared-notebook-icon"><ShieldCheck size={24} /></div><h1>Este enlace no está disponible</h1><p>Es posible que haya vencido o que la persona que lo creó lo haya revocado.</p></> : <><div className="shared-notebook-icon"><BookOpen size={24} /></div><p className="overline">CUADERNO COMPARTIDO</p><h1>{data.title}</h1><p className="shared-notebook-detail">Este enlace muestra solo las notas seleccionadas. Las conversaciones y preferencias personales permanecen privadas.</p><div className="shared-notebook-notes">{notes.length ? notes.map((note, index) => <article key={`${index}-${note.content.slice(0, 12)}`}><span>{String(index + 1).padStart(2, "0")}</span><p>{note.content}</p></article>) : <p>No hay notas legibles en este cuaderno compartido.</p>}</div>{data.expiresAt && <small>Disponible hasta el {new Date(data.expiresAt).toLocaleDateString()}</small>}</>}
+    <button onClick={onBack}><Link2 size={15} />Volver a Edu AI</button>
+  </section></main>;
 }
 
 type SidebarContentsProps = {

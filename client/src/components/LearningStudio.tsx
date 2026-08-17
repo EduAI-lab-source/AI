@@ -28,6 +28,7 @@ import { useEffect, useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { createSyncCode, decryptWorkspace, encryptWorkspace, isWorkspaceSnapshot, loadSyncCode, parseSyncCode, persistSyncCode, type WorkspaceSnapshot } from "@/lib/workspaceSync";
 import type { ChatState } from "@/lib/chatSession";
+import { NotebookSharePanel } from "@/components/NotebookSharePanel";
 
 type StudioTab = "library" | "tools" | "notes" | "study" | "progress" | "preferences";
 export type ResponseStyle = "brief" | "deep" | "creative" | "study";
@@ -343,7 +344,7 @@ export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onC
       </button>)}</div><WeeklyChallenge copy={copy} challenge={challenge} /></div>}
 
       {tab === "notes" && <div className="studio-panel notes-panel"><p className="studio-intro">{copy.notesIntro}</p>{latestAssistantMessage && <button className="save-response-note" onClick={saveLatestResponse}><BookText size={15} />{copy.saveResponse}</button>}<div className="note-composer"><textarea value={draftNote} onChange={event => setDraftNote(event.target.value)} placeholder={copy.notePlaceholder} maxLength={1200} /><button onClick={saveNote}><PenLine size={15} />{copy.addNote}</button></div>
-        {notes.length ? <div className="note-list">{notes.map(note => <article key={note.id}><p>{note.content}</p><button onClick={() => setNotes(current => current.filter(item => item.id !== note.id))}>{copy.remove}</button></article>)}</div> : <p className="empty-copy">{copy.emptyNotes}</p>}</div>}
+        {notes.length ? <div className="note-list">{notes.map(note => <article key={note.id}><p>{note.content}</p><button onClick={() => setNotes(current => current.filter(item => item.id !== note.id))}>{copy.remove}</button></article>)}</div> : <p className="empty-copy">{copy.emptyNotes}</p>}<NotebookSharePanel language={language} notes={notes} accountConnected={accountConnected} /></div>}
 
       {tab === "study" && <div className="studio-panel study-panel"><p className="studio-intro">{copy.studyIntro}</p><div className="study-form"><BookText size={23} /><input value={studyTopic} onChange={event => setStudyTopic(event.target.value)} placeholder={copy.studyPlaceholder} onKeyDown={event => event.key === "Enter" && startStudy()} /><button onClick={startStudy}><ListChecks size={15} />{copy.startStudy}</button></div><WeeklyChallenge copy={copy} challenge={challenge} /></div>}
 

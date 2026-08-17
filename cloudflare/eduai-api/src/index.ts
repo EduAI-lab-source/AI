@@ -4,8 +4,8 @@ const ALLOWED_ORIGINS = new Set([
   "https://textoavoz.xyz",
   "https://www.textoavoz.xyz",
 ]);
-const ALLOWED_MUTATION_PATHS = new Set(["/api/trpc/eduAi.chat", "/api/trpc/workspace.sync", "/api/trpc/workspace.accountSync"]);
-const ALLOWED_QUERY_PATHS = new Set(["/api/trpc/auth.me"]);
+const ALLOWED_MUTATION_PATHS = new Set(["/api/trpc/eduAi.chat", "/api/trpc/workspace.sync", "/api/trpc/workspace.accountSync", "/api/trpc/sharing.create", "/api/trpc/sharing.revoke"]);
+const ALLOWED_QUERY_PATHS = new Set(["/api/trpc/auth.me", "/api/trpc/sharing.list", "/api/trpc/sharing.get"]);
 const OAUTH_CALLBACK_PATH = "/api/oauth/callback";
 
 interface Env {

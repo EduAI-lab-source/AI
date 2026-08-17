@@ -295,5 +295,6 @@
 - [x] Añadir dictado por voz con controles claros de inicio, transcripción, revisión y envío
 - [x] Permitir exportar notas, conversaciones y rutas de estudio como Markdown y PDF
 - [ ] Crear enlaces compartibles con selección consciente de contenido, vista previa y revocación
+- [ ] Permitir compartir de forma explícita el cuaderno seleccionado con vista previa, expiración y revocación desde una cuenta conectada
 - [ ] Mantener soporte trilingüe, accesibilidad, privacidad de datos y diseño responsive en cada flujo nuevo
 - [ ] Añadir pruebas, validación visual en escritorio y móvil, y publicación de la versión integral

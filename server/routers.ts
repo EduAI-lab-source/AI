@@ -7,7 +7,8 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM } from "./_core/llm";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { getAccountEncryptedWorkspace, getEncryptedWorkspace, saveAccountEncryptedWorkspace, saveEncryptedWorkspace } from "./db";
+import { createSharedLearningLink, getAccountEncryptedWorkspace, getEncryptedWorkspace, getPublicSharedLearningLink, listSharedLearningLinks, revokeSharedLearningLink, saveAccountEncryptedWorkspace, saveEncryptedWorkspace } from "./db";
+import { randomBytes, randomUUID } from "node:crypto";
 
 const REQUEST_LIMIT = 18;
 const REQUEST_WINDOW_MS = 5 * 60 * 1000;
@@ -147,6 +148,30 @@ export const appRouter = router({
         await saveAccountEncryptedWorkspace(ctx.user.id, input.ciphertext);
         return { saved: true, updatedAt: new Date().toISOString() };
       }),
+  }),
+  sharing: router({
+    create: protectedProcedure.input(z.object({ title: z.string().trim().min(1).max(160), snapshot: z.string().min(2).max(250_000), expiresInDays: z.number().int().min(1).max(30) })).mutation(async ({ ctx, input }) => {
+      if (!hasValidEduAiGateway(ctx.req.headers, process.env.EDU_AI_GATEWAY_SECRET)) throw new TRPCError({ code: "FORBIDDEN", message: "La puerta segura de Edu AI no autorizó la compartición." });
+      const token = randomBytes(32).toString("base64url");
+      const expiresAt = new Date(Date.now() + input.expiresInDays * 86_400_000);
+      await createSharedLearningLink({ id: randomUUID(), token, userId: ctx.user.id, kind: "notebook", title: input.title, snapshot: input.snapshot, expiresAt });
+      return { token, expiresAt: expiresAt.toISOString() };
+    }),
+    list: protectedProcedure.query(async ({ ctx }) => {
+      if (!hasValidEduAiGateway(ctx.req.headers, process.env.EDU_AI_GATEWAY_SECRET)) throw new TRPCError({ code: "FORBIDDEN", message: "La puerta segura de Edu AI no autorizó la compartición." });
+      return listSharedLearningLinks(ctx.user.id);
+    }),
+    revoke: protectedProcedure.input(z.object({ id: z.string().uuid() })).mutation(async ({ ctx, input }) => {
+      if (!hasValidEduAiGateway(ctx.req.headers, process.env.EDU_AI_GATEWAY_SECRET)) throw new TRPCError({ code: "FORBIDDEN", message: "La puerta segura de Edu AI no autorizó la compartición." });
+      await revokeSharedLearningLink(ctx.user.id, input.id);
+      return { revoked: true };
+    }),
+    get: publicProcedure.input(z.object({ token: z.string().regex(/^[A-Za-z0-9_-]{32,96}$/) })).query(async ({ ctx, input }) => {
+      if (!hasValidEduAiGateway(ctx.req.headers, process.env.EDU_AI_GATEWAY_SECRET)) throw new TRPCError({ code: "FORBIDDEN", message: "La puerta segura de Edu AI no autorizó la consulta compartida." });
+      const link = await getPublicSharedLearningLink(input.token);
+      if (!link) throw new TRPCError({ code: "NOT_FOUND", message: "Este enlace no está disponible o ya venció." });
+      return { kind: link.kind, title: link.title, snapshot: link.snapshot, expiresAt: link.expiresAt?.toISOString() ?? null };
+    }),
   }),
 });
 
