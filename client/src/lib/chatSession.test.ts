@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createConversation,
+  describeThreadRecency,
   deriveThreadTitle,
   replaceThreadMessages,
   startFreshConversation,
@@ -17,6 +18,13 @@ describe("chatSession", () => {
   it("da un título claro a cada hilo a partir del primer mensaje", () => {
     expect(deriveThreadTitle([{ role: "user", content: "Quiero aprender a crear páginas web" }]))
       .toBe("Quiero aprender a crear páginas web");
+  });
+
+  it("presenta una referencia temporal breve para el historial", () => {
+    const now = new Date("2026-08-17T18:00:00.000Z").getTime();
+    expect(describeThreadRecency(now - 90_000, now)).toBe("Ahora mismo");
+    expect(describeThreadRecency(now - 20 * 60_000, now)).toBe("Hace 20 min");
+    expect(describeThreadRecency(now - 28 * 60 * 60_000, now)).toBe("Ayer");
   });
 
   it("preserva los hilos anteriores al iniciar una conversación nueva", () => {

@@ -190,6 +190,7 @@ export function AIChatBox({
   return (
     <div
       ref={containerRef}
+      data-slot="edu-chat"
       className={cn(
         "flex flex-col bg-card text-card-foreground rounded-lg border shadow-sm",
         className
@@ -197,7 +198,7 @@ export function AIChatBox({
       style={{ height }}
     >
       {/* Messages Area */}
-      <div ref={scrollAreaRef} className="flex-1 overflow-hidden">
+      <div ref={scrollAreaRef} data-slot="chat-messages" className="flex-1 overflow-hidden">
         {displayMessages.length === 0 ? (
           <div className="flex h-full flex-col p-4">
             <div className="flex flex-1 flex-col items-center justify-center gap-6 text-muted-foreground">
@@ -234,6 +235,7 @@ export function AIChatBox({
                 return (
                   <div
                     key={index}
+                    data-message-role={message.role}
                     className={cn(
                       "flex gap-3",
                       message.role === "user"
@@ -247,12 +249,13 @@ export function AIChatBox({
                     }
                   >
                     {message.role === "assistant" && (
-                      <div className="size-8 shrink-0 mt-1 rounded-full bg-primary/10 flex items-center justify-center">
+                      <div data-slot="message-avatar" className="size-8 shrink-0 mt-1 rounded-full bg-primary/10 flex items-center justify-center">
                         <Sparkles className="size-4 text-primary" />
                       </div>
                     )}
 
                     <div
+                      data-slot="message-content"
                       className={cn(
                         "max-w-[80%] rounded-lg px-4 py-2.5",
                         message.role === "user"
@@ -272,7 +275,7 @@ export function AIChatBox({
                     </div>
 
                     {message.role === "user" && (
-                      <div className="size-8 shrink-0 mt-1 rounded-full bg-secondary flex items-center justify-center">
+                      <div data-slot="message-avatar" className="size-8 shrink-0 mt-1 rounded-full bg-secondary flex items-center justify-center">
                         <User className="size-4 text-secondary-foreground" />
                       </div>
                     )}
@@ -282,6 +285,7 @@ export function AIChatBox({
 
               {isLoading && (
                 <div
+                  data-message-role="assistant"
                   className="flex items-start gap-3"
                   style={
                     minHeightForLastMessage > 0
@@ -289,10 +293,10 @@ export function AIChatBox({
                       : undefined
                   }
                 >
-                  <div className="size-8 shrink-0 mt-1 rounded-full bg-primary/10 flex items-center justify-center">
+                  <div data-slot="message-avatar" className="size-8 shrink-0 mt-1 rounded-full bg-primary/10 flex items-center justify-center">
                     <Sparkles className="size-4 text-primary" />
                   </div>
-                  <div className="rounded-lg bg-muted px-4 py-2.5">
+                  <div data-slot="message-content" className="rounded-lg bg-muted px-4 py-2.5">
                     <Loader2 className="size-4 animate-spin text-muted-foreground" />
                   </div>
                 </div>
@@ -305,6 +309,7 @@ export function AIChatBox({
       {/* Input Area */}
       <form
         ref={inputAreaRef}
+        data-slot="chat-composer"
         onSubmit={handleSubmit}
         className="flex gap-2 p-4 border-t bg-background/50 items-end"
       >

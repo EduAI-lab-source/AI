@@ -121,9 +121,9 @@
 - [x] Retirar del recorrido principal el directorio y las recomendaciones de otras IA
 - [x] Definir el propósito, la personalidad y los límites propios de Edu AI
 - [x] Rediseñar la pantalla principal como una interfaz conversacional centrada en Edu AI
-- [ ] Implementar un backend seguro para respuestas generativas y contexto de conversación
-- [ ] Incorporar memoria de sesión y continuidad en preguntas de seguimiento
-- [ ] Preparar una base extensible para añadir futuras capacidades de Edu AI
+- [x] Implementar un backend seguro para respuestas generativas y contexto de conversación
+- [x] Incorporar memoria de sesión y continuidad en preguntas de seguimiento
+- [x] Preparar una base extensible para añadir futuras capacidades de Edu AI
 - [ ] Probar, publicar y verificar la nueva experiencia conversacional
 
 ## Experiencia de chat principal
@@ -137,3 +137,10 @@
 - [x] Verificar el reinicio de conversación y la memoria de contexto en sesión
 - [ ] Definir un endpoint protegido para que el chat generativo funcione fuera de la vista previa
 - [ ] Actualizar la publicación pública sin exponer ninguna clave de IA
+
+## Rediseño visual distintivo y responsivo
+- [x] Crear una dirección de arte propia, cálida y memorable para Edu AI, lejos de una interfaz genérica de IA
+- [x] Reestructurar el espacio de conversación para reforzar jerarquía, foco y sensación de producto editorial
+- [x] Adaptar la navegación, el historial y el compositor para una experiencia móvil nativa y cuidada
+- [x] Refinar tipografía, color, superficies, estados de interacción y movimiento con criterios de accesibilidad
+- [x] Verificar visualmente el rediseño en computadora y celular

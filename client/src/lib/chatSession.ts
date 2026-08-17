@@ -39,6 +39,16 @@ export function deriveThreadTitle(messages: ConversationMessage[]) {
     : firstUserMessage;
 }
 
+export function describeThreadRecency(updatedAt: number, now = Date.now()) {
+  const minutes = Math.max(0, Math.floor((now - updatedAt) / 60_000));
+  if (minutes < 2) return "Ahora mismo";
+  if (minutes < 60) return `Hace ${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `Hace ${hours} h`;
+  if (hours < 48) return "Ayer";
+  return new Intl.DateTimeFormat("es-419", { day: "numeric", month: "short" }).format(updatedAt);
+}
+
 export function createConversation(): ConversationThread {
   const now = Date.now();
   return {
