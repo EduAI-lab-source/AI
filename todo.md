@@ -287,6 +287,7 @@
 - [x] Habilitar el callback OAuth y el transporte de sesión desde `textoavoz.xyz` hacia la API pública sin exponer credenciales
 - [x] Mostrar un acceso voluntario de cuenta y su estado de sesión para activar la futura sincronización por cuenta
 - [ ] Publicar la interfaz de cuenta y validar el estado de sesión desde `textoavoz.xyz`
+- [ ] Corregir la visibilidad del acceso de cuenta en el dominio público cuando no existe una sesión
 - [x] Diseñar modelos persistentes y privados para conversaciones, carpetas, notas, preferencias y progreso por usuario
 - [x] Crear sincronización autenticada para conservar el espacio personal entre dispositivos sin perder el modo local actual
 - [x] Añadir carpetas, etiquetas, títulos editables, favoritos y búsqueda dentro del historial de conversaciones
