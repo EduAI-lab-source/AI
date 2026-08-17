@@ -269,3 +269,8 @@
 - [x] Capturar el estado exacto de seguridad que persiste en la pestaña conectada del usuario
 - [x] Inspeccionar certificado, navegación final y posibles recursos inseguros desde ese navegador
 - [x] Corregir la causa observada y confirmar el candado seguro en la misma sesión del usuario
+
+## Auditoría de contenido mixto
+- [x] Identificar el recurso o configuración que Chrome marca como conexión insegura pese al certificado válido
+- [x] Eliminar o actualizar toda referencia de contenido funcional cargada por HTTP
+- [x] Publicar y verificar en el navegador conectado que Chrome muestra una conexión segura
