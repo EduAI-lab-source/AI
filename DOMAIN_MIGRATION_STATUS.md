@@ -10,6 +10,7 @@
 | DNS del dominio raíz | Los cuatro registros A oficiales de GitHub Pages (`185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`) quedaron en modo **Proxied** en Cloudflare. Esto permite que el tráfico del sitio público pase por el borde de Cloudflare y reciba HTTPS y redirecciones. |
 | Acceso alternativo | `www.textoavoz.xyz` es un CNAME hacia `eduai-lab-source.github.io` y quedó en modo **Proxied** junto con el dominio raíz. |
 | API del chat | `api.textoavoz.xyz` continúa vinculado al Worker `eduai-api`. |
+| Sincronización privada | El Worker también permite únicamente `workspace.sync`; el navegador cifra cada instantánea con AES-GCM antes de enviarla y el código de recuperación nunca se transmite al servidor. |
 | GitHub Pages | La publicación está construida desde la rama `gh-pages` y muestra `http://textoavoz.xyz/`. |
 | Verificación HTTPS | Cloudflare muestra certificados Universal y Advanced activos para `textoavoz.xyz` y `*.textoavoz.xyz`, con vencimiento gestionado el 15 de noviembre de 2026. La opción **Always Use HTTPS** quedó activada. La comprobación externa de HTTP ya devuelve una redirección `301` de Cloudflare hacia HTTPS, y el navegador carga `https://textoavoz.xyz` correctamente. |
 | Interfaz pública | Se verificó desde el navegador que `https://textoavoz.xyz/` carga la interfaz completa de Edu AI, el historial y el compositor conversacional sin advertencia de conexión no segura. |
