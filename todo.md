@@ -8,7 +8,8 @@
 - [x] Probar en `https://textoavoz.xyz/` el flujo real de sincronización: crear código, guardar copia cifrada y recuperar/restaurar desde la interfaz publicada
 - [x] Verificar en navegador que una instantánea restaurada actualiza conversaciones, preferencias y notas tras descifrar la carga remota
 - [x] Añadir evidencia automatizada y accesible de la preferencia activa restaurada desde una instantánea cifrada
-- [ ] Publicar el marcado accesible de preferencias y verificar el estado restaurado en la interfaz oficial
+- [x] Publicar el marcado accesible de preferencias y verificar el estado restaurado en la interfaz oficial
+- [ ] Guardar un checkpoint de Manus que incluya la sincronización cifrada, las pruebas y la verificación de accesibilidad
 - [x] Migración aplicada a la base de datos (no aplicable: la publicación estática no depende de una base de datos)
 - [x] Seed de 40+ herramientas curadas con datos completos
 - [x] Helper de consultas en server/db.ts (no aplicable: la búsqueda instantánea opera de forma local en el navegador)
