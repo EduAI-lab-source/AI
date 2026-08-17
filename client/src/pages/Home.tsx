@@ -1,8 +1,10 @@
 import { AIChatBox } from "@/components/AIChatBox";
 import { LearningStudio, type ResponseStyle } from "@/components/LearningStudio";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import {
   describeThreadRecency,
   loadChatState,
+  removeConversation,
   replaceThreadMessages,
   saveChatState,
   startFreshConversation,
@@ -11,12 +13,13 @@ import {
 import { getEduAiApiBase, humanizeChatError, isChatTransportAvailable } from "@/lib/chatRuntime";
 import { COPY, LANGUAGE_OPTIONS, getLocale, loadLanguage, saveLanguage, type AppCopy, type AppLanguage } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
-import { ArrowUpRight, Bot, CirclePlus, Eraser, Languages, LibraryBig, Menu, MessageSquareText, Sparkles, X } from "lucide-react";
+import { ArrowUpRight, Bot, CirclePlus, Eraser, Languages, LibraryBig, Menu, MessageSquareText, Sparkles, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 export default function Home() {
   const [chatState, setChatState] = useState(loadChatState);
   const [pendingThreadId, setPendingThreadId] = useState<string | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isLearningOpen, setIsLearningOpen] = useState(false);
   const [language, setLanguage] = useState<AppLanguage>(loadLanguage);
@@ -64,6 +67,15 @@ export default function Home() {
     });
   };
 
+  const deleteConversation = () => {
+    if (!deleteTargetId || chat.isPending) return;
+    setChatState(current => removeConversation(current, deleteTargetId, {
+      title: copy.newConversation,
+      welcomeMessage: { role: "assistant", content: copy.welcomeMessage },
+    }));
+    setDeleteTargetId(null);
+  };
+
   const sendMessage = (content: string) => {
     if (!activeThread || chat.isPending || !isChatAvailable) return;
     const threadId = activeThread.id;
@@ -103,10 +115,12 @@ export default function Home() {
     onNewConversation: startNewConversation,
     onSelectThread: selectThread,
     onClearConversation: clearActiveConversation,
+    onDeleteThread: (threadId: string) => setDeleteTargetId(threadId),
     onOpenLearning: () => { setIsLearningOpen(true); setIsHistoryOpen(false); },
   };
   const learningLabel = language === "es" ? "Mi espacio" : language === "ru" ? "Моё пространство" : "My space";
   const latestAssistantMessage = [...activeThread.messages].reverse().find(message => message.role === "assistant")?.content;
+  const deleteTarget = chatState.threads.find(thread => thread.id === deleteTargetId);
 
   return (
     <main className="edu-app">
@@ -138,23 +152,38 @@ export default function Home() {
           </>}
         </div>
       </section>
+      <AlertDialog open={Boolean(deleteTarget)} onOpenChange={open => { if (!open) setDeleteTargetId(null); }}>
+        <AlertDialogContent className="edu-delete-dialog">
+          <AlertDialogHeader>
+            <span className="delete-dialog-icon"><Trash2 size={18} /></span>
+            <AlertDialogTitle>{copy.deleteConversationTitle}</AlertDialogTitle>
+            <AlertDialogDescription>{copy.deleteConversationPrompt.replace("{title}", deleteTarget?.title ?? copy.newConversation)}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="edu-dialog-cancel">{copy.cancelAction}</AlertDialogCancel>
+            <AlertDialogAction className="edu-dialog-delete" onClick={deleteConversation}>{copy.deleteConversationAction}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 }
 
 type SidebarContentsProps = {
   activeThreadId: string; isPending: boolean; threads: ReturnType<typeof loadChatState>["threads"]; copy: AppCopy; locale: string;
-  onNewConversation: () => void; onSelectThread: (threadId: string) => void; onClearConversation: () => void; onOpenLearning: () => void;
+  onNewConversation: () => void; onSelectThread: (threadId: string) => void; onClearConversation: () => void; onDeleteThread: (threadId: string) => void; onOpenLearning: () => void;
 };
 
-function SidebarContents({ activeThreadId, isPending, threads, copy, locale, onNewConversation, onSelectThread, onClearConversation, onOpenLearning }: SidebarContentsProps) {
+function SidebarContents({ activeThreadId, isPending, threads, copy, locale, onNewConversation, onSelectThread, onClearConversation, onDeleteThread, onOpenLearning }: SidebarContentsProps) {
   const learningText = copy.languageLabel === "Idioma" ? "Mi espacio de aprendizaje" : copy.languageLabel === "Язык" ? "Моё пространство для учёбы" : "My learning space";
   return <>
-    <div className="identity-lockup"><span className="identity-orb"><Sparkles size={17} /></span><span><strong>Edu AI</strong><small>{copy.brandSubtitle}</small></span></div>
-    <button className="new-chat-button" onClick={onNewConversation} disabled={isPending}><CirclePlus size={17} /> <span>{copy.newConversation}</span><span className="new-chat-key">N</span></button>
-    <button className="sidebar-learning-link" onClick={onOpenLearning}><LibraryBig size={15} /><span>{learningText}</span></button>
-    <div className="sidebar-copy"><span>{copy.notebookLabel}</span><p>{copy.notebookDescription}</p></div>
-    <nav className="thread-list" aria-label={copy.notebookLabel}>{threads.slice(0, 6).map(thread => <button key={thread.id} className={thread.id === activeThreadId ? "thread-link active" : "thread-link"} onClick={() => onSelectThread(thread.id)} disabled={isPending} aria-current={thread.id === activeThreadId ? "page" : undefined}><MessageSquareText size={15} /><span className="thread-text"><strong>{thread.title}</strong><small>{describeThreadRecency(thread.updatedAt, undefined, locale)}</small></span></button>)}</nav>
+    <div className="sidebar-main">
+      <div className="identity-lockup"><span className="identity-orb"><Sparkles size={17} /></span><span><strong>Edu AI</strong><small>{copy.brandSubtitle}</small></span></div>
+      <button type="button" className="new-chat-button" onClick={onNewConversation} disabled={isPending}><CirclePlus size={17} /> <span>{copy.newConversation}</span><span className="new-chat-key">N</span></button>
+      <button type="button" className="sidebar-learning-link" onClick={onOpenLearning}><LibraryBig size={15} /><span>{learningText}</span></button>
+      <div className="sidebar-copy"><span>{copy.notebookLabel}</span><p>{copy.notebookDescription}</p></div>
+      <nav className="thread-list" aria-label={copy.notebookLabel}>{threads.slice(0, 6).map(thread => <div className={thread.id === activeThreadId ? "thread-entry active" : "thread-entry"} key={thread.id}><button type="button" className={thread.id === activeThreadId ? "thread-link active" : "thread-link"} onClick={() => onSelectThread(thread.id)} disabled={isPending} aria-current={thread.id === activeThreadId ? "page" : undefined}><MessageSquareText size={15} /><span className="thread-text"><strong>{thread.title}</strong><small>{describeThreadRecency(thread.updatedAt, undefined, locale)}</small></span><span className="thread-arrow" aria-hidden="true">↗</span></button><button type="button" className="thread-delete" onClick={() => onDeleteThread(thread.id)} disabled={isPending} aria-label={copy.deleteThreadLabel.replace("{title}", thread.title)} title={copy.deleteThreadLabel.replace("{title}", thread.title)}><Trash2 size={13} /></button></div>)}</nav>
+    </div>
     <div className="sidebar-bottom"><a className="social-icon-link" href="https://www.facebook.com/EduardovipJ" target="_blank" rel="noreferrer" aria-label="Seguir a Edu AI en Facebook"><FacebookGlyph /></a><div className="privacy-note"><Bot size={16} /><span>{copy.privacyNote}</span></div><button className="erase-button" onClick={onClearConversation} disabled={isPending}><Eraser size={14} /> {copy.resetThread}</button></div>
   </>;
 }

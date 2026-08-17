@@ -158,3 +158,21 @@ export function startFreshConversation(state: ChatState, seed: ConversationSeed 
   const thread = createConversation(seed);
   return { activeThreadId: thread.id, threads: [thread, ...state.threads].slice(0, MAX_THREADS) };
 }
+
+export function removeConversation(state: ChatState, threadId: string, seed: ConversationSeed = {}): ChatState {
+  const remainingThreads = state.threads.filter(thread => thread.id !== threadId)
+    .sort((a, b) => b.updatedAt - a.updatedAt);
+
+  if (!remainingThreads.length) {
+    const replacement = createConversation(seed);
+    return { activeThreadId: replacement.id, threads: [replacement] };
+  }
+
+  const activeThreadId = state.activeThreadId === threadId
+    ? remainingThreads[0].id
+    : remainingThreads.some(thread => thread.id === state.activeThreadId)
+      ? state.activeThreadId
+      : remainingThreads[0].id;
+
+  return { activeThreadId, threads: remainingThreads };
+}

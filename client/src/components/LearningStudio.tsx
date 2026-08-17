@@ -165,7 +165,7 @@ export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onC
 
       {tab === "library" && <div className="studio-panel library-panel">
         <p className="studio-intro">{copy.libraryIntro}</p>
-        <aside className="library-criteria"><div><p className="book-kicker">{copy.curationTitle}</p><p>{copy.curationDetail}</p></div><div className="library-criteria-links"><a href="https://www.goodreads.com/list/show/107459.Best_Popular_Classics_Books_on_Goodreads" target="_blank" rel="noreferrer">{copy.curationReaders}<ChevronRight size={13} /></a><a href="https://thebookerprizes.com/the-booker-library/features/full-list-of-international-booker-prize-winners-shortlisted-authors-and-their-books" target="_blank" rel="noreferrer">{copy.curationAwards}<ChevronRight size={13} /></a></div></aside>
+        <aside className="library-criteria"><div><p className="book-kicker">{copy.curationTitle}</p><p>{copy.curationDetail}</p></div><div className="library-criteria-links"><a href="https://www.britannica.com/biography/Fyodor-Dostoyevsky" target="_blank" rel="noreferrer">{copy.curationReaders}<ChevronRight size={13} /></a><a href="https://www.penguinlibros.com/co/tematicas/12069-libro-la-culpa-es-de-la-vaca-9789584203912" target="_blank" rel="noreferrer">{copy.curationAwards}<ChevronRight size={13} /></a></div></aside>
         {(["known", "discovery"] as const).map(shelf => <section key={shelf} className="book-shelf">
           <h3>{shelf === "known" ? copy.known : copy.discovery}</h3>
           <div className="book-grid">{LIBRARY_BOOKS.filter(book => book.shelf === shelf).map(book => {

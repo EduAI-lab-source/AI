@@ -3,6 +3,7 @@ import {
   createConversation,
   describeThreadRecency,
   deriveThreadTitle,
+  removeConversation,
   replaceThreadMessages,
   sanitizeAssistantMessage,
   startFreshConversation,
@@ -54,6 +55,35 @@ describe("chatSession", () => {
     ]);
     expect(result.threads[0]?.title).toBe("Necesito ordenar una idea");
     expect(result.threads[0]?.messages).toHaveLength(2);
+  });
+
+  it("elimina un hilo inactivo sin alterar el hilo seleccionado", () => {
+    const active = { ...createConversation(), updatedAt: 200 };
+    const archived = { ...createConversation(), updatedAt: 100 };
+    const result = removeConversation({ activeThreadId: active.id, threads: [active, archived] }, archived.id);
+    expect(result.threads).toEqual([active]);
+    expect(result.activeThreadId).toBe(active.id);
+  });
+
+  it("selecciona el hilo más reciente disponible al eliminar el hilo activo", () => {
+    const active = { ...createConversation(), updatedAt: 100 };
+    const recent = { ...createConversation(), updatedAt: 300 };
+    const result = removeConversation({ activeThreadId: active.id, threads: [active, recent] }, active.id);
+    expect(result.threads).toEqual([recent]);
+    expect(result.activeThreadId).toBe(recent.id);
+  });
+
+  it("crea una conversación nueva localizada si se borra el último hilo", () => {
+    const onlyThread = createConversation();
+    const result = removeConversation(
+      { activeThreadId: onlyThread.id, threads: [onlyThread] },
+      onlyThread.id,
+      { title: "New conversation", welcomeMessage: { role: "assistant", content: "Hello from Edu AI" } }
+    );
+    expect(result.threads).toHaveLength(1);
+    expect(result.threads[0]?.id).not.toBe(onlyThread.id);
+    expect(result.threads[0]?.title).toBe("New conversation");
+    expect(result.threads[0]?.messages[0]?.content).toBe("Hello from Edu AI");
   });
 
   it("no conserva errores técnicos como mensajes de Edu AI", () => {

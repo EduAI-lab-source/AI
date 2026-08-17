@@ -27,6 +27,11 @@ export type AppCopy = {
   openHistory: string;
   closeHistory: string;
   startNewChat: string;
+  deleteConversationTitle: string;
+  deleteConversationPrompt: string;
+  deleteConversationAction: string;
+  cancelAction: string;
+  deleteThreadLabel: string;
 };
 
 export const LANGUAGE_OPTIONS: Array<{ code: AppLanguage; label: string; compact: string; locale: string }> = [
@@ -63,6 +68,11 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     openHistory: "Abrir historial de conversaciones",
     closeHistory: "Cerrar historial",
     startNewChat: "Nueva conversación",
+    deleteConversationTitle: "Eliminar conversación",
+    deleteConversationPrompt: "¿Quieres eliminar «{title}»? Sus mensajes se borrarán de este navegador.",
+    deleteConversationAction: "Eliminar",
+    cancelAction: "Cancelar",
+    deleteThreadLabel: "Eliminar «{title}»",
   },
   en: {
     documentTitle: "Edu AI — A space to think",
@@ -91,6 +101,11 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     openHistory: "Open conversation history",
     closeHistory: "Close history",
     startNewChat: "New conversation",
+    deleteConversationTitle: "Delete conversation",
+    deleteConversationPrompt: "Do you want to delete “{title}”? Its messages will be removed from this browser.",
+    deleteConversationAction: "Delete",
+    cancelAction: "Cancel",
+    deleteThreadLabel: "Delete “{title}”",
   },
   ru: {
     documentTitle: "Edu AI — Пространство для мыслей",
@@ -119,6 +134,11 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     openHistory: "Открыть историю разговоров",
     closeHistory: "Закрыть историю",
     startNewChat: "Новый разговор",
+    deleteConversationTitle: "Удалить разговор",
+    deleteConversationPrompt: "Удалить «{title}»? Его сообщения будут удалены из этого браузера.",
+    deleteConversationAction: "Удалить",
+    cancelAction: "Отмена",
+    deleteThreadLabel: "Удалить «{title}»",
   },
 };
 

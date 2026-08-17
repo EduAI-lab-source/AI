@@ -212,10 +212,18 @@
 - [x] Incorporar la biblioteca recomendada al sitio con enlaces de consulta y criterios editoriales transparentes
 - [x] Refinar la identidad de Edu AI con una voz cálida de joven venezolano de 27 años del oriente, sin estereotipos ni afirmaciones biográficas falsas
 - [x] Ajustar el prompt y las pruebas para conservar una conversación humana, útil y coherente en español, inglés y ruso
-- [ ] Validar, publicar y documentar la ampliación de biblioteca y personalidad
+- [x] Validar, publicar y documentar la ampliación de biblioteca y personalidad
 - [x] Añadir un ícono accesible de Facebook vinculado al perfil oficial del propietario
 - [x] Mantener Discord oculto hasta contar con una invitación pública real, sin crear un enlace ficticio
 - [x] Verificar en el componente que solo se renderiza Facebook y que Discord permanece ausente sin una URL pública
+
+## Repisa personal de recomendaciones
+- [x] Replantear la biblioteca como una repisa editorial de recomendaciones profundas, no como un catálogo genérico
+- [x] Curar obras de Charles Bukowski, Fiódor Dostoievski, *La culpa es de la vaca* y lecturas afines con valor formativo
+- [x] Redactar motivos honestos de recomendación sin afirmar que Edu AI leyó personalmente las obras
+- [x] Rediseñar visualmente las tarjetas para reflejar una colección recomendada con mayor carácter y cercanía
+- [x] Validar, publicar y documentar la repisa de recomendaciones renovada
+- [x] Verificar que la repisa declara su criterio editorial y no atribuye lecturas personales ficticias a Edu AI
 
 ## Espacio de aprendizaje y pensamiento
 - [x] Crear una biblioteca personal con estados de lectura guardados localmente
@@ -225,6 +233,29 @@
 - [x] Añadir preferencias de conversación para respuestas breves, profundas, creativas o de estudio
 - [x] Habilitar lectura en voz alta de respuestas cuando el navegador lo permita
 - [x] Diseñar retos semanales y una tarjeta de ideas compartible mediante las funciones del navegador
-- [ ] Validar la experiencia completa en escritorio y celular, con textos en español, inglés y ruso
+- [x] Validar la experiencia completa en escritorio y celular, con textos en español, inglés y ruso
 - [x] Corregir la aserción de identidad de Edu AI detectada por las pruebas automatizadas
 - [x] Reejecutar la suite tras ajustar la aserción de identidad y confirmar la validación final
+- [x] Activar y verificar la redirección forzada a HTTPS para textoavoz.xyz
+- [x] Resolver la validación DNS pendiente de GitHub Pages que mantiene textoavoz.xyz como conexión no segura mediante terminación HTTPS y proxy de Cloudflare
+- [x] Confirmar en navegador que http redirige a https y que ya no aparece la advertencia de seguridad
+- [x] Activar el proxy HTTPS de Cloudflare para el dominio raíz y www sin alterar api.textoavoz.xyz
+
+## Gestión de conversaciones y refinamiento de experiencia
+- [x] Añadir un control visible y accesible para eliminar una conversación desde la barra de historial
+- [x] Solicitar confirmación antes de borrar, con opciones claras para cancelar o eliminar definitivamente
+- [x] Asegurar que al borrar el hilo activo se seleccione o cree una conversación válida sin dejar la interfaz bloqueada
+- [x] Mejorar los estados vacíos, etiquetas de accesibilidad y comportamiento táctil del historial en móvil y escritorio
+- [x] Incorporar pruebas unitarias para la eliminación, cancelación y selección posterior de conversaciones
+- [x] Validar visualmente el flujo completo de gestión de conversaciones antes de publicar
+
+## Refinamiento visual profesional
+- [x] Reforzar la jerarquía editorial del chat, encabezado, historial y compositor sin sustituir la paleta cálida existente
+- [x] Mejorar densidad, espaciado, superficies, iconografía y estados de interacción para una experiencia de producto más profesional
+- [x] Adaptar el rediseño a móvil con controles táctiles claros, diálogos legibles y navegación estable
+- [x] Mantener la identidad propia, el soporte trilingüe, la privacidad de claves y todas las funciones educativas ya implementadas
+
+## Validación explícita de cierre
+- [x] Verificar en navegador la interfaz final en español, inglés y ruso tanto en escritorio como en móvil
+- [x] Abrir http://textoavoz.xyz en navegador y confirmar la redirección automática a HTTPS sin advertencia de seguridad
+- [x] Validar visualmente el control de eliminar conversación, el diálogo de confirmación, la cancelación y la continuidad posterior al borrado
