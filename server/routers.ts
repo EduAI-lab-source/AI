@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { buildEduAiMessages, getTextResponse } from "./eduAi";
+import { hasValidEduAiGateway } from "./eduAiGateway";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM } from "./_core/llm";
 import { systemRouter } from "./_core/systemRouter";
@@ -62,6 +63,12 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        if (!hasValidEduAiGateway(ctx.req.headers, process.env.EDU_AI_GATEWAY_SECRET)) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "La puerta segura de Edu AI no autorizó esta solicitud.",
+          });
+        }
         assertRateLimit(ctx.req);
 
         try {

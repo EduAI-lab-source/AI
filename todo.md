@@ -163,9 +163,29 @@
 ## Continuidad de Edu AI
 - [ ] Mantener el backend conversacional publicado como servicio de Edu AI sin depender de la interfaz estática
 - [ ] Usar exclusivamente api.textoavoz.xyz para la API sin redirigir ni modificar textoavoz.xyz
-- [ ] Documentar los límites de disponibilidad del proveedor sin presentar una garantía de permanencia absoluta
+- [x] Documentar los límites de disponibilidad del proveedor sin presentar una garantía de permanencia absoluta
+
+## Arquitectura durable con dominio propio
+- [ ] Definir una ruta de alojamiento mantenible para el backend de Edu AI y api.textoavoz.xyz
+- [ ] Mantener las credenciales del modelo exclusivamente en el servidor elegido
+- [ ] Preparar una vinculación HTTPS verificable sin cambiar el dominio raíz textoavoz.xyz
+- [ ] Validar la continuidad del sitio público y de las conversaciones tras la migración
+
+## Puerta de API en Cloudflare
+- [ ] Inspeccionar la zona activa de textoavoz.xyz sin modificar DNS existentes
+- [ ] Preparar un Worker que reenvíe solo la API de Edu AI y restrinja los orígenes permitidos
+- [ ] Solicitar confirmación antes de desplegar el Worker o cambiar nameservers y registros
+- [ ] Vincular api.textoavoz.xyz, verificar HTTPS y migrar el sitio público a la nueva URL
 
 ## Interfaz trilingüe
 - [x] Añadir un selector persistente y accesible de idioma en español, inglés y ruso
 - [x] Traducir los controles, mensajes de bienvenida, sugerencias y textos de interfaz al inglés y ruso
 - [x] Adaptar los atributos de idioma del documento y verificar el selector en computadora y celular
+
+## Implementación segura del Worker de Cloudflare
+- [x] Validar y desplegar el proxy restringido para el procedimiento conversacional de Edu AI
+- [x] Configurar la autenticación privada entre el Worker y el backend publicado
+- [x] Verificar el Worker mediante workers.dev sin exponer la clave del modelo
+- [ ] Vincular `api.textoavoz.xyz` cuando la zona de Cloudflare esté activa
+- [ ] Migrar GitHub Pages a la URL definitiva de la API y validar una conversación pública
+- [ ] Documentar el estado, guardar el checkpoint y publicar los cambios de configuración no secretos
