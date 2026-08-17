@@ -22,7 +22,7 @@ import { parseSharedNotebookSnapshot } from "@/lib/sharedNotebook";
 import { ArrowUpRight, Bot, BookOpen, CirclePlus, Eraser, FolderPlus, Languages, LibraryBig, Link2, Menu, MessageSquareText, Search, ShieldCheck, Star, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-const EDU_AI_LOGO_SRC = "/manus-storage/edu-ai-origen-mark_85743c02.png";
+const EDU_AI_LOGO_SRC = "https://edusearch-9qua9exp.manus.space/manus-storage/edu-ai-origen-mark_85743c02.png";
 
 export default function Home() {
   const [sharedToken, setSharedToken] = useState(() => getSharedToken());
