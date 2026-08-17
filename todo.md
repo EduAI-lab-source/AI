@@ -146,4 +146,4 @@
 - [x] Verificar visualmente el rediseño en computadora y celular
 
 ## Corrección de la versión pública
-- [ ] Subir el nuevo rediseño al repositorio y comprobar que el enlace de GitHub Pages deje de mostrar la interfaz anterior
+- [x] Subir el nuevo rediseño al repositorio y comprobar que el enlace de GitHub Pages deje de mostrar la interfaz anterior
