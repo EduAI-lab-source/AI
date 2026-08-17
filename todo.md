@@ -124,7 +124,7 @@
 - [x] Implementar un backend seguro para respuestas generativas y contexto de conversación
 - [x] Incorporar memoria de sesión y continuidad en preguntas de seguimiento
 - [x] Preparar una base extensible para añadir futuras capacidades de Edu AI
-- [ ] Probar, publicar y verificar la nueva experiencia conversacional
+- [x] Probar, publicar y verificar la nueva experiencia conversacional
 
 ## Experiencia de chat principal
 - [x] Priorizar una conversación continua y natural por encima de catálogo, búsquedas y recomendaciones
@@ -135,7 +135,7 @@
 ## Validación y publicación del chat
 - [x] Actualizar el título del navegador para reflejar Edu AI
 - [x] Verificar el reinicio de conversación y la memoria de contexto en sesión
-- [ ] Definir un endpoint protegido para que el chat generativo funcione fuera de la vista previa
+- [x] Definir un endpoint protegido para que el chat generativo funcione fuera de la vista previa
 - [x] Actualizar la publicación pública sin exponer ninguna clave de IA
 
 ## Rediseño visual distintivo y responsivo
@@ -151,8 +151,19 @@
 ## Corrección del chat público
 - [x] Diagnosticar por qué el chat público interpreta una respuesta HTML como JSON
 - [x] Impedir que Edu AI muestre mensajes de error técnicos o respuestas vacías al usuario
-- [ ] Conectar GitHub Pages a un endpoint generativo seguro antes de habilitar el envío de mensajes
-- [ ] Validar una conversación real desde el enlace público
+- [x] Conectar GitHub Pages a un endpoint generativo seguro antes de habilitar el envío de mensajes
+- [x] Validar una conversación real desde el enlace público
+- [x] Reintentar la propagación estática cuando GitHub Pages deje de reportar su error temporal de despliegue
+
+## Dominio profesional del backend
+- [ ] Preparar api.textoavoz.xyz como subdominio del backend de Edu AI
+- [ ] Configurar el registro DNS autorizado en Hostinger sin alterar el dominio principal
+- [ ] Validar HTTPS, CORS y la conversación pública desde el dominio propio
+
+## Continuidad de Edu AI
+- [ ] Mantener el backend conversacional publicado como servicio de Edu AI sin depender de la interfaz estática
+- [ ] Usar exclusivamente api.textoavoz.xyz para la API sin redirigir ni modificar textoavoz.xyz
+- [ ] Documentar los límites de disponibilidad del proveedor sin presentar una garantía de permanencia absoluta
 
 ## Interfaz trilingüe
 - [x] Añadir un selector persistente y accesible de idioma en español, inglés y ruso
