@@ -18,7 +18,7 @@ function corsHeaders(origin: string | null) {
   return new Headers({
     "access-control-allow-origin": origin,
     "access-control-allow-methods": "POST, OPTIONS",
-    "access-control-allow-headers": "content-type, x-trpc-source",
+    "access-control-allow-headers": "authorization, content-type, accept, x-trpc-batch, x-trpc-source",
     "access-control-allow-credentials": "true",
     "access-control-max-age": "86400",
     vary: "Origin",

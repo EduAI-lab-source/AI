@@ -82,6 +82,25 @@ describe("puerta de API de Edu AI", () => {
     expect(new Headers(init.headers).get("x-gateway-secret")).toBe("test-gateway-secret");
   });
 
+  it("acepta el preflight de la sesión opcional con autorización y cabeceras tRPC", async () => {
+    const response = await worker.fetch(
+      new Request("https://api.textoavoz.xyz/api/trpc/workspace.accountSync", {
+        method: "OPTIONS",
+        headers: {
+          origin: officialOrigin,
+          "access-control-request-method": "POST",
+          "access-control-request-headers": "authorization, content-type, x-trpc-batch",
+        },
+      }),
+      env
+    );
+
+    expect(response.status).toBe(204);
+    expect(response.headers.get("access-control-allow-headers")).toContain("authorization");
+    expect(response.headers.get("access-control-allow-headers")).toContain("x-trpc-batch");
+    expect(response.headers.get("access-control-allow-credentials")).toBe("true");
+  });
+
   it("rechaza procedimientos que no se encuentran explícitamente permitidos", async () => {
     const upstream = vi.fn();
     vi.stubGlobal("fetch", upstream);

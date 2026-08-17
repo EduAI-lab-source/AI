@@ -288,6 +288,9 @@
 - [x] Mostrar un acceso voluntario de cuenta y su estado de sesión para activar la futura sincronización por cuenta
 - [ ] Publicar la interfaz de cuenta y validar el estado de sesión desde `textoavoz.xyz`
 - [ ] Corregir la visibilidad del acceso de cuenta en el dominio público cuando no existe una sesión
+- [x] Evitar efectos de almacenamiento y redirecciones automáticas durante el render de la pantalla pública
+- [x] Ampliar los encabezados CORS permitidos del gateway para solicitudes autenticadas y preflight seguro
+- [ ] Publicar y comprobar el acceso público de cuenta tras el refuerzo de autenticación y CORS
 - [x] Diseñar modelos persistentes y privados para conversaciones, carpetas, notas, preferencias y progreso por usuario
 - [x] Crear sincronización autenticada para conservar el espacio personal entre dispositivos sin perder el modo local actual
 - [x] Añadir carpetas, etiquetas, títulos editables, favoritos y búsqueda dentro del historial de conversaciones
