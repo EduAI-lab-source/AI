@@ -71,6 +71,17 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
     themes: { es: ["aprendizaje", "hábitos", "responsabilidad"], en: ["learning", "habits", "responsibility"], ru: ["обучение", "привычки", "ответственность"] },
   },
   {
+    id: "teoterapia-del-amor",
+    shelf: "known",
+    title: "La Teoterapia del amor",
+    author: "Néstor Chamorro Pesantes",
+    year: "s. f.",
+    sourceLabel: { es: "Lectura de espiritualidad cristiana", en: "Christian spirituality reading", ru: "Книга о христианской духовности" },
+    sourceUrl: "https://publimundo.com.co/producto/la-teoterapia-del-amor/",
+    note: { es: "Una lectura confesional sobre amor, perdón y reflexión espiritual desde una mirada cristiana. Puede acompañar una conversación personal; no sustituye apoyo profesional de salud mental.", en: "A faith-based reading on love, forgiveness, and spiritual reflection from a Christian perspective. It may accompany personal reflection; it does not replace professional mental-health support.", ru: "Конфессиональная книга о любви, прощении и духовном размышлении в христианской традиции. Она может сопровождать личные размышления, но не заменяет профессиональную психологическую помощь." },
+    themes: { es: ["amor", "perdón", "fe"], en: ["love", "forgiveness", "faith"], ru: ["любовь", "прощение", "вера"] },
+  },
+  {
     id: "mans-search-for-meaning",
     shelf: "known",
     title: "Man's Search for Meaning",

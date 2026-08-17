@@ -12,4 +12,16 @@ describe("Edu AI library curation", () => {
     const serialized = JSON.stringify(LIBRARY_BOOKS);
     expect(serialized).not.toMatch(/rating|stars|estrellas/i);
   });
+
+  it("credits Teoterapia del amor to Néstor Chamorro and keeps its editorial source", () => {
+    const book = LIBRARY_BOOKS.find(item => item.id === "teoterapia-del-amor");
+
+    expect(book).toMatchObject({
+      title: "La Teoterapia del amor",
+      author: "Néstor Chamorro Pesantes",
+      shelf: "known",
+      sourceUrl: "https://publimundo.com.co/producto/la-teoterapia-del-amor/",
+    });
+    expect(book?.note.es).toContain("no sustituye apoyo profesional de salud mental");
+  });
 });
