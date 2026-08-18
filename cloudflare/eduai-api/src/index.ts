@@ -18,6 +18,7 @@ type AiBinding = {
 
 interface Env {
   EDU_AI_GATEWAY_SECRET: string;
+  TURNSTILE_SECRET_KEY?: string;
   AI: AiBinding;
 }
 
@@ -85,10 +86,29 @@ function extractTtsReservation(payload: unknown) {
   return result.result?.data?.json;
 }
 
+async function verifyTurnstileToken(token: string, request: Request, env: Env) {
+  if (!env.TURNSTILE_SECRET_KEY) return { available: false, valid: false } as const;
+
+  try {
+    const form = new URLSearchParams({ secret: env.TURNSTILE_SECRET_KEY, response: token });
+    const clientIp = request.headers.get("cf-connecting-ip");
+    if (clientIp) form.set("remoteip", clientIp);
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: form,
+    });
+    const result = await response.json().catch(() => null) as { success?: unknown } | null;
+    return { available: true, valid: response.ok && result?.success === true } as const;
+  } catch {
+    return { available: true, valid: false } as const;
+  }
+}
+
 async function synthesizeTts(request: Request, env: Env, origin: string | null) {
   if (!env.AI) return errorResponse("La voz de Edu AI no está disponible en este momento.", origin, 503);
 
-  let payload: { text?: unknown; speaker?: unknown; visitorId?: unknown };
+  let payload: { text?: unknown; speaker?: unknown; visitorId?: unknown; turnstileToken?: unknown };
   try {
     payload = await request.json();
   } catch {
@@ -98,9 +118,15 @@ async function synthesizeTts(request: Request, env: Env, origin: string | null) 
   const text = typeof payload.text === "string" ? payload.text.trim() : "";
   const speaker = typeof payload.speaker === "string" ? payload.speaker : "aquila";
   const visitorId = typeof payload.visitorId === "string" ? payload.visitorId : "";
+  const turnstileToken = typeof payload.turnstileToken === "string" ? payload.turnstileToken.trim() : "";
   if (!text || text.length > TTS_MAX_CHARACTERS) return errorResponse(`El texto debe tener entre 1 y ${TTS_MAX_CHARACTERS} caracteres.`, origin);
   if (!TTS_SPEAKERS.has(speaker)) return errorResponse("La voz elegida no está disponible.", origin);
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(visitorId)) return errorResponse("No se pudo validar la sesión de voz. Recarga la página e inténtalo de nuevo.", origin);
+  if (!turnstileToken) return errorResponse("Completa la comprobación de seguridad antes de crear el audio.", origin, 403);
+
+  const verification = await verifyTurnstileToken(turnstileToken, request, env);
+  if (!verification.available) return errorResponse("La protección de voz no está configurada en este momento.", origin, 503);
+  if (!verification.valid) return errorResponse("No pudimos comprobar el acceso seguro. Recarga la página e inténtalo de nuevo.", origin, 403);
 
   const upstreamUrl = new URL("/api/trpc/tts.reserve", UPSTREAM_ORIGIN);
   let reservationResponse: Response;
