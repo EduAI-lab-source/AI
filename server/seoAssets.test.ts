@@ -13,6 +13,8 @@ describe("activos SEO de Edu AI", () => {
     expect(html).toContain('rel="canonical" href="https://textoavoz.xyz/"');
     expect(html).toContain('name="description" content="Convierte texto en una voz natural en español y descarga tu MP3.');
     expect(html).toContain('name="google-site-verification" content="Pt9SjJjQvlUr9ASayDeCiq0IdPpRACQP7VKdgWeWAv0"');
+    expect(html).toContain('rel="icon" type="image/png" href="https://edusearch-9qua9exp.manus.space/manus-storage/edu-ai-origen-mark_85743c02.png"');
+    expect(html).toContain('rel="apple-touch-icon" href="https://edusearch-9qua9exp.manus.space/manus-storage/edu-ai-origen-mark_85743c02.png"');
     expect(html).toContain('"@type": "WebSite"');
     expect(html).toContain('"@type": "WebApplication"');
     expect(html).toContain('"isAccessibleForFree": true');
