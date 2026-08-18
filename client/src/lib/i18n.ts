@@ -42,7 +42,7 @@ export const LANGUAGE_OPTIONS: Array<{ code: AppLanguage; label: string; compact
 
 export const COPY: Record<AppLanguage, AppCopy> = {
   es: {
-    documentTitle: "Edu AI — Tu espacio para pensar",
+    documentTitle: "Texto a voz gratis en español: crea y descarga MP3 | Edu AI",
     brandSubtitle: "Voz para tus ideas",
     languageLabel: "Idioma",
     newConversation: "Nueva conversación",
@@ -53,7 +53,7 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     statusLine: "Voz natural, sin cuenta",
     heroTitle: "Haz que tus ideas",
     heroEmphasis: "se escuchen.",
-    headerSubtitle: "Convierte un texto en una voz clara, cercana y descargable.",
+    headerSubtitle: "Convierte texto a voz natural, descárgalo en MP3 y estudia sin cuenta.",
     introOverline: "EMPEZAR TAMBIÉN ES AVANZAR",
     introTitle: "¿Por dónde",
     introEmphasis: "quieres comenzar?",
@@ -75,7 +75,7 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     deleteThreadLabel: "Eliminar «{title}»",
   },
   en: {
-    documentTitle: "Edu AI — A space to think",
+    documentTitle: "Free Spanish Text to Speech: Create and Download MP3 | Edu AI",
     brandSubtitle: "A voice for your ideas",
     languageLabel: "Language",
     newConversation: "New conversation",
@@ -86,7 +86,7 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     statusLine: "Natural voice, no account",
     heroTitle: "Let your ideas",
     heroEmphasis: "be heard.",
-    headerSubtitle: "Turn text into a clear, close, downloadable voice.",
+    headerSubtitle: "Turn text into a natural Spanish voice and download a short MP3 with no account.",
     introOverline: "BEGINNING IS ALSO MOVING FORWARD",
     introTitle: "Where would you",
     introEmphasis: "like to begin?",
@@ -108,7 +108,7 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     deleteThreadLabel: "Delete “{title}”",
   },
   ru: {
-    documentTitle: "Edu AI — Пространство для мыслей",
+    documentTitle: "Текст в речь на испанском: создайте и скачайте MP3 | Edu AI",
     brandSubtitle: "Голос для ваших идей",
     languageLabel: "Язык",
     newConversation: "Новый разговор",
@@ -119,7 +119,7 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     statusLine: "Естественный голос без аккаунта",
     heroTitle: "Пусть ваши идеи",
     heroEmphasis: "звучат.",
-    headerSubtitle: "Превратите текст в ясный, тёплый голос, который можно скачать.",
+    headerSubtitle: "Превратите текст в естественную испанскую речь и скачайте короткий MP3 без аккаунта.",
     introOverline: "НАЧАТЬ — УЖЕ ДВИГАТЬСЯ ВПЕРЁД",
     introTitle: "С чего вы",
     introEmphasis: "хотите начать?",
