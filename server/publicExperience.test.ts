@@ -21,7 +21,7 @@ describe("experiencia pública de Edu AI", () => {
     expect(home).toContain("const EDU_AI_LOGO_SRC = \"https://edusearch-9qua9exp.manus.space/manus-storage/edu-ai-origen-mark_85743c02.png\"");
     expect(home).toContain('className="identity-orb"');
     expect(home).toContain('className="header-mark"');
-    expect(home).toContain('className="intro-mark"');
+    expect(home).toContain("<TextToSpeechStudio");
   });
 
   it("conserva la copia cifrada privada y no ofrece sincronización o enlaces dependientes de cuenta", () => {

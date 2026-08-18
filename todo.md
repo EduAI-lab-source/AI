@@ -315,5 +315,5 @@
 - [x] Diseñar una experiencia principal de texto a voz con un editor, selector de voces, vista previa, descarga y accesibilidad responsive
 - [x] Implementar una síntesis de voz segura con límites de uso claros y aplicados en el servidor
 - [x] Reubicar el chat de Edu AI como una herramienta secundaria sin perder historial, personalidad ni funciones de aprendizaje
-- [ ] Añadir pruebas para las cuotas, las voces, la descarga y los flujos de texto a voz
+- [x] Añadir pruebas para las cuotas, las voces, la descarga y los flujos de texto a voz
 - [x] Seleccionar una alternativa de texto a voz que no exija al propietario una cuenta ni una suscripción de pago externa
