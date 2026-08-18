@@ -347,3 +347,4 @@
 - [ ] Añadir y publicar la etiqueta de verificación de Google Search Console para textoavoz.xyz
 - [ ] Actualizar la identidad de Edu AI para atribuir su creación a Eduardo con la descripción indicada por el titular
 - [ ] Ampliar la experiencia trilingüe con selección mundial de idioma accesible para visitantes
+- [ ] Restaurar y preservar el archivo CNAME de textoavoz.xyz en las publicaciones de GitHub Pages
