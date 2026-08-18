@@ -157,8 +157,35 @@ export const ttsDailyUsage = mysqlTable("tts_daily_usage", {
   index("tts_daily_usage_date_idx").on(table.usageDate),
 ]);
 
+/** One account balance per signed-in person. Credits remain inactive until a payment provider is configured. */
+export const creditBalances = mysqlTable("credit_balances", {
+  userId: int("userId").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  availableCredits: int("availableCredits").notNull().default(0),
+  pendingCredits: int("pendingCredits").notNull().default(0),
+  lifetimePurchasedCredits: int("lifetimePurchasedCredits").notNull().default(0),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/** Immutable audit trail for future credit purchases, use and refunds; no checkout currently writes here. */
+export const creditLedger = mysqlTable("credit_ledger", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  change: int("change").notNull(),
+  reason: varchar("reason", { length: 48 }).notNull(),
+  status: mysqlEnum("status", ["pending", "confirmed", "reversed"]).notNull().default("pending"),
+  provider: varchar("provider", { length: 48 }),
+  providerReference: varchar("providerReference", { length: 191 }),
+  metadata: json("metadata").$type<Record<string, unknown> | null>(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, table => [
+  index("credit_ledger_user_created_idx").on(table.userId, table.createdAt),
+  uniqueIndex("credit_ledger_provider_reference_idx").on(table.provider, table.providerReference),
+]);
+
 export type ConversationFolder = typeof conversationFolders.$inferSelect;
 export type Conversation = typeof conversations.$inferSelect;
 export type ConversationMessageRow = typeof conversationMessages.$inferSelect;
 export type LearningNote = typeof learningNotes.$inferSelect;
 export type LearningUpload = typeof learningUploads.$inferSelect;
+export type CreditBalance = typeof creditBalances.$inferSelect;
+export type CreditLedgerEntry = typeof creditLedger.$inferSelect;

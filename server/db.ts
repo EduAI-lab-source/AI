@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import { and, eq, inArray } from "drizzle-orm";
-import { accountEncryptedWorkspaces, encryptedWorkspaces, InsertUser, sharedLearningLinks, ttsDailyUsage, users } from "../drizzle/schema";
+import { accountEncryptedWorkspaces, creditBalances, encryptedWorkspaces, InsertUser, sharedLearningLinks, ttsDailyUsage, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { evaluateTtsQuota, TTS_GLOBAL_USAGE_KEY, type TtsQuotaDecision } from "./ttsQuota";
 
@@ -194,4 +194,22 @@ export async function reserveTtsQuota(input: { visitorHash: string; characters: 
 
     return decision;
   });
+}
+
+/** Returns a zeroed balance until a future checkout creates the account's first credit movement. */
+export async function getCreditBalance(userId: number) {
+  const db = await getDb();
+  if (!db) return { availableCredits: 0, pendingCredits: 0, lifetimePurchasedCredits: 0 };
+
+  const result = await db
+    .select({
+      availableCredits: creditBalances.availableCredits,
+      pendingCredits: creditBalances.pendingCredits,
+      lifetimePurchasedCredits: creditBalances.lifetimePurchasedCredits,
+    })
+    .from(creditBalances)
+    .where(eq(creditBalances.userId, userId))
+    .limit(1);
+
+  return result[0] ?? { availableCredits: 0, pendingCredits: 0, lifetimePurchasedCredits: 0 };
 }

@@ -23,6 +23,7 @@ import { ArrowUpRight, Bot, BookOpen, CirclePlus, Eraser, FolderPlus, Languages,
 import { useEffect, useMemo, useState } from "react";
 import { TextToSpeechStudio } from "@/components/TextToSpeechStudio";
 import { EditorialGuides, PublicFooter, PublicInfoPage, publicPageFromHash, type PublicPageId } from "@/components/PublicTrustContent";
+import { AdPlacement } from "@/components/MonetizationReadiness";
 
 const EDU_AI_LOGO_SRC = "https://edusearch-9qua9exp.manus.space/manus-storage/edu-ai-origen-mark_85743c02.png";
 
@@ -176,6 +177,7 @@ export default function Home() {
         <div className="conversation-stage">
           {isLearningOpen ? <LearningStudio language={language} latestAssistantMessage={latestAssistantMessage} onAskEdu={sendMessage} onClose={() => setIsLearningOpen(false)} responseStyle={responseStyle} onResponseStyleChange={setResponseStyle} chatState={chatState} onRestoreWorkspace={snapshot => { const restored = workspaceStateFromSnapshot(snapshot); setChatState(restored.chatState); setLanguage(restored.language); setResponseStyle(restored.responseStyle); }} /> : <>
             <TextToSpeechStudio language={language} latestAssistantMessage={latestAssistantMessage} />
+            <AdPlacement placement="studio" language={language} />
             <section className="assistant-secondary" aria-labelledby="assistant-secondary-title">
               <button className="assistant-secondary-toggle" onClick={() => setIsAssistantOpen(open => !open)} aria-expanded={isAssistantOpen}><span><Bot size={17} /><span><small>{language === "es" ? "HERRAMIENTA DE IDEAS" : language === "ru" ? "ИНСТРУМЕНТ ДЛЯ ИДЕЙ" : "IDEAS TOOL"}</small><strong id="assistant-secondary-title">{language === "es" ? "Conversar con Edu AI" : language === "ru" ? "Поговорить с Edu AI" : "Talk with Edu AI"}</strong></span></span><span>{isAssistantOpen ? (language === "es" ? "Cerrar" : language === "ru" ? "Закрыть" : "Close") : (language === "es" ? "Abrir" : language === "ru" ? "Открыть" : "Open")}</span></button>
               {!isAssistantOpen && <p>{language === "es" ? "Cuando necesites ordenar una idea, estudiar o crear un plan, Edu AI sigue aquí para acompañarte." : language === "ru" ? "Когда нужно упорядочить мысль, учиться или составить план, Edu AI остаётся рядом." : "Whenever you need to organise an idea, study, or make a plan, Edu AI is still here with you."}</p>}
@@ -184,6 +186,7 @@ export default function Home() {
           </>}
         </div>
         <EditorialGuides language={language} />
+        <AdPlacement placement="guides" language={language} />
         <PublicFooter language={language} onNavigate={page => { window.location.hash = page; }} />
       </section>
       <AlertDialog open={Boolean(deleteTarget)} onOpenChange={open => { if (!open) setDeleteTargetId(null); }}>

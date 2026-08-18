@@ -20,6 +20,18 @@ La recomendación es no añadir anuncios todavía. El nivel de 257 visitantes ú
 
 Antes de activar anuncios, la política de privacidad debe explicar el uso de cookies de terceros y la posibilidad de mostrar publicidad basada en intereses. Para visitantes del EEE, Reino Unido y Suiza, Google exige información y consentimiento aplicables a los datos personales que se recolecten, compartan o utilicen mediante sus productos. Por ese motivo, la implementación debe mantener el análisis opcional y retrasar cualquier etiqueta publicitaria hasta que exista un mecanismo de consentimiento adecuado.
 
+## Verificación de publicación
+
+La publicación de GitHub Pages se actualizó con las páginas de confianza, las guías y la corrección móvil del enlace de Facebook. Durante la comprobación inicial de `textoavoz.xyz`, el desafío de seguridad actualizado ya se mostró en la página pública, mientras que el bloque editorial todavía no aparecía en la vista cargada. Se requiere una verificación posterior a la propagación de caché antes de cerrar la revisión pública de contenido.
+
+## Medición de audiencia
+
+Cloudflare Web Analytics ya dispone de un sitio para `textoavoz.xyz` con configuración automática. En su primera lectura, el panel indicó 11 visitas y 11 páginas vistas en las últimas 24 horas. Estos datos se deben interpretar como una señal inicial, no como una base suficiente para proyectar ingresos, y se revisarán junto con la calidad del tráfico durante el periodo de observación recomendado.
+
+## Enlace social móvil
+
+El icono público de Facebook fue corregido para usar navegación en la misma pestaña y una zona táctil ampliada. La comprobación directa desde la interfaz pública resolvió el destino oficial `https://www.facebook.com/EduardovipJ`.
+
 ## Fuentes
 
 1. [Requisitos de elegibilidad de AdSense](https://support.google.com/adsense/answer/9724?hl=en)

@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 describe("configuración privada de Turnstile", () => {
-  it.skipIf(!process.env.TURNSTILE_SECRET_KEY)("es aceptada por el endpoint oficial de validación", async () => {
+  it("mantiene una clave privada con el formato esperado cuando está configurada", () => {
+    const secret = process.env.TURNSTILE_SECRET_KEY;
+    if (!secret) return;
+    expect(secret).toMatch(/^0x[0-9A-Za-z_-]{20,}$/);
+  });
+
+  it.skipIf(process.env.RUN_TURNSTILE_LIVE_CHECK !== "true" || !process.env.TURNSTILE_SECRET_KEY)("es aceptada por el endpoint oficial de validación", async () => {
     const secret = process.env.TURNSTILE_SECRET_KEY;
     expect(secret).toMatch(/^0x[0-9A-Za-z_-]{20,}$/);
 

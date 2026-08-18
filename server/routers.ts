@@ -7,8 +7,9 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM } from "./_core/llm";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { createSharedLearningLink, getAccountEncryptedWorkspace, getEncryptedWorkspace, getPublicSharedLearningLink, listSharedLearningLinks, reserveTtsQuota, revokeSharedLearningLink, saveAccountEncryptedWorkspace, saveEncryptedWorkspace } from "./db";
+import { createSharedLearningLink, getAccountEncryptedWorkspace, getCreditBalance, getEncryptedWorkspace, getPublicSharedLearningLink, listSharedLearningLinks, reserveTtsQuota, revokeSharedLearningLink, saveAccountEncryptedWorkspace, saveEncryptedWorkspace } from "./db";
 import { randomBytes, randomUUID } from "node:crypto";
+import { getCreditReadiness } from "./credits";
 import { createTtsNetworkIdentity, TTS_MAX_CHARACTERS_PER_SYNTHESIS } from "./ttsQuota";
 
 const REQUEST_LIMIT = 18;
@@ -133,6 +134,16 @@ export const appRouter = router({
           throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "La voz de Edu AI no está disponible en este momento." });
         }
       }),
+  }),
+  credits: router({
+    readiness: publicProcedure.query(() => getCreditReadiness()),
+    account: protectedProcedure.query(async ({ ctx }) => {
+      if (!hasValidEduAiGateway(ctx.req.headers, process.env.EDU_AI_GATEWAY_SECRET)) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "La puerta segura de Edu AI no autorizó la consulta de créditos." });
+      }
+      const balance = await getCreditBalance(ctx.user.id);
+      return { ...getCreditReadiness(), balance };
+    }),
   }),
   workspace: router({
     sync: publicProcedure
