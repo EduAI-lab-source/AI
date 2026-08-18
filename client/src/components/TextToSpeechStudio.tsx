@@ -60,6 +60,8 @@ export function TextToSpeechStudio({ language, latestAssistantMessage }: { langu
       if (!mounted || !turnstileContainerRef.current || turnstileWidgetRef.current) return;
       turnstileWidgetRef.current = turnstile.render(turnstileContainerRef.current, {
         sitekey: TURNSTILE_SITE_KEY,
+        action: "tts-generate",
+        appearance: "always",
         callback: token => { if (mounted) { setTurnstileToken(token); setTurnstileError(false); } },
         "error-callback": () => { if (mounted) setTurnstileError(true); },
         "expired-callback": () => { if (mounted) setTurnstileToken(""); },

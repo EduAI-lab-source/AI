@@ -3,6 +3,8 @@ export const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile
 
 export type TurnstileWidgetOptions = {
   sitekey: string;
+  action?: string;
+  appearance?: "always" | "execute" | "interaction-only";
   callback: (token: string) => void;
   "error-callback": () => void;
   "expired-callback": () => void;
