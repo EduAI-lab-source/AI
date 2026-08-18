@@ -2,7 +2,7 @@ export const MONETIZATION_CONFIG = {
   analyticsProvider: "cloudflare-web-analytics",
   optionalAnalyticsEnabled: false,
   adsEnabled: false,
-  adPublisherId: null as string | null,
+  adPublisherId: "ca-pub-5413784450478901",
 } as const;
 
 export type MonetizationPlacement = "studio" | "guides" | "footer";

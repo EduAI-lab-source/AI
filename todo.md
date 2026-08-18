@@ -339,3 +339,4 @@
 - [x] Diseñar la base de datos y las rutas de créditos sin habilitar pagos ni canjes hasta configurar un proveedor
 - [x] Cubrir la preparación de monetización con pruebas, revisión móvil y publicación oficial
 - [x] Corregir y verificar que el enlace oficial de Facebook abra correctamente desde dispositivos móviles
+- [x] Incorporar la etiqueta oficial de Google AdSense con el ID de publicador proporcionado, sin habilitar bloques publicitarios aún
