@@ -15,7 +15,7 @@ import {
   type ConversationMessage,
 } from "@/lib/chatSession";
 import { getEduAiApiBase, humanizeChatError, isChatTransportAvailable } from "@/lib/chatRuntime";
-import { COPY, LANGUAGE_OPTIONS, getLocale, loadLanguage, saveLanguage, type AppCopy, type AppLanguage } from "@/lib/i18n";
+import { COPY, GLOBAL_TRANSLATION_OPTIONS, LANGUAGE_OPTIONS, getGlobalTranslationUrl, getLocale, isAppLanguage, loadLanguage, saveLanguage, type AppCopy, type AppLanguage } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { workspaceStateFromSnapshot } from "@/lib/workspaceRestore";
 import { parseSharedNotebookSnapshot } from "@/lib/sharedNotebook";
@@ -268,7 +268,17 @@ function SidebarContents({ activeThreadId, isPending, threads, folders, copy, lo
 }
 
 function LanguagePicker({ language, copy, onChange }: { language: AppLanguage; copy: AppCopy; onChange: (language: AppLanguage) => void }) {
-  return <label className="language-picker"><Languages size={15} aria-hidden="true" /><span className="sr-only">{copy.languageLabel}</span><select value={language} onChange={event => onChange(event.target.value as AppLanguage)} aria-label={copy.languageLabel}>{LANGUAGE_OPTIONS.map(option => <option key={option.code} value={option.code}>{option.label}</option>)}</select></label>;
+  const selectLanguage = (value: string) => {
+    if (isAppLanguage(value)) {
+      onChange(value);
+      return;
+    }
+
+    const translationUrl = typeof window === "undefined" ? null : getGlobalTranslationUrl(value, window.location.href);
+    if (translationUrl) window.location.assign(translationUrl);
+  };
+
+  return <label className="language-picker"><Languages size={15} aria-hidden="true" /><span className="sr-only">{copy.languageLabel}</span><select value={language} onChange={event => selectLanguage(event.target.value)} aria-label={copy.languageLabel}><optgroup label={copy.languageLabel}>{LANGUAGE_OPTIONS.map(option => <option key={option.code} value={option.code}>{option.label}</option>)}</optgroup><optgroup label={copy.globalTranslationLabel}>{GLOBAL_TRANSLATION_OPTIONS.map(option => <option key={option.code} value={option.code}>{option.label}</option>)}</optgroup></select></label>;
 }
 
 function FacebookGlyph() {
