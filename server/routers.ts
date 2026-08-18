@@ -7,8 +7,9 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM } from "./_core/llm";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { createSharedLearningLink, getAccountEncryptedWorkspace, getEncryptedWorkspace, getPublicSharedLearningLink, listSharedLearningLinks, revokeSharedLearningLink, saveAccountEncryptedWorkspace, saveEncryptedWorkspace } from "./db";
-import { randomBytes, randomUUID } from "node:crypto";
+import { createSharedLearningLink, getAccountEncryptedWorkspace, getEncryptedWorkspace, getPublicSharedLearningLink, listSharedLearningLinks, reserveTtsQuota, revokeSharedLearningLink, saveAccountEncryptedWorkspace, saveEncryptedWorkspace } from "./db";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { TTS_MAX_CHARACTERS_PER_SYNTHESIS } from "./ttsQuota";
 
 const REQUEST_LIMIT = 18;
 const REQUEST_WINDOW_MS = 5 * 60 * 1000;
@@ -97,6 +98,38 @@ export const appRouter = router({
             code: "INTERNAL_SERVER_ERROR",
             message: "Edu AI no pudo responder en este momento. Inténtalo de nuevo en unos segundos.",
           });
+        }
+      }),
+  }),
+  tts: router({
+    reserve: publicProcedure
+      .input(z.object({
+        visitorId: z.string().uuid(),
+        characters: z.number().int().min(1).max(TTS_MAX_CHARACTERS_PER_SYNTHESIS),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (!hasValidEduAiGateway(ctx.req.headers, process.env.EDU_AI_GATEWAY_SECRET)) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "La puerta segura de Edu AI no autorizó la síntesis de voz." });
+        }
+        const forwarded = ctx.req.headers["x-forwarded-for"];
+        const forwardedIp = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(",")[0];
+        const visitorHash = createHash("sha256").update(`${forwardedIp?.trim() ?? ctx.req.ip ?? "anonymous"}:${input.visitorId}`).digest("hex");
+
+        try {
+          const decision = await reserveTtsQuota({ visitorHash, characters: input.characters });
+          if (!decision.allowed) {
+            const messages = {
+              visitor_requests: "Ya usaste las tres síntesis disponibles hoy. Vuelve mañana para continuar.",
+              visitor_characters: "El texto supera tu cuota diaria de voz. Prueba con un fragmento más corto o vuelve mañana.",
+              shared_capacity: "La capacidad gratuita de voz de hoy ya se agotó. Vuelve a intentarlo mañana.",
+            } as const;
+            throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: messages[decision.reason] });
+          }
+          return { allowed: true, remainingCharacters: decision.remainingVisitorCharacters, remainingSharedCharacters: decision.remainingGlobalCharacters };
+        } catch (error) {
+          if (error instanceof TRPCError) throw error;
+          console.error("[TTS] Failed to reserve capacity", error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "La voz de Edu AI no está disponible en este momento." });
         }
       }),
   }),

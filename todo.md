@@ -312,3 +312,8 @@
 - [x] Crear y entregar un logotipo de marca distintivo para Edu AI, basado en la paleta cálida actual
 - [x] Rediseñar el logo de Edu AI con una dirección más singular y aplicarlo en la cabecera publicada
 - [x] Reforzar la personalidad conversacional de Edu AI para respuestas más humanas, contextuales y naturales, sin suplantar otra identidad
+- [x] Diseñar una experiencia principal de texto a voz con un editor, selector de voces, vista previa, descarga y accesibilidad responsive
+- [x] Implementar una síntesis de voz segura con límites de uso claros y aplicados en el servidor
+- [x] Reubicar el chat de Edu AI como una herramienta secundaria sin perder historial, personalidad ni funciones de aprendizaje
+- [ ] Añadir pruebas para las cuotas, las voces, la descarga y los flujos de texto a voz
+- [x] Seleccionar una alternativa de texto a voz que no exija al propietario una cuenta ni una suscripción de pago externa

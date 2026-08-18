@@ -19,8 +19,9 @@ import { COPY, LANGUAGE_OPTIONS, getLocale, loadLanguage, saveLanguage, type App
 import { trpc } from "@/lib/trpc";
 import { workspaceStateFromSnapshot } from "@/lib/workspaceRestore";
 import { parseSharedNotebookSnapshot } from "@/lib/sharedNotebook";
-import { ArrowUpRight, Bot, BookOpen, CirclePlus, Eraser, FolderPlus, Languages, LibraryBig, Link2, Menu, MessageSquareText, Search, ShieldCheck, Star, Trash2, X } from "lucide-react";
+import { ArrowUpRight, Bot, BookOpen, CirclePlus, Eraser, FolderPlus, Languages, LibraryBig, Link2, Menu, MessageSquareText, Search, ShieldCheck, Star, Trash2, Volume2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { TextToSpeechStudio } from "@/components/TextToSpeechStudio";
 
 const EDU_AI_LOGO_SRC = "https://edusearch-9qua9exp.manus.space/manus-storage/edu-ai-origen-mark_85743c02.png";
 
@@ -31,6 +32,7 @@ export default function Home() {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isLearningOpen, setIsLearningOpen] = useState(false);
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [language, setLanguage] = useState<AppLanguage>(loadLanguage);
   const [responseStyle, setResponseStyle] = useState<ResponseStyle>(() => {
     if (typeof window === "undefined") return "deep";
@@ -162,18 +164,17 @@ export default function Home() {
           <button className="mobile-new-chat" onClick={startNewConversation} disabled={chat.isPending} aria-label={copy.startNewChat}><CirclePlus size={20} /></button>
         </div>
         <header className="conversation-header">
-          <div><span className="status-line"><i /> {copy.statusLine}</span><h1>{hasConversation ? activeThread.title : <>{copy.heroTitle}<br /><em>{copy.heroEmphasis}</em></>}</h1><p className="header-subtitle">{copy.headerSubtitle}</p></div>
+          <div><span className="status-line"><i /> {copy.statusLine}</span><h1>{hasConversation && isAssistantOpen ? activeThread.title : <>{copy.heroTitle}<br /><em>{copy.heroEmphasis}</em></>}</h1><p className="header-subtitle">{copy.headerSubtitle}</p></div>
           <div className="header-actions"><button className="learning-entry" onClick={() => setIsLearningOpen(current => !current)} aria-pressed={isLearningOpen}><LibraryBig size={15} />{learningLabel}</button><LanguagePicker language={language} copy={copy} onChange={setLanguage} /><span className="header-mark" aria-hidden="true"><img src={EDU_AI_LOGO_SRC} alt="" /></span></div>
         </header>
         <div className="conversation-stage">
           {isLearningOpen ? <LearningStudio language={language} latestAssistantMessage={latestAssistantMessage} onAskEdu={sendMessage} onClose={() => setIsLearningOpen(false)} responseStyle={responseStyle} onResponseStyleChange={setResponseStyle} chatState={chatState} onRestoreWorkspace={snapshot => { const restored = workspaceStateFromSnapshot(snapshot); setChatState(restored.chatState); setLanguage(restored.language); setResponseStyle(restored.responseStyle); }} /> : <>
-            {!hasConversation && <section className="conversation-intro">
-              <div className="intro-mark" aria-hidden="true"><img src={EDU_AI_LOGO_SRC} alt="" /></div>
-              <div className="intro-copy"><p className="overline">{copy.introOverline}</p><h2>{copy.introTitle}<br /><em>{copy.introEmphasis}</em></h2><p>{copy.introDescription}</p><div className="intro-whisper"><span>{copy.introWhisper}</span><ArrowUpRight size={15} /></div></div>
-              <div className="starter-row" aria-label={copy.introTitle}>{copy.starters.map((starter, index) => <button key={starter} onClick={() => sendMessage(starter)} disabled={chat.isPending || !isChatAvailable}><span className="starter-number">0{index + 1}</span>{starter}<ArrowUpRight size={14} /></button>)}</div>
-            </section>}
-            <AIChatBox messages={activeThread.messages} onSendMessage={sendMessage} isLoading={isActivePending} placeholder={isChatAvailable ? copy.composerPlaceholder : copy.unavailablePlaceholder} disabled={!isChatAvailable} disabledMessage={!isChatAvailable ? copy.unavailableMessage : undefined} voiceLanguage={language === "es" ? "es-VE" : language === "ru" ? "ru-RU" : "en-US"} className={hasConversation ? "chat-canvas chat-canvas-active" : "chat-canvas"} height={hasConversation ? "min(67vh, 740px)" : "min(38vh, 420px)"} />
-            <p className="composer-caption"><span>↗</span> {copy.disclaimer}</p>
+            <TextToSpeechStudio language={language} latestAssistantMessage={latestAssistantMessage} />
+            <section className="assistant-secondary" aria-labelledby="assistant-secondary-title">
+              <button className="assistant-secondary-toggle" onClick={() => setIsAssistantOpen(open => !open)} aria-expanded={isAssistantOpen}><span><Bot size={17} /><span><small>{language === "es" ? "HERRAMIENTA DE IDEAS" : language === "ru" ? "ИНСТРУМЕНТ ДЛЯ ИДЕЙ" : "IDEAS TOOL"}</small><strong id="assistant-secondary-title">{language === "es" ? "Conversar con Edu AI" : language === "ru" ? "Поговорить с Edu AI" : "Talk with Edu AI"}</strong></span></span><span>{isAssistantOpen ? (language === "es" ? "Cerrar" : language === "ru" ? "Закрыть" : "Close") : (language === "es" ? "Abrir" : language === "ru" ? "Открыть" : "Open")}</span></button>
+              {!isAssistantOpen && <p>{language === "es" ? "Cuando necesites ordenar una idea, estudiar o crear un plan, Edu AI sigue aquí para acompañarte." : language === "ru" ? "Когда нужно упорядочить мысль, учиться или составить план, Edu AI остаётся рядом." : "Whenever you need to organise an idea, study, or make a plan, Edu AI is still here with you."}</p>}
+              {isAssistantOpen && <><AIChatBox messages={activeThread.messages} onSendMessage={sendMessage} isLoading={isActivePending} placeholder={isChatAvailable ? copy.composerPlaceholder : copy.unavailablePlaceholder} disabled={!isChatAvailable} disabledMessage={!isChatAvailable ? copy.unavailableMessage : undefined} voiceLanguage={language === "es" ? "es-VE" : language === "ru" ? "ru-RU" : "en-US"} className="chat-canvas chat-canvas-secondary" height="min(54vh, 620px)" /><p className="composer-caption"><span>↗</span> {copy.disclaimer}</p></>}
+            </section>
           </>}
         </div>
       </section>

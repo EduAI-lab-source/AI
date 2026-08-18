@@ -1,7 +1,8 @@
 import { drizzle } from "drizzle-orm/mysql2";
-import { and, eq } from "drizzle-orm";
-import { accountEncryptedWorkspaces, encryptedWorkspaces, InsertUser, sharedLearningLinks, users } from "../drizzle/schema";
+import { and, eq, inArray } from "drizzle-orm";
+import { accountEncryptedWorkspaces, encryptedWorkspaces, InsertUser, sharedLearningLinks, ttsDailyUsage, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import { evaluateTtsQuota, TTS_GLOBAL_USAGE_KEY, type TtsQuotaDecision } from "./ttsQuota";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -158,4 +159,39 @@ export async function getPublicSharedLearningLink(token: string) {
   const link = result[0];
   if (!link || link.revokedAt || (link.expiresAt && link.expiresAt.getTime() <= Date.now())) return undefined;
   return link;
+}
+
+/** Reserves anonymous daily TTS capacity before the Worker creates an audio stream. */
+export async function reserveTtsQuota(input: { visitorHash: string; characters: number; now?: Date }): Promise<TtsQuotaDecision> {
+  const db = await getDb();
+  if (!db) throw new Error("La síntesis de voz no está disponible en este momento.");
+
+  const usageDate = (input.now ?? new Date()).toISOString().slice(0, 10);
+  return db.transaction(async tx => {
+    const rows = await tx
+      .select({ visitorHash: ttsDailyUsage.visitorHash, usedCharacters: ttsDailyUsage.usedCharacters, requests: ttsDailyUsage.requests })
+      .from(ttsDailyUsage)
+      .where(and(eq(ttsDailyUsage.usageDate, usageDate), inArray(ttsDailyUsage.visitorHash, [TTS_GLOBAL_USAGE_KEY, input.visitorHash])))
+      .for("update");
+    const counters = new Map(rows.map(row => [row.visitorHash, { usedCharacters: row.usedCharacters, requests: row.requests }]));
+    const decision = evaluateTtsQuota({
+      requestedCharacters: input.characters,
+      visitor: counters.get(input.visitorHash) ?? { usedCharacters: 0, requests: 0 },
+      global: counters.get(TTS_GLOBAL_USAGE_KEY) ?? { usedCharacters: 0, requests: 0 },
+    });
+    if (!decision.allowed) return decision;
+
+    for (const [visitorHash, values] of [
+      [TTS_GLOBAL_USAGE_KEY, decision.global],
+      [input.visitorHash, decision.visitor],
+    ] as const) {
+      if (counters.has(visitorHash)) {
+        await tx.update(ttsDailyUsage).set({ ...values, updatedAt: new Date() }).where(and(eq(ttsDailyUsage.visitorHash, visitorHash), eq(ttsDailyUsage.usageDate, usageDate)));
+      } else {
+        await tx.insert(ttsDailyUsage).values({ visitorHash, usageDate, ...values });
+      }
+    }
+
+    return decision;
+  });
 }

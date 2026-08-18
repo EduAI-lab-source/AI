@@ -3,7 +3,7 @@ import worker from "./index";
 
 const pageOrigin = "https://eduai-lab-source.github.io";
 const officialOrigin = "https://textoavoz.xyz";
-const env = { EDU_AI_GATEWAY_SECRET: "test-gateway-secret" };
+const env = { EDU_AI_GATEWAY_SECRET: "test-gateway-secret", AI: { run: vi.fn() } };
 
 describe("puerta de API de Edu AI", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -41,6 +41,28 @@ describe("puerta de API de Edu AI", () => {
     expect(url.toString()).toBe("https://edusearch-9qua9exp.manus.space/api/trpc/eduAi.chat?batch=1");
     expect(init.method).toBe("POST");
     expect(new Headers(init.headers).get("x-gateway-secret")).toBe("test-gateway-secret");
+  });
+
+  it("sintetiza una voz descargable solo después de reservar capacidad", async () => {
+    const reserve = vi.fn().mockResolvedValue(new Response(JSON.stringify({ result: { data: { json: { allowed: true, remainingCharacters: 680 } } } }), { status: 200 }));
+    vi.stubGlobal("fetch", reserve);
+    const run = vi.fn().mockResolvedValue(new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array([73, 68, 51])); controller.close(); } }));
+
+    const response = await worker.fetch(
+      new Request("https://api.textoavoz.xyz/api/tts", {
+        method: "POST",
+        headers: { origin: officialOrigin, "content-type": "application/json", "cf-connecting-ip": "203.0.113.12" },
+        body: JSON.stringify({ text: "Una idea clara puede abrir una puerta nueva.", speaker: "celeste", visitorId: "a5b5c6d7-e8f9-4a1b-8c2d-1234567890ab" }),
+      }),
+      { ...env, AI: { run } }
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toBe("audio/mpeg");
+    expect(response.headers.get("content-disposition")).toContain("edu-ai-celeste.mp3");
+    expect(response.headers.get("x-edu-ai-characters-left")).toBe("680");
+    expect(reserve).toHaveBeenCalledWith(expect.objectContaining({ href: "https://edusearch-9qua9exp.manus.space/api/trpc/tts.reserve" }), expect.objectContaining({ method: "POST" }));
+    expect(run).toHaveBeenCalledWith("@cf/deepgram/aura-2-es", expect.objectContaining({ speaker: "celeste", encoding: "mp3" }));
   });
 
   it("reenvía la sincronización cifrada sin exponer la clave del gateway al navegador", async () => {

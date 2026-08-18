@@ -145,6 +145,18 @@ export const accountEncryptedWorkspaces = mysqlTable("account_encrypted_workspac
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+/** Anonymous, hashed daily counters keep the free text-to-speech capacity sustainable without profiles or accounts. */
+export const ttsDailyUsage = mysqlTable("tts_daily_usage", {
+  visitorHash: varchar("visitorHash", { length: 64 }).notNull(),
+  usageDate: varchar("usageDate", { length: 10 }).notNull(),
+  usedCharacters: int("usedCharacters").notNull().default(0),
+  requests: int("requests").notNull().default(0),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [
+  uniqueIndex("tts_daily_usage_visitor_date_idx").on(table.visitorHash, table.usageDate),
+  index("tts_daily_usage_date_idx").on(table.usageDate),
+]);
+
 export type ConversationFolder = typeof conversationFolders.$inferSelect;
 export type Conversation = typeof conversations.$inferSelect;
 export type ConversationMessageRow = typeof conversationMessages.$inferSelect;
