@@ -326,6 +326,8 @@
 - [x] Confirmar con una prueba humana que Turnstile permite generar y descargar un MP3 legítimo en textoavoz.xyz
 - [x] Diseñar y validar un modelo de créditos que cubra el coste de voz, mantenga una cuota gratuita y no active cobros sin aprobación
 - [ ] Integrar pagos y canje de créditos únicamente después de aprobar precios, proveedor y condiciones de servicio
+- [x] Recopilar métricas verificables de visitas, solicitudes y tendencias de textoavoz.xyz para evaluar la monetización
+- [x] Contrastar el tráfico y contenido actual con los requisitos de Google AdSense y recomendar si conviene solicitarlo ahora
 - [x] Evaluar modelos de texto a voz autoalojables, licencias de voces y requisitos de cómputo frente al servicio actual
 - [x] Proponer una arquitectura sostenible de voz propia o híbrida sin vulnerar derechos de voces ni introducir costes ocultos
 - [x] Limitar el acceso gratuito del estudio a un audio diario por visitante y actualizar los mensajes visibles
