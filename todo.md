@@ -324,9 +324,9 @@
 - [x] Ampliar pruebas y publicar la actualización de protección y cuota del estudio de texto a voz
 - [x] Configurar Turnstile para textoavoz.xyz, validarlo en el Worker y mostrar el desafío anti-bots en el estudio de voz
 - [x] Confirmar con una prueba humana que Turnstile permite generar y descargar un MP3 legítimo en textoavoz.xyz
-- [ ] Diseñar y validar un modelo de créditos que cubra el coste de voz, mantenga una cuota gratuita y no active cobros sin aprobación
+- [x] Diseñar y validar un modelo de créditos que cubra el coste de voz, mantenga una cuota gratuita y no active cobros sin aprobación
 - [ ] Integrar pagos y canje de créditos únicamente después de aprobar precios, proveedor y condiciones de servicio
-- [ ] Evaluar modelos de texto a voz autoalojables, licencias de voces y requisitos de cómputo frente al servicio actual
-- [ ] Proponer una arquitectura sostenible de voz propia o híbrida sin vulnerar derechos de voces ni introducir costes ocultos
+- [x] Evaluar modelos de texto a voz autoalojables, licencias de voces y requisitos de cómputo frente al servicio actual
+- [x] Proponer una arquitectura sostenible de voz propia o híbrida sin vulnerar derechos de voces ni introducir costes ocultos
 - [x] Limitar el acceso gratuito del estudio a un audio diario por visitante y actualizar los mensajes visibles
 - [x] Actualizar las pruebas, publicar y verificar la nueva cuota diaria de un audio
