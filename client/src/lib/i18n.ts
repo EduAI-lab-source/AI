@@ -1,9 +1,15 @@
 export type AppLanguage = "es" | "en" | "ru";
 
+export type GlobalTranslationOption = {
+  code: string;
+  label: string;
+};
+
 export type AppCopy = {
   documentTitle: string;
   brandSubtitle: string;
   languageLabel: string;
+  globalTranslationLabel: string;
   newConversation: string;
   notebookLabel: string;
   notebookDescription: string;
@@ -40,11 +46,42 @@ export const LANGUAGE_OPTIONS: Array<{ code: AppLanguage; label: string; compact
   { code: "ru", label: "Русский", compact: "RU", locale: "ru" },
 ];
 
+const GLOBAL_TRANSLATION_CODES = [
+  "af", "am", "ar", "az", "be", "bg", "bn", "bs", "ca", "ceb", "co", "cs", "cy", "da", "de", "el", "eo", "et", "eu", "fa", "fi", "fil", "fr", "fy", "ga", "gd", "gl", "gu", "ha", "haw", "he", "hi", "hmn", "hr", "ht", "hu", "hy", "id", "ig", "is", "it", "ja", "jv", "ka", "kk", "km", "kn", "ko", "ku", "ky", "la", "lb", "lo", "lt", "lv", "mg", "mi", "mk", "ml", "mn", "mr", "ms", "mt", "my", "ne", "nl", "no", "ny", "or", "pa", "pl", "ps", "pt", "ro", "rw", "sd", "si", "sk", "sl", "sm", "sn", "so", "sq", "sr", "st", "su", "sv", "sw", "ta", "te", "tg", "th", "tk", "tl", "tr", "uk", "ur", "uz", "vi", "xh", "yi", "yo", "zh-CN", "zh-TW", "zu",
+] as const;
+
+function displayLanguageName(code: string) {
+  try {
+    return new Intl.DisplayNames(["es"], { type: "language" }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
+export const GLOBAL_TRANSLATION_OPTIONS: GlobalTranslationOption[] = GLOBAL_TRANSLATION_CODES
+  .map(code => ({ code, label: displayLanguageName(code) }))
+  .sort((first, second) => first.label.localeCompare(second.label, "es"));
+
+export function isAppLanguage(value: string): value is AppLanguage {
+  return value === "es" || value === "en" || value === "ru";
+}
+
+export function getGlobalTranslationUrl(targetLanguage: string, currentUrl: string) {
+  if (!GLOBAL_TRANSLATION_CODES.includes(targetLanguage as (typeof GLOBAL_TRANSLATION_CODES)[number])) return null;
+  const current = new URL(currentUrl);
+  const url = new URL("https://translate.google.com/translate");
+  url.searchParams.set("sl", "auto");
+  url.searchParams.set("tl", targetLanguage);
+  url.searchParams.set("u", `${current.origin}${current.pathname}`);
+  return url.toString();
+}
+
 export const COPY: Record<AppLanguage, AppCopy> = {
   es: {
-    documentTitle: "Edu AI — Tu espacio para pensar",
+    documentTitle: "Texto a voz gratis en español: crea y descarga MP3 | Edu AI",
     brandSubtitle: "Voz para tus ideas",
     languageLabel: "Idioma",
+    globalTranslationLabel: "Traducción mundial",
     newConversation: "Nueva conversación",
     notebookLabel: "CUADERNO DE IDEAS",
     notebookDescription: "Tus conversaciones viven aquí para que puedas volver cuando quieras.",
@@ -53,7 +90,7 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     statusLine: "Voz natural, sin cuenta",
     heroTitle: "Haz que tus ideas",
     heroEmphasis: "se escuchen.",
-    headerSubtitle: "Convierte un texto en una voz clara, cercana y descargable.",
+    headerSubtitle: "Convierte texto a voz natural, descárgalo en MP3 y estudia sin cuenta.",
     introOverline: "EMPEZAR TAMBIÉN ES AVANZAR",
     introTitle: "¿Por dónde",
     introEmphasis: "quieres comenzar?",
@@ -75,9 +112,10 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     deleteThreadLabel: "Eliminar «{title}»",
   },
   en: {
-    documentTitle: "Edu AI — A space to think",
+    documentTitle: "Free Spanish Text to Speech: Create and Download MP3 | Edu AI",
     brandSubtitle: "A voice for your ideas",
     languageLabel: "Language",
+    globalTranslationLabel: "Worldwide translation",
     newConversation: "New conversation",
     notebookLabel: "IDEAS NOTEBOOK",
     notebookDescription: "Your conversations live here, ready for whenever you want to return.",
@@ -86,7 +124,7 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     statusLine: "Natural voice, no account",
     heroTitle: "Let your ideas",
     heroEmphasis: "be heard.",
-    headerSubtitle: "Turn text into a clear, close, downloadable voice.",
+    headerSubtitle: "Turn text into a natural Spanish voice and download a short MP3 with no account.",
     introOverline: "BEGINNING IS ALSO MOVING FORWARD",
     introTitle: "Where would you",
     introEmphasis: "like to begin?",
@@ -108,9 +146,10 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     deleteThreadLabel: "Delete “{title}”",
   },
   ru: {
-    documentTitle: "Edu AI — Пространство для мыслей",
+    documentTitle: "Текст в речь на испанском: создайте и скачайте MP3 | Edu AI",
     brandSubtitle: "Голос для ваших идей",
     languageLabel: "Язык",
+    globalTranslationLabel: "Перевод на языки мира",
     newConversation: "Новый разговор",
     notebookLabel: "БЛОКНОТ ИДЕЙ",
     notebookDescription: "Ваши разговоры хранятся здесь, чтобы вы могли вернуться к ним в любой момент.",
@@ -119,7 +158,7 @@ export const COPY: Record<AppLanguage, AppCopy> = {
     statusLine: "Естественный голос без аккаунта",
     heroTitle: "Пусть ваши идеи",
     heroEmphasis: "звучат.",
-    headerSubtitle: "Превратите текст в ясный, тёплый голос, который можно скачать.",
+    headerSubtitle: "Превратите текст в естественную испанскую речь и скачайте короткий MP3 без аккаунта.",
     introOverline: "НАЧАТЬ — УЖЕ ДВИГАТЬСЯ ВПЕРЁД",
     introTitle: "С чего вы",
     introEmphasis: "хотите начать?",
