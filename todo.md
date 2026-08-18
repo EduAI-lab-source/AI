@@ -340,3 +340,5 @@
 - [x] Cubrir la preparación de monetización con pruebas, revisión móvil y publicación oficial
 - [x] Corregir y verificar que el enlace oficial de Facebook abra correctamente desde dispositivos móviles
 - [x] Incorporar la etiqueta oficial de Google AdSense con el ID de publicador proporcionado, sin habilitar bloques publicitarios aún
+- [x] Configurar en Google AdSense el sitio textoavoz.xyz y sus opciones publicitarias tras la autorización explícita del titular
+- [x] Publicar el archivo ads.txt de textoavoz.xyz con el identificador de publicador autorizado por Google AdSense
