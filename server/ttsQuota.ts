@@ -1,7 +1,7 @@
 export const TTS_MAX_CHARACTERS_PER_SYNTHESIS = 650;
-export const TTS_DAILY_CHARACTERS_PER_VISITOR = 1_950;
+export const TTS_DAILY_CHARACTERS_PER_VISITOR = 650;
 export const TTS_DAILY_CHARACTERS_SHARED = 3_000;
-export const TTS_DAILY_REQUESTS_PER_VISITOR = 3;
+export const TTS_DAILY_REQUESTS_PER_VISITOR = 1;
 export const TTS_GLOBAL_USAGE_KEY = "global-free-tts-capacity";
 
 export type TtsUsageCounters = {

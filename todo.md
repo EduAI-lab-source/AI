@@ -319,3 +319,12 @@
 - [x] Seleccionar una alternativa de texto a voz que no exija al propietario una cuenta ni una suscripción de pago externa
 - [x] Alinear el límite real por visitante y el indicador de cuota visible en el estudio de texto a voz
 - [x] Renovar el acceso de publicación y actualizar textoavoz.xyz con la cuota corregida de texto a voz
+- [x] Definir y aplicar una cuota de texto a voz sostenible tras evaluar la solicitud de cuatro audios de hasta 3.000 caracteres
+- [ ] Reforzar el acceso anónimo al estudio de voz con verificación anti-bots validada en servidor e identidad de visitante resistente a reinicios locales
+- [ ] Ampliar pruebas y publicar la actualización de protección y cuota del estudio de texto a voz
+- [ ] Diseñar y validar un modelo de créditos que cubra el coste de voz, mantenga una cuota gratuita y no active cobros sin aprobación
+- [ ] Integrar pagos y canje de créditos únicamente después de aprobar precios, proveedor y condiciones de servicio
+- [ ] Evaluar modelos de texto a voz autoalojables, licencias de voces y requisitos de cómputo frente al servicio actual
+- [ ] Proponer una arquitectura sostenible de voz propia o híbrida sin vulnerar derechos de voces ni introducir costes ocultos
+- [x] Limitar el acceso gratuito del estudio a un audio diario por visitante y actualizar los mensajes visibles
+- [ ] Actualizar las pruebas, publicar y verificar la nueva cuota diaria de un audio

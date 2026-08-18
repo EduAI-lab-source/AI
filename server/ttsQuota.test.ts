@@ -4,9 +4,10 @@ import { evaluateTtsQuota, TTS_DAILY_CHARACTERS_PER_VISITOR, TTS_DAILY_CHARACTER
 describe("cuota gratuita de texto a voz", () => {
   const empty = { usedCharacters: 0, requests: 0 };
 
-  it("permite hasta tres audios completos de 650 caracteres al día", () => {
-    expect(TTS_DAILY_CHARACTERS_PER_VISITOR).toBe(1_950);
-    expect(evaluateTtsQuota({ requestedCharacters: 650, visitor: { usedCharacters: 1_300, requests: 2 }, global: empty })).toMatchObject({
+  it("permite un único audio completo de 650 caracteres al día", () => {
+    expect(TTS_DAILY_CHARACTERS_PER_VISITOR).toBe(650);
+    expect(TTS_DAILY_REQUESTS_PER_VISITOR).toBe(1);
+    expect(evaluateTtsQuota({ requestedCharacters: 650, visitor: empty, global: empty })).toMatchObject({
       allowed: true,
       remainingVisitorCharacters: 0,
     });
@@ -23,7 +24,7 @@ describe("cuota gratuita de texto a voz", () => {
     });
   });
 
-  it("rechaza el cuarto audio diario del mismo visitante", () => {
+  it("rechaza el segundo audio diario del mismo visitante", () => {
     const decision = evaluateTtsQuota({ requestedCharacters: 10, visitor: { usedCharacters: 30, requests: TTS_DAILY_REQUESTS_PER_VISITOR }, global: empty });
     expect(decision).toEqual({ allowed: false, reason: "visitor_requests" });
   });

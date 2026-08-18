@@ -1,7 +1,7 @@
 import { getEduAiApiBase } from "@/lib/chatRuntime";
 
 export const TTS_MAX_CHARACTERS = 650;
-export const TTS_DAILY_CHARACTER_LIMIT = 1950;
+export const TTS_DAILY_CHARACTER_LIMIT = 650;
 const TTS_VISITOR_STORAGE_KEY = "edu-ai:tts-visitor:v1";
 
 export function getTtsApiUrl(hostname = typeof window === "undefined" ? "" : window.location.hostname) {
