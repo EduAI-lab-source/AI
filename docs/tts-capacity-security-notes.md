@@ -26,6 +26,16 @@ Kokoro-82M es una segunda alternativa candidata: su modelo se distribuye bajo Ap
 
 Para convertir Kokoro en un servicio, Kokoro-FastAPI ofrece una capa Apache-2.0 compatible con la API de voz de OpenAI, con ejecución para CPU y GPU y soporte declarado para español. Esta capa puede ser útil para una prueba técnica, pero sus afirmaciones de rendimiento no sustituyen una prueba con el hardware real, los textos en español y el nivel de concurrencia de Edu AI. La capacidad debe expresarse como audios por hora o segundos de audio sintetizados por segundo; el modelo no impone por sí mismo una cantidad diaria fija de personas.
 
+La cuenta de Cloudflare que administra textoavoz.xyz está disponible y ofrece Turnstile en el área de seguridad. Turnstile puede añadir una barrera anti-bots sin exigir una cuenta a los visitantes, siempre que el token se valide del lado del servidor antes de reservar o sintetizar una voz.
+
+El formulario de Turnstile permite asociar el widget a hostnames concretos y recomienda el modo administrado: este deja que Cloudflare aplique controles no interactivos para tráfico normal y desafíos adicionales a solicitudes de mayor riesgo. Para Edu AI deben autorizarse textoavoz.xyz y www.textoavoz.xyz, y el token del widget se debe verificar en el Worker antes de que este llame a la reserva de cuota.
+
+El widget se configurará con el nombre operativo “Edu AI — Voz”, modo administrado y el dominio oficial textoavoz.xyz. Se conservará el comportamiento predeterminado de preautorización desactivado, ya que el objetivo es proteger únicamente la generación de audio y no omitir reglas de seguridad de otras zonas.
+
+La configuración del widget ya asocia textoavoz.xyz como hostname permitido. El siguiente paso es crear el widget y almacenar su clave pública únicamente en la interfaz y su clave secreta únicamente en los servicios que validan el token.
+
+El widget Turnstile “Edu AI — Voz” se creó correctamente para textoavoz.xyz. Sus claves se mantendrán fuera del repositorio: la clave pública solo se incorporará a la configuración de cliente y la clave secreta se añadirá exclusivamente al Worker de Cloudflare que realiza la validación del token.
+
 ## Referencias
 
 1. https://developers.cloudflare.com/workers-ai/models/aura-2-en/

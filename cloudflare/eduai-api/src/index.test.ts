@@ -3,7 +3,7 @@ import worker from "./index";
 
 const pageOrigin = "https://eduai-lab-source.github.io";
 const officialOrigin = "https://textoavoz.xyz";
-const env = { EDU_AI_GATEWAY_SECRET: "test-gateway-secret", AI: { run: vi.fn() } };
+const env = { EDU_AI_GATEWAY_SECRET: "test-gateway-secret", TURNSTILE_SECRET_KEY: "test-turnstile-secret", AI: { run: vi.fn() } };
 
 describe("puerta de API de Edu AI", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -44,15 +44,16 @@ describe("puerta de API de Edu AI", () => {
   });
 
   it("sintetiza una voz descargable solo después de reservar capacidad", async () => {
+    const verify = vi.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 }));
     const reserve = vi.fn().mockResolvedValue(new Response(JSON.stringify({ result: { data: { json: { allowed: true, remainingCharacters: 680 } } } }), { status: 200 }));
-    vi.stubGlobal("fetch", reserve);
+    vi.stubGlobal("fetch", vi.fn().mockImplementation((url: URL | string, init: RequestInit) => String(url).includes("siteverify") ? verify(url, init) : reserve(url, init)));
     const run = vi.fn().mockResolvedValue(new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array([73, 68, 51])); controller.close(); } }));
 
     const response = await worker.fetch(
       new Request("https://api.textoavoz.xyz/api/tts", {
         method: "POST",
         headers: { origin: officialOrigin, "content-type": "application/json", "cf-connecting-ip": "203.0.113.12" },
-        body: JSON.stringify({ text: "Una idea clara puede abrir una puerta nueva.", speaker: "celeste", visitorId: "a5b5c6d7-e8f9-4a1b-8c2d-1234567890ab" }),
+        body: JSON.stringify({ text: "Una idea clara puede abrir una puerta nueva.", speaker: "celeste", visitorId: "a5b5c6d7-e8f9-4a1b-8c2d-1234567890ab", turnstileToken: "verified-token" }),
       }),
       { ...env, AI: { run } }
     );
@@ -63,6 +64,25 @@ describe("puerta de API de Edu AI", () => {
     expect(response.headers.get("x-edu-ai-characters-left")).toBe("680");
     expect(reserve).toHaveBeenCalledWith(expect.objectContaining({ href: "https://edusearch-9qua9exp.manus.space/api/trpc/tts.reserve" }), expect.objectContaining({ method: "POST" }));
     expect(run).toHaveBeenCalledWith("@cf/deepgram/aura-2-es", expect.objectContaining({ speaker: "celeste", encoding: "mp3" }));
+  });
+
+  it("rechaza la voz antes de reservar cuota si Turnstile no valida el visitante", async () => {
+    const verify = vi.fn().mockResolvedValue(new Response(JSON.stringify({ success: false }), { status: 200 }));
+    vi.stubGlobal("fetch", verify);
+    const run = vi.fn();
+
+    const response = await worker.fetch(
+      new Request("https://api.textoavoz.xyz/api/tts", {
+        method: "POST",
+        headers: { origin: officialOrigin, "content-type": "application/json", "cf-connecting-ip": "203.0.113.12" },
+        body: JSON.stringify({ text: "Una petición no verificada no debe consumir capacidad.", speaker: "celeste", visitorId: "a5b5c6d7-e8f9-4a1b-8c2d-1234567890ab", turnstileToken: "invalid-token" }),
+      }),
+      { ...env, AI: { run } }
+    );
+
+    expect(response.status).toBe(403);
+    expect(verify).toHaveBeenCalledTimes(1);
+    expect(run).not.toHaveBeenCalled();
   });
 
   it("reenvía la sincronización cifrada sin exponer la clave del gateway al navegador", async () => {
