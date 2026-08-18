@@ -343,8 +343,8 @@
 - [x] Configurar en Google AdSense el sitio textoavoz.xyz y sus opciones publicitarias tras la autorización explícita del titular
 - [x] Publicar el archivo ads.txt de textoavoz.xyz con el identificador de publicador autorizado por Google AdSense
 - [x] Diseñar un plan de sostenibilidad alternativo a los créditos que proteja la experiencia gratuita y los costes de Edu AI
-- [ ] Mejorar el SEO técnico, los metadatos y la indexación de textoavoz.xyz para búsquedas de texto a voz en español
-- [ ] Añadir y publicar la etiqueta de verificación de Google Search Console para textoavoz.xyz
+- [x] Mejorar el SEO técnico, los metadatos y la indexación de textoavoz.xyz para búsquedas de texto a voz en español
+- [x] Añadir y publicar la etiqueta de verificación de Google Search Console para textoavoz.xyz
 - [x] Actualizar la identidad de Edu AI para atribuir su creación a Eduardo con la descripción indicada por el titular
 - [x] Ampliar la experiencia trilingüe con selección mundial de idioma accesible para visitantes
 - [x] Restaurar y preservar el archivo CNAME de textoavoz.xyz en las publicaciones de GitHub Pages
