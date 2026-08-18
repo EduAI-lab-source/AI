@@ -317,3 +317,4 @@
 - [x] Reubicar el chat de Edu AI como una herramienta secundaria sin perder historial, personalidad ni funciones de aprendizaje
 - [x] Añadir pruebas para las cuotas, las voces, la descarga y los flujos de texto a voz
 - [x] Seleccionar una alternativa de texto a voz que no exija al propietario una cuenta ni una suscripción de pago externa
+- [x] Alinear el límite real por visitante y el indicador de cuota visible en el estudio de texto a voz
