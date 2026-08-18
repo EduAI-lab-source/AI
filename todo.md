@@ -320,8 +320,8 @@
 - [x] Alinear el límite real por visitante y el indicador de cuota visible en el estudio de texto a voz
 - [x] Renovar el acceso de publicación y actualizar textoavoz.xyz con la cuota corregida de texto a voz
 - [x] Definir y aplicar una cuota de texto a voz sostenible tras evaluar la solicitud de cuatro audios de hasta 3.000 caracteres
-- [ ] Reforzar el acceso anónimo al estudio de voz con verificación anti-bots validada en servidor e identidad de visitante resistente a reinicios locales
-- [ ] Ampliar pruebas y publicar la actualización de protección y cuota del estudio de texto a voz
+- [x] Reforzar el acceso anónimo al estudio de voz con verificación anti-bots validada en servidor e identidad de visitante resistente a reinicios locales
+- [x] Ampliar pruebas y publicar la actualización de protección y cuota del estudio de texto a voz
 - [x] Configurar Turnstile para textoavoz.xyz, validarlo en el Worker y mostrar el desafío anti-bots en el estudio de voz
 - [ ] Diseñar y validar un modelo de créditos que cubra el coste de voz, mantenga una cuota gratuita y no active cobros sin aprobación
 - [ ] Integrar pagos y canje de créditos únicamente después de aprobar precios, proveedor y condiciones de servicio

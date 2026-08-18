@@ -36,7 +36,7 @@ La configuración del widget ya asocia textoavoz.xyz como hostname permitido. El
 
 El widget Turnstile “Edu AI — Voz” se creó correctamente para textoavoz.xyz. Sus claves se mantendrán fuera del repositorio: la clave pública solo se incorporará a la configuración de cliente y la clave secreta se añadirá exclusivamente al Worker de Cloudflare que realiza la validación del token.
 
-La primera comprobación en producción confirmó que el Worker bloquea la síntesis sin token, pero el widget no se mostró al visitante. Se corrigió el montaje para forzar una presentación visible. La segunda comprobación en textoavoz.xyz mostró correctamente el control de Turnstile y el desafío para verificar que el visitante es humano. La automatización no puede pulsar de manera fiable el control dentro del iframe de seguridad porque este actualiza su DOM durante la comprobación; la confirmación final de síntesis debe realizarse manualmente desde el navegador del propietario o con una prueba humana independiente.
+La primera comprobación en producción confirmó que el Worker bloquea la síntesis sin token, pero el widget no se mostró al visitante. Se corrigió el montaje para forzar una presentación visible. Las comprobaciones posteriores en textoavoz.xyz muestran el indicador de un audio diario y el desafío de Turnstile, que alterna correctamente entre la carga y el control de verificación humana. La automatización no puede pulsar de manera fiable el control dentro del iframe de seguridad porque este actualiza su DOM durante la comprobación; la confirmación final de síntesis debe realizarse manualmente desde el navegador del propietario o con una prueba humana independiente.
 
 ## Referencias
 
