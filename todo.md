@@ -344,3 +344,4 @@
 - [x] Publicar el archivo ads.txt de textoavoz.xyz con el identificador de publicador autorizado por Google AdSense
 - [x] Diseñar un plan de sostenibilidad alternativo a los créditos que proteja la experiencia gratuita y los costes de Edu AI
 - [ ] Mejorar el SEO técnico, los metadatos y la indexación de textoavoz.xyz para búsquedas de texto a voz en español
+- [ ] Añadir y publicar la etiqueta de verificación de Google Search Console para textoavoz.xyz
