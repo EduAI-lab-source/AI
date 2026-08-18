@@ -17,8 +17,10 @@ También se configuró la **CMP de Google** para visitantes del EEE, Reino Unido
 | CMP de Google | Configurada con tres opciones |
 | Anuncios automáticos | Desactivados |
 | Bloques publicitarios propios | No configurados |
-| `ads.txt` | No publicado; el panel aún muestra “No se encuentra” |
+| `ads.txt` | Publicado en `https://textoavoz.xyz/ads.txt`; AdSense aún puede mostrar “No se encuentra” hasta completar un nuevo rastreo |
 
 ## Decisión operativa
 
-Se mantienen los anuncios automáticos desactivados mientras Google revisa el sitio. Cuando exista una aprobación, se deberá decidir expresamente si se activan anuncios automáticos con formatos conservadores o si se incorporan ubicaciones manuales no invasivas. La plataforma debe conservar controles de consentimiento y revisar que su política de privacidad siga describiendo fielmente las tecnologías activas.
+Se mantienen los anuncios automáticos desactivados mientras Google revisa el sitio. Google indica que los cambios de `ads.txt` pueden tardar varios días —o hasta un mes si el sitio recibe pocas solicitudes— en reflejarse en AdSense. Cuando exista una aprobación, se deberá decidir expresamente si se activan anuncios automáticos con formatos conservadores o si se incorporan ubicaciones manuales no invasivas. La plataforma debe conservar controles de consentimiento y revisar que su política de privacidad siga describiendo fielmente las tecnologías activas.
+
+**Fuente:** [Guía oficial de ads.txt de Google AdSense](https://support.google.com/adsense/answer/12171612?hl=es-419).
