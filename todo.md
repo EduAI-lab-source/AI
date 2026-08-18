@@ -325,7 +325,7 @@
 - [x] Configurar Turnstile para textoavoz.xyz, validarlo en el Worker y mostrar el desafío anti-bots en el estudio de voz
 - [x] Confirmar con una prueba humana que Turnstile permite generar y descargar un MP3 legítimo en textoavoz.xyz
 - [x] Diseñar y validar un modelo de créditos que cubra el coste de voz, mantenga una cuota gratuita y no active cobros sin aprobación
-- [ ] Integrar pagos y canje de créditos únicamente después de aprobar precios, proveedor y condiciones de servicio
+- [x] No integrar pagos ni canje de créditos por decisión del titular; sustituir esa vía por una estrategia de sostenibilidad sin microtransacciones
 - [x] Recopilar métricas verificables de visitas, solicitudes y tendencias de textoavoz.xyz para evaluar la monetización
 - [x] Contrastar el tráfico y contenido actual con los requisitos de Google AdSense y recomendar si conviene solicitarlo ahora
 - [x] Evaluar modelos de texto a voz autoalojables, licencias de voces y requisitos de cómputo frente al servicio actual
@@ -342,3 +342,4 @@
 - [x] Incorporar la etiqueta oficial de Google AdSense con el ID de publicador proporcionado, sin habilitar bloques publicitarios aún
 - [x] Configurar en Google AdSense el sitio textoavoz.xyz y sus opciones publicitarias tras la autorización explícita del titular
 - [x] Publicar el archivo ads.txt de textoavoz.xyz con el identificador de publicador autorizado por Google AdSense
+- [x] Diseñar un plan de sostenibilidad alternativo a los créditos que proteja la experiencia gratuita y los costes de Edu AI
