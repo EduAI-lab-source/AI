@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { evaluateTtsQuota, TTS_DAILY_CHARACTERS_PER_VISITOR, TTS_DAILY_CHARACTERS_SHARED, TTS_DAILY_REQUESTS_PER_VISITOR } from "./ttsQuota";
+import { createTtsNetworkIdentity, evaluateTtsQuota, TTS_DAILY_CHARACTERS_PER_VISITOR, TTS_DAILY_CHARACTERS_SHARED, TTS_DAILY_REQUESTS_PER_VISITOR } from "./ttsQuota";
 
 describe("cuota gratuita de texto a voz", () => {
   const empty = { usedCharacters: 0, requests: 0 };
@@ -32,5 +32,12 @@ describe("cuota gratuita de texto a voz", () => {
   it("protege el cupo diario compartido", () => {
     const decision = evaluateTtsQuota({ requestedCharacters: 20, visitor: empty, global: { usedCharacters: TTS_DAILY_CHARACTERS_SHARED - 10, requests: 8 } });
     expect(decision).toEqual({ allowed: false, reason: "shared_capacity" });
+  });
+
+  it("conserva la identidad diaria si el visitante reinicia sus datos locales", () => {
+    const identity = createTtsNetworkIdentity("203.0.113.42", "secret-de-prueba");
+    expect(createTtsNetworkIdentity("203.0.113.42", "secret-de-prueba")).toBe(identity);
+    expect(createTtsNetworkIdentity("203.0.113.43", "secret-de-prueba")).not.toBe(identity);
+    expect(identity).not.toContain("203.0.113.42");
   });
 });

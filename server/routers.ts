@@ -8,8 +8,8 @@ import { invokeLLM } from "./_core/llm";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { createSharedLearningLink, getAccountEncryptedWorkspace, getEncryptedWorkspace, getPublicSharedLearningLink, listSharedLearningLinks, reserveTtsQuota, revokeSharedLearningLink, saveAccountEncryptedWorkspace, saveEncryptedWorkspace } from "./db";
-import { createHash, randomBytes, randomUUID } from "node:crypto";
-import { TTS_MAX_CHARACTERS_PER_SYNTHESIS } from "./ttsQuota";
+import { randomBytes, randomUUID } from "node:crypto";
+import { createTtsNetworkIdentity, TTS_MAX_CHARACTERS_PER_SYNTHESIS } from "./ttsQuota";
 
 const REQUEST_LIMIT = 18;
 const REQUEST_WINDOW_MS = 5 * 60 * 1000;
@@ -113,13 +113,14 @@ export const appRouter = router({
         }
         const forwarded = ctx.req.headers["x-forwarded-for"];
         const forwardedIp = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(",")[0];
-        const visitorHash = createHash("sha256").update(`${forwardedIp?.trim() ?? ctx.req.ip ?? "anonymous"}:${input.visitorId}`).digest("hex");
+        const clientIp = forwardedIp?.trim() ?? ctx.req.ip ?? "anonymous";
+        const visitorHash = createTtsNetworkIdentity(clientIp, process.env.EDU_AI_GATEWAY_SECRET ?? "tts-fallback-secret");
 
         try {
           const decision = await reserveTtsQuota({ visitorHash, characters: input.characters });
           if (!decision.allowed) {
             const messages = {
-              visitor_requests: "Ya usaste las tres síntesis disponibles hoy. Vuelve mañana para continuar.",
+              visitor_requests: "Ya usaste el audio gratuito disponible hoy. Vuelve mañana para continuar.",
               visitor_characters: "El texto supera tu cuota diaria de voz. Prueba con un fragmento más corto o vuelve mañana.",
               shared_capacity: "La capacidad gratuita de voz de hoy ya se agotó. Vuelve a intentarlo mañana.",
             } as const;
