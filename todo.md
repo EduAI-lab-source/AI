@@ -348,3 +348,4 @@
 - [x] Actualizar la identidad de Edu AI para atribuir su creación a Eduardo con la descripción indicada por el titular
 - [x] Ampliar la experiencia trilingüe con selección mundial de idioma accesible para visitantes
 - [x] Restaurar y preservar el archivo CNAME de textoavoz.xyz en las publicaciones de GitHub Pages
+- [ ] Añadir el emblema Origen de Edu AI como favicon y como icono para dispositivos compatibles
