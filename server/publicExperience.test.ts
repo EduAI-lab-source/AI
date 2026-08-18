@@ -33,4 +33,28 @@ describe("experiencia pública de Edu AI", () => {
     expect(studio).not.toContain("NotebookSharePanel");
     expect(studio).not.toContain("Conectar cuenta");
   });
+
+  it("ofrece contenido editorial y páginas de confianza sin activar anuncios todavía", () => {
+    const home = source("client/src/pages/Home.tsx");
+    const trustContent = source("client/src/components/PublicTrustContent.tsx");
+
+    expect(home).toContain("<EditorialGuides");
+    expect(home).toContain("<PublicFooter");
+    expect(trustContent).toContain('privacy: {');
+    expect(trustContent).toContain('terms: {');
+    expect(trustContent).toContain('about: {');
+    expect(trustContent).toContain('contact: {');
+    expect(trustContent).toContain('id: "voz-clara"');
+    expect(trustContent).toContain('id: "habito"');
+    expect(trustContent).not.toContain("adsbygoogle");
+  });
+
+  it("mantiene el perfil oficial de Facebook accesible en la misma pestaña para móvil", () => {
+    const home = source("client/src/pages/Home.tsx");
+    const trustContent = source("client/src/components/PublicTrustContent.tsx");
+
+    expect(home).toContain('href="https://www.facebook.com/EduardovipJ" target="_self"');
+    expect(trustContent).toContain('href={FACEBOOK_URL} target="_self"');
+    expect(trustContent).not.toContain('target="_blank"');
+  });
 });

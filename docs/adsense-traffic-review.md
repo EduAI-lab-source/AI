@@ -18,7 +18,11 @@ Google no publica un mínimo de tráfico para solicitar AdSense. En cambio, exig
 
 La recomendación es no añadir anuncios todavía. El nivel de 257 visitantes únicos en 24 horas podría ser un punto de partida, pero no permite estimar ingresos y el sitio necesita confirmar calidad de audiencia y reforzar su contenido editorial original. Antes de solicitar AdSense conviene instalar o confirmar analítica de páginas vistas, observar 30 días de tráfico estable, publicar páginas de privacidad, términos y acerca de, y añadir entre seis y diez guías educativas originales relacionadas con aprendizaje, IA y texto a voz. Los anuncios, si se aprueban, deben ubicarse fuera del editor, del botón de descarga y de cualquier control de navegación.
 
+Antes de activar anuncios, la política de privacidad debe explicar el uso de cookies de terceros y la posibilidad de mostrar publicidad basada en intereses. Para visitantes del EEE, Reino Unido y Suiza, Google exige información y consentimiento aplicables a los datos personales que se recolecten, compartan o utilicen mediante sus productos. Por ese motivo, la implementación debe mantener el análisis opcional y retrasar cualquier etiqueta publicitaria hasta que exista un mecanismo de consentimiento adecuado.
+
 ## Fuentes
 
 1. [Requisitos de elegibilidad de AdSense](https://support.google.com/adsense/answer/9724?hl=en)
 2. [Políticas del programa AdSense](https://support.google.com/adsense/answer/48182?hl=en)
+3. [Contenido requerido para AdSense](https://support.google.com/adsense/answer/1348695?hl=en)
+4. [Política de consentimiento de usuarios de Google en la UE](https://www.google.com/about/company/user-consent-policy/)

@@ -22,11 +22,13 @@ import { parseSharedNotebookSnapshot } from "@/lib/sharedNotebook";
 import { ArrowUpRight, Bot, BookOpen, CirclePlus, Eraser, FolderPlus, Languages, LibraryBig, Link2, Menu, MessageSquareText, Search, ShieldCheck, Star, Trash2, Volume2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { TextToSpeechStudio } from "@/components/TextToSpeechStudio";
+import { EditorialGuides, PublicFooter, PublicInfoPage, publicPageFromHash, type PublicPageId } from "@/components/PublicTrustContent";
 
 const EDU_AI_LOGO_SRC = "https://edusearch-9qua9exp.manus.space/manus-storage/edu-ai-origen-mark_85743c02.png";
 
 export default function Home() {
   const [sharedToken, setSharedToken] = useState(() => getSharedToken());
+  const [publicPage, setPublicPage] = useState<PublicPageId | null>(() => typeof window === "undefined" ? null : publicPageFromHash(window.location.hash));
   const [chatState, setChatState] = useState(loadChatState);
   const [pendingThreadId, setPendingThreadId] = useState<string | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
@@ -59,12 +61,16 @@ export default function Home() {
   }, [copy.documentTitle, language]);
   useEffect(() => window.localStorage.setItem("edu-ai:response-style:v1", responseStyle), [responseStyle]);
   useEffect(() => {
-    const onHashChange = () => setSharedToken(getSharedToken());
+    const onHashChange = () => {
+      setSharedToken(getSharedToken());
+      setPublicPage(publicPageFromHash(window.location.hash));
+    };
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
   if (sharedToken) return <SharedNotebookPage data={sharedNotebook.data} isLoading={sharedNotebook.isLoading} hasError={sharedNotebook.isError} onBack={() => { window.location.hash = ""; }} />;
+  if (publicPage) return <PublicInfoPage page={publicPage} language={language} onBack={() => { window.location.hash = ""; }} />;
 
   const startNewConversation = () => {
     if (chat.isPending) return;
@@ -177,6 +183,8 @@ export default function Home() {
             </section>
           </>}
         </div>
+        <EditorialGuides language={language} />
+        <PublicFooter language={language} onNavigate={page => { window.location.hash = page; }} />
       </section>
       <AlertDialog open={Boolean(deleteTarget)} onOpenChange={open => { if (!open) setDeleteTargetId(null); }}>
         <AlertDialogContent className="edu-delete-dialog">
@@ -252,7 +260,7 @@ function SidebarContents({ activeThreadId, isPending, threads, folders, copy, lo
       </div>
       <nav className="thread-list" aria-label={copy.notebookLabel}>{visibleThreads.length ? visibleThreads.slice(0, 12).map(thread => <div className={thread.id === activeThreadId ? "thread-entry active" : "thread-entry"} key={thread.id}><button type="button" className={thread.id === activeThreadId ? "thread-link active" : "thread-link"} onClick={() => onSelectThread(thread.id)} disabled={isPending} aria-current={thread.id === activeThreadId ? "page" : undefined}><MessageSquareText size={15} /><span className="thread-text"><strong>{thread.title}</strong><small>{describeThreadRecency(thread.updatedAt, undefined, locale)}{thread.tags?.length ? ` · ${thread.tags.join(", ")}` : ""}</small></span><span className="thread-arrow" aria-hidden="true">↗</span></button><button type="button" className={thread.isFavorite ? "thread-favorite active" : "thread-favorite"} onClick={() => onOrganizeThread(thread.id, { isFavorite: !thread.isFavorite })} disabled={isPending} aria-label={labels.favorites}><Star size={13} /></button><button type="button" className="thread-delete" onClick={() => onDeleteThread(thread.id)} disabled={isPending} aria-label={copy.deleteThreadLabel.replace("{title}", thread.title)} title={copy.deleteThreadLabel.replace("{title}", thread.title)}><Trash2 size={13} /></button></div>) : <p className="thread-empty">{labels.empty}</p>}</nav>
     </div>
-    <div className="sidebar-bottom"><a className="social-icon-link" href="https://www.facebook.com/EduardovipJ" target="_blank" rel="noreferrer" aria-label="Seguir a Edu AI en Facebook"><FacebookGlyph /></a><div className="privacy-note"><Bot size={16} /><span>{copy.privacyNote}</span></div><button className="erase-button" onClick={onClearConversation} disabled={isPending}><Eraser size={14} /> {copy.resetThread}</button></div>
+    <div className="sidebar-bottom"><a className="social-icon-link" href="https://www.facebook.com/EduardovipJ" target="_self" aria-label="Seguir a Edu AI en Facebook"><FacebookGlyph /></a><div className="privacy-note"><Bot size={16} /><span>{copy.privacyNote}</span></div><button className="erase-button" onClick={onClearConversation} disabled={isPending}><Eraser size={14} /> {copy.resetThread}</button></div>
   </>;
 }
 

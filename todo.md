@@ -332,3 +332,10 @@
 - [x] Proponer una arquitectura sostenible de voz propia o híbrida sin vulnerar derechos de voces ni introducir costes ocultos
 - [x] Limitar el acceso gratuito del estudio a un audio diario por visitante y actualizar los mensajes visibles
 - [x] Actualizar las pruebas, publicar y verificar la nueva cuota diaria de un audio
+- [x] Crear páginas de Privacidad, Términos, Acerca de y Contacto con navegación pública
+- [x] Publicar guías originales sobre texto a voz, aprendizaje e IA para reforzar el contenido de valor
+- [ ] Incorporar una base de analítica de audiencia y consentimiento de cookies sin activar seguimiento no autorizado
+- [ ] Preparar ubicaciones publicitarias no invasivas que permanezcan vacías hasta aprobar AdSense
+- [ ] Diseñar la base de datos y las rutas de créditos sin habilitar pagos ni canjes hasta configurar un proveedor
+- [ ] Cubrir la preparación de monetización con pruebas, revisión móvil y publicación oficial
+- [ ] Corregir y verificar que el enlace oficial de Facebook abra correctamente desde dispositivos móviles
