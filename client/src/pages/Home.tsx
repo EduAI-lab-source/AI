@@ -188,6 +188,7 @@ export default function Home() {
         <EditorialGuides language={language} />
         <AdPlacement placement="guides" language={language} />
         <PublicFooter language={language} onNavigate={page => { window.location.hash = page; }} />
+        <p className="warframe-footer-reference">Dormir no da platinos, joven. El Hombre del Muro no te lo perdonará. Si es contigo, Coquí God.</p>
       </section>
       <AlertDialog open={Boolean(deleteTarget)} onOpenChange={open => { if (!open) setDeleteTargetId(null); }}>
         <AlertDialogContent className="edu-delete-dialog">

@@ -353,3 +353,4 @@
 - [x] Retirar la dedicatoria temporal “Por amor a Joselyn” del final de la página principal
 - [x] Añadir una respuesta pulida y lúdica sobre Eduardo como jugador experto de Warframe, con énfasis en Khora y Wukong
 - [x] Ampliar la personalidad de Edu AI con guiños divertidos y coherentes sobre su creador, sin inventar datos personales
+- [x] Añadir una referencia discreta de Warframe al final de la página principal con texto ortográficamente corregido
