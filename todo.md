@@ -350,3 +350,4 @@
 - [x] Restaurar y preservar el archivo CNAME de textoavoz.xyz en las publicaciones de GitHub Pages
 - [x] Añadir el emblema Origen de Edu AI como favicon y como icono para dispositivos compatibles
 - [x] Añadir temporalmente la dedicatoria “Por amor a Joselyn” al final de la página principal
+- [x] Retirar la dedicatoria temporal “Por amor a Joselyn” del final de la página principal
