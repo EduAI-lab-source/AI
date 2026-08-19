@@ -188,7 +188,6 @@ export default function Home() {
         <EditorialGuides language={language} />
         <AdPlacement placement="guides" language={language} />
         <PublicFooter language={language} onNavigate={page => { window.location.hash = page; }} />
-        <p className="temporary-dedication">(Por amor a Joselyn)</p>
       </section>
       <AlertDialog open={Boolean(deleteTarget)} onOpenChange={open => { if (!open) setDeleteTargetId(null); }}>
         <AlertDialogContent className="edu-delete-dialog">

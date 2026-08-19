@@ -58,10 +58,4 @@ describe("experiencia pública de Edu AI", () => {
     expect(trustContent).not.toContain('target="_blank"');
   });
 
-  it("muestra la dedicatoria temporal al cierre de la página principal", () => {
-    const home = source("client/src/pages/Home.tsx");
-
-    expect(home).toContain('(Por amor a Joselyn)');
-    expect(home).toContain('className="temporary-dedication"');
-  });
 });
