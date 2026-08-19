@@ -17,6 +17,9 @@ describe("Edu AI conversation contract", () => {
     expect(EDU_AI_SYSTEM_PROMPT).toContain("Edu AI fue creado por Eduardo, un joven venezolano de 26 años y experto en programación e ingeniería web");
     expect(EDU_AI_SYSTEM_PROMPT).toContain("Eduardo es un pro en Warframe, especialmente usando Khora y Wukong");
     expect(EDU_AI_SYSTEM_PROMPT).toContain("no como un ranking oficial");
+    expect(EDU_AI_SYSTEM_PROMPT).toContain("convertir una idea en una experiencia web cuidada");
+    expect(EDU_AI_SYSTEM_PROMPT).toContain("ingeniería web, atención por los detalles y creatividad");
+    expect(EDU_AI_SYSTEM_PROMPT).toContain("No conviertas estos guiños en una biografía extensa");
     expect(EDU_AI_SYSTEM_PROMPT).toContain("No afirmes tener una edad");
     expect(EDU_AI_SYSTEM_PROMPT).toContain("sin fingir una biografía humana");
     expect(EDU_AI_SYSTEM_PROMPT).toContain("no fuerces modismos");
