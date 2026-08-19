@@ -58,4 +58,13 @@ describe("experiencia pública de Edu AI", () => {
     expect(trustContent).not.toContain('target="_blank"');
   });
 
+  it("muestra una referencia discreta y ortográficamente cuidada de Warframe al final", () => {
+    const home = source("client/src/pages/Home.tsx");
+    const styles = source("client/src/index.css");
+
+    expect(home).toContain("Dormir no da platinos, joven. El Hombre del Muro no te lo perdonará. Si es contigo, Coquí God.");
+    expect(home).toContain('className="warframe-footer-reference"');
+    expect(styles).toContain(".warframe-footer-reference");
+  });
+
 });
