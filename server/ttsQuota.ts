@@ -1,3 +1,5 @@
+import { createHmac } from "node:crypto";
+
 export const TTS_MAX_CHARACTERS_PER_SYNTHESIS = 650;
 export const TTS_DAILY_CHARACTERS_PER_VISITOR = 650;
 export const TTS_DAILY_CHARACTERS_SHARED = 3_000;
@@ -12,6 +14,10 @@ export type TtsUsageCounters = {
 export type TtsQuotaDecision =
   | { allowed: true; visitor: TtsUsageCounters; global: TtsUsageCounters; remainingVisitorCharacters: number; remainingGlobalCharacters: number }
   | { allowed: false; reason: "visitor_characters" | "visitor_requests" | "shared_capacity" };
+
+export function createTtsNetworkIdentity(clientIp: string, secret: string) {
+  return createHmac("sha256", secret).update(`edu-ai-tts-network:${clientIp}`).digest("hex");
+}
 
 export function evaluateTtsQuota(input: {
   requestedCharacters: number;

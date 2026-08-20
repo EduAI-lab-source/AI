@@ -355,3 +355,14 @@
 - [x] Ampliar la personalidad de Edu AI con guiños divertidos y coherentes sobre su creador, sin inventar datos personales
 - [x] Añadir una referencia discreta de Warframe al final de la página principal con texto ortográficamente corregido
 - [x] Retirar la referencia de Warframe del final de la página principal
+- [x] Ampliar la repisa editorial con nuevos libros de autores reconocidos y descripciones honestas
+- [x] Mejorar la jerarquía visual y la interacción de la sección de recomendaciones
+- [x] Añadir pruebas y validar en escritorio y móvil la repisa editorial ampliada
+- [x] Corregir el enlace de Facebook para evitar carga infinita y validar su apertura en móvil y escritorio
+- [x] Localizar títulos, referencias y etiquetas de la biblioteca en español, inglés y ruso
+- [x] Añadir pruebas y validar el selector de idioma en la biblioteca localizada
+- [x] Corregir la versión pública de la biblioteca que muestra títulos en inglés con la interfaz en español
+- [x] Verificar textoavoz.xyz en los tres idiomas tras sincronizar GitHub Pages
+- [x] Garantizar que la primera carga pública use español y que el selector aplique el idioma elegido después
+- [x] Sustituir los enlaces caídos de La culpa es de la vaca y La Teoterapia del amor por referencias editoriales funcionales
+- [x] Probar las referencias actualizadas en la biblioteca publicada y prevenir enlaces caídos en estas fichas

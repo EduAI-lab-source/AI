@@ -5,11 +5,18 @@ export type BookShelf = "known" | "discovery";
 export type LibraryBook = {
   id: string;
   shelf: BookShelf;
-  title: string;
+  title: Record<AppLanguage, string>;
+  originalTitle?: string;
   author: string;
   year: string;
   sourceLabel: Record<AppLanguage, string>;
   sourceUrl: string;
+  reference?: {
+    detail: Record<AppLanguage, string>;
+    linkLabel: Record<AppLanguage, string>;
+    safeUrl: string;
+    sourceNote?: Record<AppLanguage, string>;
+  };
   note: Record<AppLanguage, string>;
   themes: Record<AppLanguage, string[]>;
 };
@@ -18,7 +25,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "1984",
     shelf: "known",
-    title: "1984",
+    title: { es: "1984", en: "1984", ru: "1984" },
+    originalTitle: "Nineteen Eighty-Four",
     author: "George Orwell",
     year: "1949",
     sourceLabel: { es: "Clásico de gran comunidad lectora", en: "A widely read classic", ru: "Классика с широкой читательской аудиторией" },
@@ -29,7 +37,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "post-office",
     shelf: "known",
-    title: "Post Office",
+    title: { es: "Cartero", en: "Post Office", ru: "Почтамт" },
+    originalTitle: "Post Office",
     author: "Charles Bukowski",
     year: "1971",
     sourceLabel: { es: "Ficción de realismo crudo", en: "Raw realist fiction", ru: "Жёсткий реалистический роман" },
@@ -40,7 +49,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "crime-and-punishment",
     shelf: "known",
-    title: "Crime and Punishment",
+    title: { es: "Crimen y castigo", en: "Crime and Punishment", ru: "Преступление и наказание" },
+    originalTitle: "Преступление и наказание",
     author: "Fyodor Dostoevsky",
     year: "1866",
     sourceLabel: { es: "Clásico de profundidad psicológica", en: "Psychologically profound classic", ru: "Психологически глубокая классика" },
@@ -51,7 +61,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "brothers-karamazov",
     shelf: "known",
-    title: "The Brothers Karamazov",
+    title: { es: "Los hermanos Karamazov", en: "The Brothers Karamazov", ru: "Братья Карамазовы" },
+    originalTitle: "Братья Карамазовы",
     author: "Fyodor Dostoevsky",
     year: "1880",
     sourceLabel: { es: "Novela para leer con tiempo", en: "A novel to read with time", ru: "Роман, требующий времени" },
@@ -62,29 +73,55 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "la-culpa-es-de-la-vaca",
     shelf: "known",
-    title: "La culpa es de la vaca",
+    title: { es: "La culpa es de la vaca", en: "The Cow Is to Blame", ru: "Виновата корова" },
+    originalTitle: "La culpa es de la vaca",
     author: "Jaime Lopera & Marta Bernal, comp.",
     year: "2002",
     sourceLabel: { es: "Relatos breves para conversar", en: "Short stories for reflection", ru: "Короткие истории для размышления" },
-    sourceUrl: "https://www.penguinlibros.com/co/tematicas/12069-libro-la-culpa-es-de-la-vaca-9789584203912",
+    sourceUrl: "https://books.google.com.ec/books/about/La_culpa_es_de_la_vaca_1.html?id=cEGvCgAAQBAJ",
+    reference: {
+      detail: {
+        es: "Está aquí porque sus relatos cortos pueden abrir conversaciones sobre hábitos, responsabilidad y aprendizaje sin presentar sus fábulas como respuestas definitivas.",
+        en: "It is here because its short stories can open conversations about habits, responsibility, and learning without presenting its fables as final answers.",
+        ru: "Она здесь потому, что её короткие истории помогают говорить о привычках, ответственности и обучении, не выдавая басни за окончательные ответы.",
+      },
+      linkLabel: { es: "Consultar ficha en Google Books", en: "View its Google Books record", ru: "Открыть запись в Google Books" },
+      safeUrl: "https://books.google.com.ec/books/about/La_culpa_es_de_la_vaca_1.html?id=cEGvCgAAQBAJ",
+    },
     note: { es: "Una recopilación ágil para pensar hábitos, responsabilidad y aprendizaje. Funciona mejor como disparador de conversación que como receta para la vida.", en: "A nimble collection for thinking about habits, responsibility, and learning. It works best as a conversation starter, not a recipe for life.", ru: "Живая подборка для размышлений о привычках, ответственности и обучении. Лучше воспринимать её как начало разговора, а не как готовый рецепт жизни." },
     themes: { es: ["aprendizaje", "hábitos", "responsabilidad"], en: ["learning", "habits", "responsibility"], ru: ["обучение", "привычки", "ответственность"] },
   },
   {
     id: "teoterapia-del-amor",
     shelf: "known",
-    title: "La Teoterapia del amor",
+    title: { es: "La Teoterapia del amor", en: "Theotherapy of Love", ru: "Теотерапия любви" },
+    originalTitle: "La Teoterapia del amor",
     author: "Néstor Chamorro Pesantes",
-    year: "s. f.",
+    year: "1999",
     sourceLabel: { es: "Lectura de espiritualidad cristiana", en: "Christian spirituality reading", ru: "Книга о христианской духовности" },
-    sourceUrl: "https://publimundo.com.co/producto/la-teoterapia-del-amor/",
+    sourceUrl: "https://books.google.com/books?q=La+Teoterapia+del+amor+N%C3%A9stor+Chamorro+Pesantes",
+    reference: {
+      detail: {
+        es: "Está aquí como una lectura de espiritualidad cristiana para quien quiera reflexionar sobre amor y perdón desde esa tradición. No se recomienda como orientación clínica ni como sustituto de apoyo profesional.",
+        en: "It is here as a Christian spirituality reading for anyone who wants to reflect on love and forgiveness through that tradition. It is not clinical guidance or a replacement for professional support.",
+        ru: "Она здесь как книга о христианской духовности для размышлений о любви и прощении в этой традиции. Это не клиническая рекомендация и не замена профессиональной помощи.",
+      },
+      linkLabel: { es: "Buscar ficha bibliográfica", en: "Search for a bibliographic record", ru: "Найти библиографическую запись" },
+      safeUrl: "https://books.google.com/books?q=La+Teoterapia+del+amor+N%C3%A9stor+Chamorro+Pesantes",
+      sourceNote: {
+        es: "La ficha editorial y el catálogo consultados no mantienen hoy una ruta HTTPS estable; por seguridad, no te enviamos a esas páginas.",
+        en: "The publisher record and catalog checked do not currently keep a stable HTTPS route; for safety, we do not send you to those pages.",
+        ru: "Проверенные издательская карточка и каталог сейчас не поддерживают стабильный HTTPS-маршрут; в целях безопасности мы не отправляем на эти страницы.",
+      },
+    },
     note: { es: "Una lectura confesional sobre amor, perdón y reflexión espiritual desde una mirada cristiana. Puede acompañar una conversación personal; no sustituye apoyo profesional de salud mental.", en: "A faith-based reading on love, forgiveness, and spiritual reflection from a Christian perspective. It may accompany personal reflection; it does not replace professional mental-health support.", ru: "Конфессиональная книга о любви, прощении и духовном размышлении в христианской традиции. Она может сопровождать личные размышления, но не заменяет профессиональную психологическую помощь." },
     themes: { es: ["amor", "perdón", "fe"], en: ["love", "forgiveness", "faith"], ru: ["любовь", "прощение", "вера"] },
   },
   {
     id: "mans-search-for-meaning",
     shelf: "known",
-    title: "Man's Search for Meaning",
+    title: { es: "El hombre en busca de sentido", en: "Man's Search for Meaning", ru: "Сказать жизни «Да!»" },
+    originalTitle: "…trotzdem Ja zum Leben sagen",
     author: "Viktor E. Frankl",
     year: "1946",
     sourceLabel: { es: "Reflexión sobre sentido y elección", en: "Reflection on meaning and choice", ru: "Размышление о смысле и выборе" },
@@ -95,7 +132,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "pride-and-prejudice",
     shelf: "known",
-    title: "Pride and Prejudice",
+    title: { es: "Orgullo y prejuicio", en: "Pride and Prejudice", ru: "Гордость и предубеждение" },
+    originalTitle: "Pride and Prejudice",
     author: "Jane Austen",
     year: "1813",
     sourceLabel: { es: "Clásico de gran comunidad lectora", en: "A widely read classic", ru: "Классика с широкой читательской аудиторией" },
@@ -106,7 +144,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "little-prince",
     shelf: "known",
-    title: "The Little Prince",
+    title: { es: "El principito", en: "The Little Prince", ru: "Маленький принц" },
+    originalTitle: "Le Petit Prince",
     author: "Antoine de Saint-Exupéry",
     year: "1943",
     sourceLabel: { es: "Clásico de gran comunidad lectora", en: "A widely read classic", ru: "Классика с широкой читательской аудиторией" },
@@ -115,9 +154,46 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
     themes: { es: ["amistad", "sentido"], en: ["friendship", "meaning"], ru: ["дружба", "смысл"] },
   },
   {
+    id: "one-hundred-years-of-solitude",
+    shelf: "known",
+    title: { es: "Cien años de soledad", en: "One Hundred Years of Solitude", ru: "Сто лет одиночества" },
+    originalTitle: "Cien años de soledad",
+    author: "Gabriel García Márquez",
+    year: "1967",
+    sourceLabel: { es: "Novela de un Nobel latinoamericano", en: "A novel by a Latin American Nobel laureate", ru: "Роман латиноамериканского нобелевского лауреата" },
+    sourceUrl: "https://www.nobelprize.org/prizes/literature/1982/press-release/",
+    note: { es: "Una saga familiar llena de memoria, deseo y repetición. Funciona muy bien si buscas una novela para habitar poco a poco y comentar con alguien.", en: "A family saga full of memory, desire, and repetition. A rewarding choice when you want to live with a novel slowly and discuss it with someone.", ru: "Семейная сага, наполненная памятью, желанием и повторением. Хороший выбор, если хочется погружаться в роман постепенно и обсуждать его с кем-то." },
+    themes: { es: ["familia", "memoria", "imaginación"], en: ["family", "memory", "imagination"], ru: ["семья", "память", "воображение"] },
+  },
+  {
+    id: "beloved",
+    shelf: "known",
+    title: { es: "Amada", en: "Beloved", ru: "Возлюбленная" },
+    originalTitle: "Beloved",
+    author: "Toni Morrison",
+    year: "1987",
+    sourceLabel: { es: "Novela de una Nobel de Literatura", en: "A novel by a Nobel laureate", ru: "Роман нобелевского лауреата" },
+    sourceUrl: "https://www.nobelprize.org/prizes/literature/1993/summary/",
+    note: { es: "Una novela intensa sobre memoria, maternidad y las huellas de la violencia. Es exigente en lo emocional; vale la pena leerla con tiempo y cuidado.", en: "An intense novel about memory, motherhood, and the traces of violence. Emotionally demanding; it is best approached with time and care.", ru: "Сильный роман о памяти, материнстве и следах насилия. Эмоционально непростой; читать его лучше внимательно и не спеша." },
+    themes: { es: ["memoria", "familia", "dignidad"], en: ["memory", "family", "dignity"], ru: ["память", "семья", "достоинство"] },
+  },
+  {
+    id: "the-remains-of-the-day",
+    shelf: "known",
+    title: { es: "Los restos del día", en: "The Remains of the Day", ru: "Остаток дня" },
+    originalTitle: "The Remains of the Day",
+    author: "Kazuo Ishiguro",
+    year: "1989",
+    sourceLabel: { es: "Ganador del Booker Prize", en: "Booker Prize winner", ru: "Лауреат Букеровской премии" },
+    sourceUrl: "https://thebookerprizes.com/the-booker-library/books/the-remains-of-the-day",
+    note: { es: "Un relato contenido sobre lealtad, clase y las decisiones que se entienden tarde. Ideal si te atraen las historias silenciosas que dejan una pregunta abierta.", en: "A restrained story about loyalty, class, and choices understood too late. Ideal if you are drawn to quiet stories that leave a question open.", ru: "Сдержанная история о преданности, классе и решениях, смысл которых приходит слишком поздно. Подойдёт тем, кого привлекают тихие истории с открытым вопросом." },
+    themes: { es: ["memoria", "lealtad", "decisiones"], en: ["memory", "loyalty", "choices"], ru: ["память", "преданность", "выбор"] },
+  },
+  {
     id: "time-shelter",
     shelf: "discovery",
-    title: "Time Shelter",
+    title: { es: "El refugio del tiempo", en: "Time Shelter", ru: "Времеубежище" },
+    originalTitle: "Времеубежище",
     author: "Georgi Gospodinov",
     year: "2022",
     sourceLabel: { es: "Ganador del International Booker", en: "International Booker winner", ru: "Лауреат International Booker" },
@@ -128,7 +204,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "tomb-of-sand",
     shelf: "discovery",
-    title: "Tomb of Sand",
+    title: { es: "Tumba de arena", en: "Tomb of Sand", ru: "Песчаная гробница" },
+    originalTitle: "Ret Samadhi",
     author: "Geetanjali Shree",
     year: "2018",
     sourceLabel: { es: "Ganador del International Booker", en: "International Booker winner", ru: "Лауреат International Booker" },
@@ -139,7 +216,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "kairos",
     shelf: "discovery",
-    title: "Kairos",
+    title: { es: "Kairos", en: "Kairos", ru: "Кайрос" },
+    originalTitle: "Kairos",
     author: "Jenny Erpenbeck",
     year: "2021",
     sourceLabel: { es: "Ganador del International Booker", en: "International Booker winner", ru: "Лауреат International Booker" },
@@ -154,33 +232,33 @@ export const LIBRARY_COPY: Record<AppLanguage, Record<string, string>> = {
     desk: "Mesa de aprendizaje", library: "Biblioteca", tools: "Herramientas", notes: "Cuaderno", study: "Modo estudio", preferences: "Preferencias",
     known: "Recomendaciones que dejan marca", discovery: "Libros para salir de la ruta", source: "Ver por qué está aquí", save: "Guardar para leer", saved: "En mi biblioteca", remove: "Quitar",
     libraryIntro: "Esta repisa no pretende decirte qué debes leer. Reúne libros que abren una conversación sobre culpa, trabajo, sentido, familia y libertad.",
-    curationTitle: "Una repisa con intención", curationDetail: "Cada libro tiene una razón clara para estar aquí: una pregunta que deja dando vueltas, una voz que acompaña o una incomodidad que vale la pena pensar. No fingimos que Edu AI los leyó; son recomendaciones editoriales con fuentes de consulta.", curationReaders: "Conocer a Dostoievski", curationAwards: "Consultar La culpa es de la vaca",
+    curationTitle: "Una repisa con intención", curationDetail: "Cada libro tiene una razón clara para estar aquí: una pregunta que deja dando vueltas, una voz que acompaña o una incomodidad que vale la pena pensar. No fingimos que Edu AI los leyó; son recomendaciones editoriales con fuentes de consulta.", curationReaders: "Conocer a Dostoievski", curationAwards: "Consultar La culpa es de la vaca", libraryOverview: "Un rincón para escoger sin prisa", libraryCatalog: "libros con fuente", librarySaved: "guardados por ti", libraryPathOne: "Para una tarde", libraryPathOneDetail: "Elige una historia breve o ágil y deja una nota con lo que te acompañó.", libraryPathTwo: "Para quedarte pensando", libraryPathTwoDetail: "Busca una novela exigente y léela en partes, sin convertirla en una carrera.",
     toolsIntro: "Elige una herramienta y Edu AI convertirá tu intención en un primer paso concreto.", notesIntro: "Aquí puedes guardar una idea propia o una respuesta que no quieres perder. Se queda en este navegador.",
     addNote: "Guardar nota", saveResponse: "Guardar última respuesta", notePlaceholder: "Escribe una idea que quieras volver a encontrar…", emptyNotes: "Todavía no hay notas. Empieza por algo pequeño.",
     studyIntro: "Dile qué quieres aprender. Edu AI te propondrá una ruta realista con práctica y repaso.", studyPlaceholder: "Ej.: inglés para atender clientes", startStudy: "Crear mi ruta", 
     preferencesIntro: "Esta preferencia guía el ritmo de la próxima respuesta, sin cambiar tu conversación.", brief: "Breve y directo", deep: "Profundo y ordenado", creative: "Creativo y explorador", studyStyle: "Con enfoque de estudio",
-    challenge: "Reto de esta semana", share: "Compartir una idea", copied: "Texto copiado", speak: "Escuchar última respuesta", stop: "Detener lectura", facebook: "Seguir a Edu AI en Facebook",
+    challenge: "Reto de esta semana", share: "Compartir una idea", copied: "Texto copiado", speak: "Escuchar última respuesta", stop: "Detener lectura", facebook: "Seguir a Edu AI en Facebook", originalTitle: "Título original:",
   },
   en: {
     desk: "Learning desk", library: "Library", tools: "Tools", notes: "Notebook", study: "Study mode", preferences: "Preferences",
     known: "Recommendations that stay with you", discovery: "Books beyond the usual route", source: "Why it belongs here", save: "Save to my library", saved: "In my library", remove: "Remove",
     libraryIntro: "This shelf does not tell you what you must read. It gathers books that open a conversation about guilt, work, meaning, family, and freedom.",
-    curationTitle: "A shelf with intention", curationDetail: "Every book has a clear reason to be here: a question that lingers, a voice that keeps company, or a discomfort worth thinking through. Edu AI does not claim to have read them; these are editorial recommendations with sources to explore.", curationReaders: "Meet Dostoevsky", curationAwards: "Explore La culpa es de la vaca",
+    curationTitle: "A shelf with intention", curationDetail: "Every book has a clear reason to be here: a question that lingers, a voice that keeps company, or a discomfort worth thinking through. Edu AI does not claim to have read them; these are editorial recommendations with sources to explore.", curationReaders: "Meet Dostoevsky", curationAwards: "Explore La culpa es de la vaca", libraryOverview: "A quiet corner to choose from", libraryCatalog: "sourced books", librarySaved: "saved by you", libraryPathOne: "For one afternoon", libraryPathOneDetail: "Choose a short or agile story and write down what stayed with you.", libraryPathTwo: "To sit with", libraryPathTwoDetail: "Choose a demanding novel and read it in parts, without turning it into a race.",
     toolsIntro: "Choose a tool and Edu AI will turn your intention into a concrete first step.", notesIntro: "Save an idea of your own or an answer you do not want to lose. It stays in this browser.",
     addNote: "Save note", saveResponse: "Save latest response", notePlaceholder: "Write an idea you want to find again…", emptyNotes: "There are no notes yet. Start with something small.",
     studyIntro: "Say what you want to learn. Edu AI will propose a realistic path with practice and review.", studyPlaceholder: "E.g.: English for serving customers", startStudy: "Create my path",
     preferencesIntro: "This preference guides the pace of your next response without changing your conversation.", brief: "Brief and direct", deep: "Deep and structured", creative: "Creative and exploratory", studyStyle: "Study focused",
-    challenge: "This week’s challenge", share: "Share an idea", copied: "Text copied", speak: "Listen to the latest response", stop: "Stop reading", facebook: "Follow Edu AI on Facebook",
+    challenge: "This week’s challenge", share: "Share an idea", copied: "Text copied", speak: "Listen to the latest response", stop: "Stop reading", facebook: "Follow Edu AI on Facebook", originalTitle: "Original title:",
   },
   ru: {
     desk: "Пространство для учёбы", library: "Библиотека", tools: "Инструменты", notes: "Блокнот", study: "Режим учёбы", preferences: "Настройки",
     known: "Рекомендации, которые остаются с вами", discovery: "Книги вне привычного маршрута", source: "Почему книга здесь", save: "Сохранить в библиотеку", saved: "В моей библиотеке", remove: "Убрать",
     libraryIntro: "Эта полка не говорит, что вы обязаны читать. Здесь собраны книги, открывающие разговор о вине, работе, смысле, семье и свободе.",
-    curationTitle: "Полка с намерением", curationDetail: "У каждой книги есть ясная причина быть здесь: вопрос, который не отпускает, голос, который поддерживает, или неудобство, над которым стоит подумать. Edu AI не утверждает, что читал эти книги; это редакционные рекомендации с источниками для изучения.", curationReaders: "Познакомиться с Достоевским", curationAwards: "Узнать о La culpa es de la vaca",
+    curationTitle: "Полка с намерением", curationDetail: "У каждой книги есть ясная причина быть здесь: вопрос, который не отпускает, голос, который поддерживает, или неудобство, над которым стоит подумать. Edu AI не утверждает, что читал эти книги; это редакционные рекомендации с источниками для изучения.", curationReaders: "Познакомиться с Достоевским", curationAwards: "Узнать о La culpa es de la vaca", libraryOverview: "Спокойный уголок для выбора", libraryCatalog: "книг с источниками", librarySaved: "сохранено вами", libraryPathOne: "На один вечер", libraryPathOneDetail: "Выберите короткую или динамичную историю и запишите, что осталось с вами.", libraryPathTwo: "Чтобы обдумать", libraryPathTwoDetail: "Выберите требовательный роман и читайте частями, не превращая это в гонку.",
     toolsIntro: "Выберите инструмент, и Edu AI превратит ваше намерение в конкретный первый шаг.", notesIntro: "Сохраните свою мысль или ответ, который не хотите потерять. Всё остаётся в этом браузере.",
     addNote: "Сохранить заметку", saveResponse: "Сохранить последний ответ", notePlaceholder: "Запишите мысль, к которой хотите вернуться…", emptyNotes: "Заметок пока нет. Начните с малого.",
     studyIntro: "Расскажите, чему хотите научиться. Edu AI предложит реалистичный путь с практикой и повторением.", studyPlaceholder: "Например: английский для общения с клиентами", startStudy: "Создать мой путь",
     preferencesIntro: "Эта настройка задаёт темп следующего ответа, не меняя ваш разговор.", brief: "Кратко и по делу", deep: "Глубоко и структурно", creative: "Творчески и исследовательски", studyStyle: "С фокусом на учёбу",
-    challenge: "Задание этой недели", share: "Поделиться мыслью", copied: "Текст скопирован", speak: "Прослушать последний ответ", stop: "Остановить чтение", facebook: "Подписаться на Edu AI в Facebook",
+    challenge: "Задание этой недели", share: "Поделиться мыслью", copied: "Текст скопирован", speak: "Прослушать последний ответ", stop: "Остановить чтение", facebook: "Подписаться на Edu AI в Facebook", originalTitle: "Оригинальное название:",
   },
 };

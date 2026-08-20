@@ -1,4 +1,4 @@
-import { LIBRARY_BOOKS, LIBRARY_COPY } from "@/data/books";
+import { LIBRARY_BOOKS, LIBRARY_COPY, type LibraryBook } from "@/data/books";
 import type { AppLanguage } from "@/lib/i18n";
 import {
   BookOpen,
@@ -136,6 +136,7 @@ export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onC
   const [syncCode, setSyncCode] = useState(loadSyncCode);
   const [syncStatus, setSyncStatus] = useState("");
   const [syncCopied, setSyncCopied] = useState(false);
+  const [referenceBook, setReferenceBook] = useState<LibraryBook | null>(null);
   const workspaceSync = trpc.workspace.sync.useMutation();
   const copy = LIBRARY_COPY[language];
   const challenge = useMemo(() => WEEKLY_CHALLENGES[language][Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000)) % WEEKLY_CHALLENGES[language].length], [language]);
@@ -298,18 +299,34 @@ export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onC
 
       {tab === "library" && <div className="studio-panel library-panel">
         <p className="studio-intro">{copy.libraryIntro}</p>
+        <section className="library-overview" aria-label={copy.libraryOverview}>
+          <div><p className="book-kicker">{copy.libraryOverview}</p><div className="library-pulse"><strong>{LIBRARY_BOOKS.length}</strong><span>{copy.libraryCatalog}</span><i aria-hidden="true" /><strong>{readingList.length}</strong><span>{copy.librarySaved}</span></div></div>
+          <div className="library-paths"><article><span>01</span><div><strong>{copy.libraryPathOne}</strong><p>{copy.libraryPathOneDetail}</p></div></article><article><span>02</span><div><strong>{copy.libraryPathTwo}</strong><p>{copy.libraryPathTwoDetail}</p></div></article></div>
+        </section>
         <aside className="library-criteria"><div><p className="book-kicker">{copy.curationTitle}</p><p>{copy.curationDetail}</p></div><div className="library-criteria-links"><a href="https://www.britannica.com/biography/Fyodor-Dostoyevsky" target="_blank" rel="noreferrer">{copy.curationReaders}<ChevronRight size={13} /></a><a href="https://www.penguinlibros.com/co/tematicas/12069-libro-la-culpa-es-de-la-vaca-9789584203912" target="_blank" rel="noreferrer">{copy.curationAwards}<ChevronRight size={13} /></a></div></aside>
         {(["known", "discovery"] as const).map(shelf => <section key={shelf} className="book-shelf">
           <h3>{shelf === "known" ? copy.known : copy.discovery}</h3>
           <div className="book-grid">{LIBRARY_BOOKS.filter(book => book.shelf === shelf).map(book => {
             const saved = readingList.includes(book.id);
+            const title = book.title[language];
             return <article className="book-card" key={book.id}>
-              <span className="book-spine" aria-hidden="true">{book.title.slice(0, 1)}</span>
-              <div className="book-card-copy"><p className="book-kicker">{book.sourceLabel[language]}</p><h4>{book.title}</h4><p className="book-author">{book.author} · {book.year}</p><p>{book.note[language]}</p><div className="book-tags">{book.themes[language].map(theme => <span key={theme}>{theme}</span>)}</div></div>
-              <div className="book-actions"><a href={book.sourceUrl} target="_blank" rel="noreferrer">{copy.source}<ChevronRight size={13} /></a><button onClick={() => toggleBook(book.id)} aria-pressed={saved}>{saved ? <Check size={14} /> : <BookOpen size={14} />}{saved ? copy.saved : copy.save}</button></div>
+              <span className="book-spine" aria-hidden="true">{title.slice(0, 1)}</span>
+              <div className="book-card-copy"><p className="book-kicker">{book.sourceLabel[language]}</p><h4>{title}</h4>{book.originalTitle && book.originalTitle !== title && <p className="book-original-title"><span>{copy.originalTitle}</span> {book.originalTitle}</p>}<p className="book-author">{book.author} · {book.year}</p><p>{book.note[language]}</p><div className="book-tags">{book.themes[language].map(theme => <span key={theme}>{theme}</span>)}</div></div>
+              <div className="book-actions">{book.reference ? <button className="book-reference-trigger" onClick={() => setReferenceBook(book)}>{copy.source}<ChevronRight size={13} /></button> : <a href={book.sourceUrl} target="_blank" rel="noreferrer">{copy.source}<ChevronRight size={13} /></a>}<button onClick={() => toggleBook(book.id)} aria-pressed={saved}>{saved ? <Check size={14} /> : <BookOpen size={14} />}{saved ? copy.saved : copy.save}</button></div>
             </article>;
           })}</div>
         </section>)}
+      </div>}
+
+      {referenceBook?.reference && <div className="book-reference-backdrop" role="presentation" onMouseDown={() => setReferenceBook(null)}>
+        <section className="book-reference-dialog" role="dialog" aria-modal="true" aria-labelledby="book-reference-title" onMouseDown={event => event.stopPropagation()}>
+          <button className="book-reference-close" onClick={() => setReferenceBook(null)} aria-label={language === "es" ? "Cerrar" : language === "ru" ? "Закрыть" : "Close"}>×</button>
+          <p className="book-kicker">{language === "es" ? "REFERENCIA DE LECTURA" : language === "ru" ? "ЧИТАТЕЛЬСКАЯ СПРАВКА" : "READING REFERENCE"}</p>
+          <h3 id="book-reference-title">{referenceBook.title[language]}</h3>
+          <p>{referenceBook.reference.detail[language]}</p>
+          {referenceBook.reference.sourceNote && <p className="book-reference-note">{referenceBook.reference.sourceNote[language]}</p>}
+          <a href={referenceBook.reference.safeUrl} target="_blank" rel="noreferrer">{referenceBook.reference.linkLabel[language]}<ChevronRight size={14} /></a>
+        </section>
       </div>}
 
       {tab === "tools" && <div className="studio-panel"><p className="studio-intro">{copy.toolsIntro}</p><div className="tool-grid">{TOOL_PROMPTS[language].map(tool => <button key={tool.label} className="tool-card" onClick={() => { onAskEdu(tool.prompt); onClose(); }}>

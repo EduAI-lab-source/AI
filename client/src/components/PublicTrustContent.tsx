@@ -1,6 +1,6 @@
 import type { AppLanguage } from "@/lib/i18n";
 import { BookOpen, ChevronDown, ExternalLink, FileText, HeartHandshake, Mail, Scale, ShieldCheck, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 
 export type PublicPageId = "privacy" | "terms" | "about" | "contact";
 
@@ -8,7 +8,14 @@ type PageSection = { heading: string; body: string[] };
 type PageCopy = { eyebrow: string; title: string; intro: string; sections: PageSection[]; updated: string };
 type Guide = { id: string; number: string; title: string; summary: string; paragraphs: string[]; practice: string };
 
-const FACEBOOK_URL = "https://www.facebook.com/EduardovipJ";
+const FACEBOOK_URL = "https://www.facebook.com/EduardovipJ/";
+const FACEBOOK_ANDROID_INTENT = "intent://www.facebook.com/EduardovipJ/#Intent;scheme=https;package=com.facebook.katana;S.browser_fallback_url=https%3A%2F%2Fwww.facebook.com%2FEduardovipJ%2F;end";
+
+function openFacebook(event: MouseEvent<HTMLAnchorElement>) {
+  if (typeof navigator === "undefined" || !/Android/i.test(navigator.userAgent)) return;
+  event.preventDefault();
+  window.location.assign(FACEBOOK_ANDROID_INTENT);
+}
 
 function FacebookGlyph() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.6 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.5 1.6-1.5H17V3.9c-.3 0-1.3-.1-2.4-.1-2.4 0-4.1 1.5-4.1 4.2v2H7.8v3h2.7v8h3.1Z" fill="currentColor" /></svg>;
@@ -161,10 +168,10 @@ const GUIDES: Record<AppLanguage, Guide[]> = {
   ],
 };
 
-const UI_COPY: Record<AppLanguage, { guidesEyebrow: string; guidesTitle: string; guidesIntro: string; read: string; close: string; practice: string; sustainabilityTitle: string; sustainability: string; legal: string; back: string; facebook: string }> = {
-  es: { guidesEyebrow: "LECTURAS ORIGINALES", guidesTitle: "Pequeñas guías para aprender con intención", guidesIntro: "Seis textos breves, escritos para que puedas convertir una idea en una práctica concreta.", read: "Leer guía", close: "Cerrar guía", practice: "Práctica breve", sustainabilityTitle: "Cómo se sostiene este espacio", sustainability: "Edu AI se está preparando para una monetización responsable. No hay anuncios activos ni pagos obligatorios en este momento.", legal: "Información del sitio", back: "Volver al estudio", facebook: "Seguir en Facebook" },
-  en: { guidesEyebrow: "ORIGINAL READS", guidesTitle: "Small guides for intentional learning", guidesIntro: "Six short texts written to help you turn an idea into a concrete practice.", read: "Read guide", close: "Close guide", practice: "Short practice", sustainabilityTitle: "How this space is sustained", sustainability: "Edu AI is preparing for responsible monetization. There are no active ads or required payments at this time.", legal: "Site information", back: "Back to the studio", facebook: "Follow on Facebook" },
-  ru: { guidesEyebrow: "ОРИГИНАЛЬНЫЕ ТЕКСТЫ", guidesTitle: "Небольшие руководства для осмысленной учёбы", guidesIntro: "Шесть коротких текстов, помогающих превратить идею в конкретную практику.", read: "Открыть руководство", close: "Закрыть руководство", practice: "Короткая практика", sustainabilityTitle: "Как поддерживается это пространство", sustainability: "Edu AI готовится к ответственной монетизации. Сейчас здесь нет активной рекламы и обязательных платежей.", legal: "Информация о сайте", back: "Вернуться в студию", facebook: "Подписаться в Facebook" },
+const UI_COPY: Record<AppLanguage, { guidesEyebrow: string; guidesTitle: string; guidesIntro: string; read: string; close: string; practice: string; sustainabilityTitle: string; sustainability: string; legal: string; back: string; facebook: string; facebookHint: string }> = {
+  es: { guidesEyebrow: "LECTURAS ORIGINALES", guidesTitle: "Pequeñas guías para aprender con intención", guidesIntro: "Seis textos breves, escritos para que puedas convertir una idea en una práctica concreta.", read: "Leer guía", close: "Cerrar guía", practice: "Práctica breve", sustainabilityTitle: "Cómo se sostiene este espacio", sustainability: "Edu AI se está preparando para una monetización responsable. No hay anuncios activos ni pagos obligatorios en este momento.", legal: "Información del sitio", back: "Volver al estudio", facebook: "Seguir en Facebook", facebookHint: "Si Facebook no abre, mantén pulsado y copia el enlace." },
+  en: { guidesEyebrow: "ORIGINAL READS", guidesTitle: "Small guides for intentional learning", guidesIntro: "Six short texts written to help you turn an idea into a concrete practice.", read: "Read guide", close: "Close guide", practice: "Short practice", sustainabilityTitle: "How this space is sustained", sustainability: "Edu AI is preparing for responsible monetization. There are no active ads or required payments at this time.", legal: "Site information", back: "Back to the studio", facebook: "Follow on Facebook", facebookHint: "If Facebook does not open, press and hold to copy the link." },
+  ru: { guidesEyebrow: "ОРИГИНАЛЬНЫЕ ТЕКСТЫ", guidesTitle: "Небольшие руководства для осмысленной учёбы", guidesIntro: "Шесть коротких текстов, помогающих превратить идею в конкретную практику.", read: "Открыть руководство", close: "Закрыть руководство", practice: "Короткая практика", sustainabilityTitle: "Как поддерживается это пространство", sustainability: "Edu AI готовится к ответственному развитию. Сейчас здесь нет активной рекламы и обязательных платежей.", legal: "Информация о сайте", back: "Вернуться в студию", facebook: "Подписаться в Facebook", facebookHint: "Если Facebook не открывается, удерживайте ссылку, чтобы скопировать её." },
 };
 
 export function publicPageFromHash(hash: string): PublicPageId | null {
@@ -194,12 +201,12 @@ export function EditorialGuides({ language }: { language: AppLanguage }) {
 
 export function PublicFooter({ language, onNavigate }: { language: AppLanguage; onNavigate: (page: PublicPageId) => void }) {
   const copy = UI_COPY[language];
-  return <footer className="public-footer"><div className="public-footer-brand"><span><img src="https://edusearch-9qua9exp.manus.space/manus-storage/edu-ai-origen-mark_85743c02.png" alt="" /></span><div><strong>Edu AI</strong><small>textoavoz.xyz</small></div></div><div className="public-footer-links" aria-label={copy.legal}><button onClick={() => onNavigate("about")}>{language === "es" ? "Acerca de" : language === "ru" ? "О проекте" : "About"}</button><button onClick={() => onNavigate("privacy")}>{language === "es" ? "Privacidad" : language === "ru" ? "Конфиденциальность" : "Privacy"}</button><button onClick={() => onNavigate("terms")}>{language === "es" ? "Términos" : language === "ru" ? "Условия" : "Terms"}</button><button onClick={() => onNavigate("contact")}>{language === "es" ? "Contacto" : language === "ru" ? "Контакты" : "Contact"}</button></div><a className="public-footer-social" href={FACEBOOK_URL} target="_self" aria-label={copy.facebook} title={copy.facebook}><FacebookGlyph /></a></footer>;
+  return <footer className="public-footer"><div className="public-footer-brand"><span><img src="https://edusearch-9qua9exp.manus.space/manus-storage/edu-ai-origen-mark_85743c02.png" alt="" /></span><div><strong>Edu AI</strong><small>textoavoz.xyz</small></div></div><div className="public-footer-links" aria-label={copy.legal}><button onClick={() => onNavigate("about")}>{language === "es" ? "Acerca de" : language === "ru" ? "О проекте" : "About"}</button><button onClick={() => onNavigate("privacy")}>{language === "es" ? "Privacidad" : language === "ru" ? "Конфиденциальность" : "Privacy"}</button><button onClick={() => onNavigate("terms")}>{language === "es" ? "Términos" : language === "ru" ? "Условия" : "Terms"}</button><button onClick={() => onNavigate("contact")}>{language === "es" ? "Contacto" : language === "ru" ? "Контакты" : "Contact"}</button></div><a className="public-footer-social" href={FACEBOOK_URL} target="_self" onClick={openFacebook} aria-label={copy.facebook} title={copy.facebook}><FacebookGlyph /></a></footer>;
 }
 
 export function PublicInfoPage({ page, language, onBack }: { page: PublicPageId; language: AppLanguage; onBack: () => void }) {
   const copy = PAGE_COPY[language][page];
   const ui = UI_COPY[language];
   const icon = page === "privacy" ? <ShieldCheck aria-hidden="true" /> : page === "terms" ? <Scale aria-hidden="true" /> : page === "about" ? <Sparkles aria-hidden="true" /> : <Mail aria-hidden="true" />;
-  return <main className="public-page-shell"><section className="public-page"><button className="public-back" onClick={onBack}><span>←</span>{ui.back}</button><header><span className="public-page-icon">{icon}</span><p className="overline">{copy.eyebrow}</p><h1>{copy.title}</h1><p className="public-page-intro">{copy.intro}</p><small>{copy.updated}</small></header><div className="public-page-sections">{copy.sections.map(section => <section key={section.heading}><h2>{section.heading}</h2>{section.body.map(paragraph => <p key={paragraph}>{paragraph}</p>)}</section>)}</div>{page === "contact" && <a className="public-contact-link" href={FACEBOOK_URL} target="_self" aria-label={ui.facebook} title={ui.facebook}><FacebookGlyph /></a>}</section></main>;
+  return <main className="public-page-shell"><section className="public-page"><button className="public-back" onClick={onBack}><span>←</span>{ui.back}</button><header><span className="public-page-icon">{icon}</span><p className="overline">{copy.eyebrow}</p><h1>{copy.title}</h1><p className="public-page-intro">{copy.intro}</p><small>{copy.updated}</small></header><div className="public-page-sections">{copy.sections.map(section => <section key={section.heading}><h2>{section.heading}</h2>{section.body.map(paragraph => <p key={paragraph}>{paragraph}</p>)}</section>)}</div>{page === "contact" && <div className="public-facebook-action"><a className="public-contact-link" href={FACEBOOK_URL} target="_self" onClick={openFacebook} aria-label={ui.facebook} title={ui.facebook}><FacebookGlyph /><span>{ui.facebook}</span></a><a className="public-facebook-fallback" href={FACEBOOK_URL} target="_self" onClick={openFacebook}>{FACEBOOK_URL.replace("https://", "")}</a><p>{ui.facebookHint}</p></div>}</section></main>;
 }
