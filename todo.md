@@ -361,3 +361,6 @@
 - [x] Corregir el enlace de Facebook para evitar carga infinita y validar su apertura en móvil y escritorio
 - [x] Localizar títulos, referencias y etiquetas de la biblioteca en español, inglés y ruso
 - [x] Añadir pruebas y validar el selector de idioma en la biblioteca localizada
+- [x] Corregir la versión pública de la biblioteca que muestra títulos en inglés con la interfaz en español
+- [x] Verificar textoavoz.xyz en los tres idiomas tras sincronizar GitHub Pages
+- [x] Garantizar que la primera carga pública use español y que el selector aplique el idioma elegido después
