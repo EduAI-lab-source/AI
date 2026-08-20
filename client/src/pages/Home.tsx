@@ -19,8 +19,9 @@ import { COPY, GLOBAL_TRANSLATION_OPTIONS, LANGUAGE_OPTIONS, getGlobalTranslatio
 import { trpc } from "@/lib/trpc";
 import { workspaceStateFromSnapshot } from "@/lib/workspaceRestore";
 import { parseSharedNotebookSnapshot } from "@/lib/sharedNotebook";
+import { getAmbientPosition } from "@/lib/ambientMotion";
 import { ArrowUpRight, Bot, BookOpen, CirclePlus, Eraser, FolderPlus, Languages, LibraryBig, Link2, Menu, MessageSquareText, Search, ShieldCheck, Star, Trash2, Volume2, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { type PointerEvent, useEffect, useMemo, useState } from "react";
 import { TextToSpeechStudio } from "@/components/TextToSpeechStudio";
 import { EditorialGuides, PublicFooter, PublicInfoPage, publicPageFromHash, type PublicPageId } from "@/components/PublicTrustContent";
 import { AdPlacement } from "@/components/MonetizationReadiness";
@@ -69,6 +70,29 @@ export default function Home() {
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
+
+  const placeAmbientLight = (surface: HTMLElement, clientX: number, clientY: number, active: boolean) => {
+    const position = getAmbientPosition(clientX, clientY, surface.getBoundingClientRect());
+    surface.style.setProperty("--ambient-x", `${position.x}%`);
+    surface.style.setProperty("--ambient-y", `${position.y}%`);
+    surface.dataset.ambientActive = active ? "true" : "false";
+  };
+
+  const handleAmbientPointerMove = (event: PointerEvent<HTMLElement>) => {
+    if (event.pointerType === "touch") return;
+    placeAmbientLight(event.currentTarget, event.clientX, event.clientY, true);
+  };
+
+  const handleAmbientPointerLeave = (event: PointerEvent<HTMLElement>) => {
+    event.currentTarget.dataset.ambientActive = "false";
+  };
+
+  const handleAmbientTouch = (event: PointerEvent<HTMLElement>) => {
+    if (event.pointerType !== "touch") return;
+    const surface = event.currentTarget;
+    placeAmbientLight(surface, event.clientX, event.clientY, true);
+    window.setTimeout(() => { surface.dataset.ambientActive = "false"; }, 650);
+  };
 
   if (sharedToken) return <SharedNotebookPage data={sharedNotebook.data} isLoading={sharedNotebook.isLoading} hasError={sharedNotebook.isError} onBack={() => { window.location.hash = ""; }} />;
   if (publicPage) return <PublicInfoPage page={publicPage} language={language} onBack={() => { window.location.hash = ""; }} />;
@@ -157,7 +181,7 @@ export default function Home() {
   const deleteTarget = chatState.threads.find(thread => thread.id === deleteTargetId);
 
   return (
-    <main className="edu-app">
+    <main className="edu-app" onPointerMove={handleAmbientPointerMove} onPointerLeave={handleAmbientPointerLeave} onPointerDown={handleAmbientTouch}>
       <aside className="conversation-sidebar"><SidebarContents {...sidebarProps} /></aside>
       {isHistoryOpen && <div className="mobile-history" role="dialog" aria-modal="true" aria-label={copy.openHistory}>
         <button className="mobile-history-scrim" aria-label={copy.closeHistory} onClick={() => setIsHistoryOpen(false)} />
