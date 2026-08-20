@@ -370,3 +370,11 @@
 - [x] Rediseñar la interfaz para reforzar una identidad humana, cálida y enfocada en texto a voz
 - [x] Incorporar herramientas de alto valor que complementen voz, estudio y escritura sin exigir cuenta
 - [x] Añadir pruebas y validar el rediseño en escritorio y móvil antes de publicarlo
+- [x] Identificar y reforzar los momentos de sorpresa, guía y retorno en la experiencia de texto a voz
+- [x] Crear una firma de experiencia memorable sin distraer de la herramienta principal
+- [x] Validar en escritorio y móvil la capa de identidad y recompensa antes de publicarla
+- [x] Añadir reacciones sutiles al puntero y al toque en las superficies principales de Edu AI
+- [x] Respetar accesibilidad y reducir el movimiento cuando la persona lo indique
+- [x] Validar la interacción refinada en escritorio y móvil antes de publicarla
+- [x] Crear un fondo ambiental sutil que siga el puntero y responda al tacto sin afectar la accesibilidad
+- [x] Refinar la paleta de acentos para dar identidad al fondo interactivo sin perder legibilidad

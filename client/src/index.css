@@ -17,8 +17,10 @@ button:disabled { cursor: not-allowed; }
 button:focus-visible, textarea:focus-visible { outline: 3px solid rgba(112, 99, 222, .46); outline-offset: 3px; }
 button:active:not(:disabled) { transform: scale(.975); }
 
-.edu-app { min-height: 100vh; display: grid; grid-template-columns: 288px minmax(0, 1fr); position: relative; overflow: hidden; background: radial-gradient(circle at 68% 10%, rgba(215, 205, 252, .64), transparent 25rem), radial-gradient(circle at 95% 78%, rgba(249, 202, 169, .32), transparent 28rem), #f2eee5; }
+.edu-app { --ambient-x: 68%; --ambient-y: 18%; min-height: 100vh; display: grid; grid-template-columns: 288px minmax(0, 1fr); position: relative; overflow: hidden; isolation: isolate; background: radial-gradient(circle at 68% 10%, rgba(206, 194, 252, .58), transparent 25rem), radial-gradient(circle at 95% 78%, rgba(249, 202, 169, .28), transparent 28rem), #f2eee5; }
 .edu-app::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .34; background-image: linear-gradient(rgba(28, 65, 53, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(28, 65, 53, .035) 1px, transparent 1px); background-size: 40px 40px; mask-image: linear-gradient(to bottom, black, transparent 75%); }
+.edu-app::after { content: ""; position: absolute; z-index: 0; inset: -12rem; pointer-events: none; opacity: 0; background: radial-gradient(circle 19rem at var(--ambient-x) var(--ambient-y), rgba(119, 98, 220, .19), rgba(169, 224, 198, .11) 31%, rgba(249, 191, 149, .09) 53%, transparent 72%); transition: opacity .32s cubic-bezier(.23,1,.32,1); mix-blend-mode: multiply; }
+.edu-app[data-ambient-active="true"]::after { opacity: 1; }
 
 .conversation-sidebar { z-index: 1; min-height: 100vh; padding: 29px 18px 20px; display: flex; flex-direction: column; color: #f8f4ea; border-right: 1px solid rgba(13, 48, 40, .18); background: #1d453a; box-shadow: 11px 0 35px rgba(19, 48, 41, .07); }
 .identity-lockup { display: flex; align-items: center; gap: 11px; padding: 3px 8px 30px; }
@@ -281,6 +283,11 @@ button:active:not(:disabled) { transform: scale(.975); }
 
 @keyframes edu-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes mobile-sheet-in { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .edu-app::after { display: none; }
+  .edu-app, .edu-app * { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
 
 /* Learning studio */
 .learning-entry, .sidebar-learning-link, .return-to-chat, .social-icon-link { border: 0; cursor: pointer; font: inherit; }
