@@ -11,6 +11,12 @@ export type LibraryBook = {
   year: string;
   sourceLabel: Record<AppLanguage, string>;
   sourceUrl: string;
+  reference?: {
+    detail: Record<AppLanguage, string>;
+    linkLabel: Record<AppLanguage, string>;
+    safeUrl: string;
+    sourceNote?: Record<AppLanguage, string>;
+  };
   note: Record<AppLanguage, string>;
   themes: Record<AppLanguage, string[]>;
 };
@@ -72,7 +78,16 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
     author: "Jaime Lopera & Marta Bernal, comp.",
     year: "2002",
     sourceLabel: { es: "Relatos breves para conversar", en: "Short stories for reflection", ru: "Короткие истории для размышления" },
-    sourceUrl: "https://www.penguinlibros.com/co/tematicas/12069-libro-la-culpa-es-de-la-vaca-9789584203912",
+    sourceUrl: "https://books.google.com.ec/books/about/La_culpa_es_de_la_vaca_1.html?id=cEGvCgAAQBAJ",
+    reference: {
+      detail: {
+        es: "Está aquí porque sus relatos cortos pueden abrir conversaciones sobre hábitos, responsabilidad y aprendizaje sin presentar sus fábulas como respuestas definitivas.",
+        en: "It is here because its short stories can open conversations about habits, responsibility, and learning without presenting its fables as final answers.",
+        ru: "Она здесь потому, что её короткие истории помогают говорить о привычках, ответственности и обучении, не выдавая басни за окончательные ответы.",
+      },
+      linkLabel: { es: "Consultar ficha en Google Books", en: "View its Google Books record", ru: "Открыть запись в Google Books" },
+      safeUrl: "https://books.google.com.ec/books/about/La_culpa_es_de_la_vaca_1.html?id=cEGvCgAAQBAJ",
+    },
     note: { es: "Una recopilación ágil para pensar hábitos, responsabilidad y aprendizaje. Funciona mejor como disparador de conversación que como receta para la vida.", en: "A nimble collection for thinking about habits, responsibility, and learning. It works best as a conversation starter, not a recipe for life.", ru: "Живая подборка для размышлений о привычках, ответственности и обучении. Лучше воспринимать её как начало разговора, а не как готовый рецепт жизни." },
     themes: { es: ["aprendizaje", "hábitos", "responsabilidad"], en: ["learning", "habits", "responsibility"], ru: ["обучение", "привычки", "ответственность"] },
   },
@@ -82,9 +97,23 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
     title: { es: "La Teoterapia del amor", en: "Theotherapy of Love", ru: "Теотерапия любви" },
     originalTitle: "La Teoterapia del amor",
     author: "Néstor Chamorro Pesantes",
-    year: "s. f.",
+    year: "1999",
     sourceLabel: { es: "Lectura de espiritualidad cristiana", en: "Christian spirituality reading", ru: "Книга о христианской духовности" },
-    sourceUrl: "https://publimundo.com.co/producto/la-teoterapia-del-amor/",
+    sourceUrl: "https://books.google.com/books?q=La+Teoterapia+del+amor+N%C3%A9stor+Chamorro+Pesantes",
+    reference: {
+      detail: {
+        es: "Está aquí como una lectura de espiritualidad cristiana para quien quiera reflexionar sobre amor y perdón desde esa tradición. No se recomienda como orientación clínica ni como sustituto de apoyo profesional.",
+        en: "It is here as a Christian spirituality reading for anyone who wants to reflect on love and forgiveness through that tradition. It is not clinical guidance or a replacement for professional support.",
+        ru: "Она здесь как книга о христианской духовности для размышлений о любви и прощении в этой традиции. Это не клиническая рекомендация и не замена профессиональной помощи.",
+      },
+      linkLabel: { es: "Buscar ficha bibliográfica", en: "Search for a bibliographic record", ru: "Найти библиографическую запись" },
+      safeUrl: "https://books.google.com/books?q=La+Teoterapia+del+amor+N%C3%A9stor+Chamorro+Pesantes",
+      sourceNote: {
+        es: "La ficha editorial y el catálogo consultados no mantienen hoy una ruta HTTPS estable; por seguridad, no te enviamos a esas páginas.",
+        en: "The publisher record and catalog checked do not currently keep a stable HTTPS route; for safety, we do not send you to those pages.",
+        ru: "Проверенные издательская карточка и каталог сейчас не поддерживают стабильный HTTPS-маршрут; в целях безопасности мы не отправляем на эти страницы.",
+      },
+    },
     note: { es: "Una lectura confesional sobre amor, perdón y reflexión espiritual desde una mirada cristiana. Puede acompañar una conversación personal; no sustituye apoyo profesional de salud mental.", en: "A faith-based reading on love, forgiveness, and spiritual reflection from a Christian perspective. It may accompany personal reflection; it does not replace professional mental-health support.", ru: "Конфессиональная книга о любви, прощении и духовном размышлении в христианской традиции. Она может сопровождать личные размышления, но не заменяет профессиональную психологическую помощь." },
     themes: { es: ["amor", "perdón", "fe"], en: ["love", "forgiveness", "faith"], ru: ["любовь", "прощение", "вера"] },
   },

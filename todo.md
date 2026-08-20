@@ -364,3 +364,5 @@
 - [x] Corregir la versión pública de la biblioteca que muestra títulos en inglés con la interfaz en español
 - [x] Verificar textoavoz.xyz en los tres idiomas tras sincronizar GitHub Pages
 - [x] Garantizar que la primera carga pública use español y que el selector aplique el idioma elegido después
+- [x] Sustituir los enlaces caídos de La culpa es de la vaca y La Teoterapia del amor por referencias editoriales funcionales
+- [x] Probar las referencias actualizadas en la biblioteca publicada y prevenir enlaces caídos en estas fichas
