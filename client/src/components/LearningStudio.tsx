@@ -307,9 +307,10 @@ export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onC
           <h3>{shelf === "known" ? copy.known : copy.discovery}</h3>
           <div className="book-grid">{LIBRARY_BOOKS.filter(book => book.shelf === shelf).map(book => {
             const saved = readingList.includes(book.id);
+            const title = book.title[language];
             return <article className="book-card" key={book.id}>
-              <span className="book-spine" aria-hidden="true">{book.title.slice(0, 1)}</span>
-              <div className="book-card-copy"><p className="book-kicker">{book.sourceLabel[language]}</p><h4>{book.title}</h4><p className="book-author">{book.author} · {book.year}</p><p>{book.note[language]}</p><div className="book-tags">{book.themes[language].map(theme => <span key={theme}>{theme}</span>)}</div></div>
+              <span className="book-spine" aria-hidden="true">{title.slice(0, 1)}</span>
+              <div className="book-card-copy"><p className="book-kicker">{book.sourceLabel[language]}</p><h4>{title}</h4>{book.originalTitle && book.originalTitle !== title && <p className="book-original-title"><span>{copy.originalTitle}</span> {book.originalTitle}</p>}<p className="book-author">{book.author} · {book.year}</p><p>{book.note[language]}</p><div className="book-tags">{book.themes[language].map(theme => <span key={theme}>{theme}</span>)}</div></div>
               <div className="book-actions"><a href={book.sourceUrl} target="_blank" rel="noreferrer">{copy.source}<ChevronRight size={13} /></a><button onClick={() => toggleBook(book.id)} aria-pressed={saved}>{saved ? <Check size={14} /> : <BookOpen size={14} />}{saved ? copy.saved : copy.save}</button></div>
             </article>;
           })}</div>

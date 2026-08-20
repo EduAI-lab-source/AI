@@ -5,7 +5,8 @@ export type BookShelf = "known" | "discovery";
 export type LibraryBook = {
   id: string;
   shelf: BookShelf;
-  title: string;
+  title: Record<AppLanguage, string>;
+  originalTitle?: string;
   author: string;
   year: string;
   sourceLabel: Record<AppLanguage, string>;
@@ -18,7 +19,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "1984",
     shelf: "known",
-    title: "1984",
+    title: { es: "1984", en: "1984", ru: "1984" },
+    originalTitle: "Nineteen Eighty-Four",
     author: "George Orwell",
     year: "1949",
     sourceLabel: { es: "Clásico de gran comunidad lectora", en: "A widely read classic", ru: "Классика с широкой читательской аудиторией" },
@@ -29,7 +31,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "post-office",
     shelf: "known",
-    title: "Post Office",
+    title: { es: "Cartero", en: "Post Office", ru: "Почтамт" },
+    originalTitle: "Post Office",
     author: "Charles Bukowski",
     year: "1971",
     sourceLabel: { es: "Ficción de realismo crudo", en: "Raw realist fiction", ru: "Жёсткий реалистический роман" },
@@ -40,7 +43,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "crime-and-punishment",
     shelf: "known",
-    title: "Crime and Punishment",
+    title: { es: "Crimen y castigo", en: "Crime and Punishment", ru: "Преступление и наказание" },
+    originalTitle: "Преступление и наказание",
     author: "Fyodor Dostoevsky",
     year: "1866",
     sourceLabel: { es: "Clásico de profundidad psicológica", en: "Psychologically profound classic", ru: "Психологически глубокая классика" },
@@ -51,7 +55,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "brothers-karamazov",
     shelf: "known",
-    title: "The Brothers Karamazov",
+    title: { es: "Los hermanos Karamazov", en: "The Brothers Karamazov", ru: "Братья Карамазовы" },
+    originalTitle: "Братья Карамазовы",
     author: "Fyodor Dostoevsky",
     year: "1880",
     sourceLabel: { es: "Novela para leer con tiempo", en: "A novel to read with time", ru: "Роман, требующий времени" },
@@ -62,7 +67,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "la-culpa-es-de-la-vaca",
     shelf: "known",
-    title: "La culpa es de la vaca",
+    title: { es: "La culpa es de la vaca", en: "The Cow Is to Blame", ru: "Виновата корова" },
+    originalTitle: "La culpa es de la vaca",
     author: "Jaime Lopera & Marta Bernal, comp.",
     year: "2002",
     sourceLabel: { es: "Relatos breves para conversar", en: "Short stories for reflection", ru: "Короткие истории для размышления" },
@@ -73,7 +79,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "teoterapia-del-amor",
     shelf: "known",
-    title: "La Teoterapia del amor",
+    title: { es: "La Teoterapia del amor", en: "Theotherapy of Love", ru: "Теотерапия любви" },
+    originalTitle: "La Teoterapia del amor",
     author: "Néstor Chamorro Pesantes",
     year: "s. f.",
     sourceLabel: { es: "Lectura de espiritualidad cristiana", en: "Christian spirituality reading", ru: "Книга о христианской духовности" },
@@ -84,7 +91,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "mans-search-for-meaning",
     shelf: "known",
-    title: "Man's Search for Meaning",
+    title: { es: "El hombre en busca de sentido", en: "Man's Search for Meaning", ru: "Сказать жизни «Да!»" },
+    originalTitle: "…trotzdem Ja zum Leben sagen",
     author: "Viktor E. Frankl",
     year: "1946",
     sourceLabel: { es: "Reflexión sobre sentido y elección", en: "Reflection on meaning and choice", ru: "Размышление о смысле и выборе" },
@@ -95,7 +103,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "pride-and-prejudice",
     shelf: "known",
-    title: "Pride and Prejudice",
+    title: { es: "Orgullo y prejuicio", en: "Pride and Prejudice", ru: "Гордость и предубеждение" },
+    originalTitle: "Pride and Prejudice",
     author: "Jane Austen",
     year: "1813",
     sourceLabel: { es: "Clásico de gran comunidad lectora", en: "A widely read classic", ru: "Классика с широкой читательской аудиторией" },
@@ -106,7 +115,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "little-prince",
     shelf: "known",
-    title: "The Little Prince",
+    title: { es: "El principito", en: "The Little Prince", ru: "Маленький принц" },
+    originalTitle: "Le Petit Prince",
     author: "Antoine de Saint-Exupéry",
     year: "1943",
     sourceLabel: { es: "Clásico de gran comunidad lectora", en: "A widely read classic", ru: "Классика с широкой читательской аудиторией" },
@@ -117,7 +127,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "one-hundred-years-of-solitude",
     shelf: "known",
-    title: "One Hundred Years of Solitude",
+    title: { es: "Cien años de soledad", en: "One Hundred Years of Solitude", ru: "Сто лет одиночества" },
+    originalTitle: "Cien años de soledad",
     author: "Gabriel García Márquez",
     year: "1967",
     sourceLabel: { es: "Novela de un Nobel latinoamericano", en: "A novel by a Latin American Nobel laureate", ru: "Роман латиноамериканского нобелевского лауреата" },
@@ -128,7 +139,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "beloved",
     shelf: "known",
-    title: "Beloved",
+    title: { es: "Amada", en: "Beloved", ru: "Возлюбленная" },
+    originalTitle: "Beloved",
     author: "Toni Morrison",
     year: "1987",
     sourceLabel: { es: "Novela de una Nobel de Literatura", en: "A novel by a Nobel laureate", ru: "Роман нобелевского лауреата" },
@@ -139,7 +151,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "the-remains-of-the-day",
     shelf: "known",
-    title: "The Remains of the Day",
+    title: { es: "Los restos del día", en: "The Remains of the Day", ru: "Остаток дня" },
+    originalTitle: "The Remains of the Day",
     author: "Kazuo Ishiguro",
     year: "1989",
     sourceLabel: { es: "Ganador del Booker Prize", en: "Booker Prize winner", ru: "Лауреат Букеровской премии" },
@@ -150,7 +163,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "time-shelter",
     shelf: "discovery",
-    title: "Time Shelter",
+    title: { es: "El refugio del tiempo", en: "Time Shelter", ru: "Времеубежище" },
+    originalTitle: "Времеубежище",
     author: "Georgi Gospodinov",
     year: "2022",
     sourceLabel: { es: "Ganador del International Booker", en: "International Booker winner", ru: "Лауреат International Booker" },
@@ -161,7 +175,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "tomb-of-sand",
     shelf: "discovery",
-    title: "Tomb of Sand",
+    title: { es: "Tumba de arena", en: "Tomb of Sand", ru: "Песчаная гробница" },
+    originalTitle: "Ret Samadhi",
     author: "Geetanjali Shree",
     year: "2018",
     sourceLabel: { es: "Ganador del International Booker", en: "International Booker winner", ru: "Лауреат International Booker" },
@@ -172,7 +187,8 @@ export const LIBRARY_BOOKS: LibraryBook[] = [
   {
     id: "kairos",
     shelf: "discovery",
-    title: "Kairos",
+    title: { es: "Kairos", en: "Kairos", ru: "Кайрос" },
+    originalTitle: "Kairos",
     author: "Jenny Erpenbeck",
     year: "2021",
     sourceLabel: { es: "Ganador del International Booker", en: "International Booker winner", ru: "Лауреат International Booker" },
@@ -192,7 +208,7 @@ export const LIBRARY_COPY: Record<AppLanguage, Record<string, string>> = {
     addNote: "Guardar nota", saveResponse: "Guardar última respuesta", notePlaceholder: "Escribe una idea que quieras volver a encontrar…", emptyNotes: "Todavía no hay notas. Empieza por algo pequeño.",
     studyIntro: "Dile qué quieres aprender. Edu AI te propondrá una ruta realista con práctica y repaso.", studyPlaceholder: "Ej.: inglés para atender clientes", startStudy: "Crear mi ruta", 
     preferencesIntro: "Esta preferencia guía el ritmo de la próxima respuesta, sin cambiar tu conversación.", brief: "Breve y directo", deep: "Profundo y ordenado", creative: "Creativo y explorador", studyStyle: "Con enfoque de estudio",
-    challenge: "Reto de esta semana", share: "Compartir una idea", copied: "Texto copiado", speak: "Escuchar última respuesta", stop: "Detener lectura", facebook: "Seguir a Edu AI en Facebook",
+    challenge: "Reto de esta semana", share: "Compartir una idea", copied: "Texto copiado", speak: "Escuchar última respuesta", stop: "Detener lectura", facebook: "Seguir a Edu AI en Facebook", originalTitle: "Título original:",
   },
   en: {
     desk: "Learning desk", library: "Library", tools: "Tools", notes: "Notebook", study: "Study mode", preferences: "Preferences",
@@ -203,7 +219,7 @@ export const LIBRARY_COPY: Record<AppLanguage, Record<string, string>> = {
     addNote: "Save note", saveResponse: "Save latest response", notePlaceholder: "Write an idea you want to find again…", emptyNotes: "There are no notes yet. Start with something small.",
     studyIntro: "Say what you want to learn. Edu AI will propose a realistic path with practice and review.", studyPlaceholder: "E.g.: English for serving customers", startStudy: "Create my path",
     preferencesIntro: "This preference guides the pace of your next response without changing your conversation.", brief: "Brief and direct", deep: "Deep and structured", creative: "Creative and exploratory", studyStyle: "Study focused",
-    challenge: "This week’s challenge", share: "Share an idea", copied: "Text copied", speak: "Listen to the latest response", stop: "Stop reading", facebook: "Follow Edu AI on Facebook",
+    challenge: "This week’s challenge", share: "Share an idea", copied: "Text copied", speak: "Listen to the latest response", stop: "Stop reading", facebook: "Follow Edu AI on Facebook", originalTitle: "Original title:",
   },
   ru: {
     desk: "Пространство для учёбы", library: "Библиотека", tools: "Инструменты", notes: "Блокнот", study: "Режим учёбы", preferences: "Настройки",
@@ -214,6 +230,6 @@ export const LIBRARY_COPY: Record<AppLanguage, Record<string, string>> = {
     addNote: "Сохранить заметку", saveResponse: "Сохранить последний ответ", notePlaceholder: "Запишите мысль, к которой хотите вернуться…", emptyNotes: "Заметок пока нет. Начните с малого.",
     studyIntro: "Расскажите, чему хотите научиться. Edu AI предложит реалистичный путь с практикой и повторением.", studyPlaceholder: "Например: английский для общения с клиентами", startStudy: "Создать мой путь",
     preferencesIntro: "Эта настройка задаёт темп следующего ответа, не меняя ваш разговор.", brief: "Кратко и по делу", deep: "Глубоко и структурно", creative: "Творчески и исследовательски", studyStyle: "С фокусом на учёбу",
-    challenge: "Задание этой недели", share: "Поделиться мыслью", copied: "Текст скопирован", speak: "Прослушать последний ответ", stop: "Остановить чтение", facebook: "Подписаться на Edu AI в Facebook",
+    challenge: "Задание этой недели", share: "Поделиться мыслью", copied: "Текст скопирован", speak: "Прослушать последний ответ", stop: "Остановить чтение", facebook: "Подписаться на Edu AI в Facebook", originalTitle: "Оригинальное название:",
   },
 };

@@ -359,3 +359,5 @@
 - [x] Mejorar la jerarquía visual y la interacción de la sección de recomendaciones
 - [x] Añadir pruebas y validar en escritorio y móvil la repisa editorial ampliada
 - [x] Corregir el enlace de Facebook para evitar carga infinita y validar su apertura en móvil y escritorio
+- [x] Localizar títulos, referencias y etiquetas de la biblioteca en español, inglés y ruso
+- [x] Añadir pruebas y validar el selector de idioma en la biblioteca localizada
