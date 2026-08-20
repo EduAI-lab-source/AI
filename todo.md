@@ -366,3 +366,7 @@
 - [x] Garantizar que la primera carga pública use español y que el selector aplique el idioma elegido después
 - [x] Sustituir los enlaces caídos de La culpa es de la vaca y La Teoterapia del amor por referencias editoriales funcionales
 - [x] Probar las referencias actualizadas en la biblioteca publicada y prevenir enlaces caídos en estas fichas
+- [x] Auditar la experiencia completa de Edu AI y definir prioridades de producto, móvil y accesibilidad
+- [x] Rediseñar la interfaz para reforzar una identidad humana, cálida y enfocada en texto a voz
+- [x] Incorporar herramientas de alto valor que complementen voz, estudio y escritura sin exigir cuenta
+- [x] Añadir pruebas y validar el rediseño en escritorio y móvil antes de publicarlo

@@ -13,6 +13,32 @@ export function normalizeTtsText(value: string) {
   return value.replace(/\r\n/g, "\n").trim();
 }
 
+export function prepareTtsText(value: string) {
+  return normalizeTtsText(value)
+    .split("\n")
+    .map(line => line.replace(/[\t ]+/g, " ").trim())
+    .filter((line, index, lines) => line || (index > 0 && index < lines.length - 1 && lines[index - 1] !== ""))
+    .join("\n")
+    .trim();
+}
+
+export function countTtsWords(value: string) {
+  const normalized = normalizeTtsText(value);
+  return normalized ? normalized.split(/\s+/).filter(Boolean).length : 0;
+}
+
+export function estimateTtsSeconds(value: string) {
+  return Math.ceil(countTtsWords(value) / 2.5);
+}
+
+export function formatTtsDuration(value: string, language: "es" | "en" | "ru") {
+  const seconds = estimateTtsSeconds(value);
+  const minutes = Math.max(1, Math.ceil(seconds / 60));
+  if (language === "ru") return `≈ ${minutes} мин`;
+  if (language === "en") return `≈ ${minutes} min`;
+  return `≈ ${minutes} min`;
+}
+
 export function getTtsVisitorId() {
   if (typeof window === "undefined") return "";
   const saved = window.localStorage.getItem(TTS_VISITOR_STORAGE_KEY);
