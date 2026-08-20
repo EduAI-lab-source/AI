@@ -13,6 +13,12 @@ describe("Edu AI library curation", () => {
     expect(serialized).not.toMatch(/rating|stars|estrellas/i);
   });
 
+  it("adds the verified classics without presenting them as fabricated user ratings", () => {
+    expect(LIBRARY_BOOKS.find(book => book.id === "one-hundred-years-of-solitude")).toMatchObject({ author: "Gabriel García Márquez", sourceUrl: "https://www.nobelprize.org/prizes/literature/1982/press-release/" });
+    expect(LIBRARY_BOOKS.find(book => book.id === "beloved")).toMatchObject({ author: "Toni Morrison", sourceUrl: "https://www.nobelprize.org/prizes/literature/1993/summary/" });
+    expect(LIBRARY_BOOKS.find(book => book.id === "the-remains-of-the-day")).toMatchObject({ author: "Kazuo Ishiguro", sourceUrl: "https://thebookerprizes.com/the-booker-library/books/the-remains-of-the-day" });
+  });
+
   it("credits Teoterapia del amor to Néstor Chamorro and keeps its editorial source", () => {
     const book = LIBRARY_BOOKS.find(item => item.id === "teoterapia-del-amor");
 

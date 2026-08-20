@@ -298,6 +298,10 @@ export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onC
 
       {tab === "library" && <div className="studio-panel library-panel">
         <p className="studio-intro">{copy.libraryIntro}</p>
+        <section className="library-overview" aria-label={copy.libraryOverview}>
+          <div><p className="book-kicker">{copy.libraryOverview}</p><div className="library-pulse"><strong>{LIBRARY_BOOKS.length}</strong><span>{copy.libraryCatalog}</span><i aria-hidden="true" /><strong>{readingList.length}</strong><span>{copy.librarySaved}</span></div></div>
+          <div className="library-paths"><article><span>01</span><div><strong>{copy.libraryPathOne}</strong><p>{copy.libraryPathOneDetail}</p></div></article><article><span>02</span><div><strong>{copy.libraryPathTwo}</strong><p>{copy.libraryPathTwoDetail}</p></div></article></div>
+        </section>
         <aside className="library-criteria"><div><p className="book-kicker">{copy.curationTitle}</p><p>{copy.curationDetail}</p></div><div className="library-criteria-links"><a href="https://www.britannica.com/biography/Fyodor-Dostoyevsky" target="_blank" rel="noreferrer">{copy.curationReaders}<ChevronRight size={13} /></a><a href="https://www.penguinlibros.com/co/tematicas/12069-libro-la-culpa-es-de-la-vaca-9789584203912" target="_blank" rel="noreferrer">{copy.curationAwards}<ChevronRight size={13} /></a></div></aside>
         {(["known", "discovery"] as const).map(shelf => <section key={shelf} className="book-shelf">
           <h3>{shelf === "known" ? copy.known : copy.discovery}</h3>

@@ -1,0 +1,5 @@
+# Fuentes de ampliación editorial — 19 de agosto de 2026
+
+- **Gabriel García Márquez, _Cien años de soledad_ (1967):** la nota de prensa del Nobel de Literatura de 1982 identifica la novela, señala su amplio alcance internacional y la asocia al mundo narrativo de Macondo. La fuente fue leída directamente el 20 de agosto de 2026. Fuente: https://www.nobelprize.org/prizes/literature/1982/press-release/
+- **Toni Morrison, _Beloved_ (1987):** la página oficial del Nobel documenta el Premio Nobel de Literatura de 1993 concedido a Toni Morrison y describe la fuerza visionaria y poética de sus novelas. La ficha evita atribuir premios concretos a la obra. La fuente fue leída directamente el 20 de agosto de 2026. Fuente: https://www.nobelprize.org/prizes/literature/1993/summary/
+- **Kazuo Ishiguro, _Los restos del día_ (1989):** la ficha oficial de The Booker Prizes indica que la novela ganó el Booker Prize en 1989 y describe su mirada sobre lealtad, memoria y dudas del protagonista. La fuente fue leída directamente el 20 de agosto de 2026. Fuente: https://thebookerprizes.com/the-booker-library/books/the-remains-of-the-day
