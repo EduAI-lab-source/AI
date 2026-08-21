@@ -1,4 +1,5 @@
 export type AmbientPosition = { x: number; y: number };
+export type AmbientPointerMode = "follow" | "pulse";
 
 const clamp = (value: number) => Math.min(100, Math.max(0, value));
 
@@ -9,4 +10,8 @@ export function getAmbientPosition(clientX: number, clientY: number, bounds: Pic
     x: clamp(Math.round(((clientX - bounds.left) / safeWidth) * 100)),
     y: clamp(Math.round(((clientY - bounds.top) / safeHeight) * 100)),
   };
+}
+
+export function getAmbientPointerMode(pointerType: string): AmbientPointerMode {
+  return pointerType === "touch" ? "pulse" : "follow";
 }

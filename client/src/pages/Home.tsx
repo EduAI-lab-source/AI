@@ -19,7 +19,7 @@ import { COPY, GLOBAL_TRANSLATION_OPTIONS, LANGUAGE_OPTIONS, getGlobalTranslatio
 import { trpc } from "@/lib/trpc";
 import { workspaceStateFromSnapshot } from "@/lib/workspaceRestore";
 import { parseSharedNotebookSnapshot } from "@/lib/sharedNotebook";
-import { getAmbientPosition } from "@/lib/ambientMotion";
+import { getAmbientPointerMode, getAmbientPosition } from "@/lib/ambientMotion";
 import { ArrowUpRight, Bot, BookOpen, CirclePlus, Eraser, FolderPlus, Languages, LibraryBig, Link2, Menu, MessageSquareText, Search, ShieldCheck, Star, Trash2, Volume2, X } from "lucide-react";
 import { type PointerEvent, useEffect, useMemo, useState } from "react";
 import { TextToSpeechStudio } from "@/components/TextToSpeechStudio";
@@ -79,7 +79,7 @@ export default function Home() {
   };
 
   const handleAmbientPointerMove = (event: PointerEvent<HTMLElement>) => {
-    if (event.pointerType === "touch") return;
+    if (getAmbientPointerMode(event.pointerType) !== "follow") return;
     placeAmbientLight(event.currentTarget, event.clientX, event.clientY, true);
   };
 
@@ -88,10 +88,12 @@ export default function Home() {
   };
 
   const handleAmbientTouch = (event: PointerEvent<HTMLElement>) => {
-    if (event.pointerType !== "touch") return;
+    if (getAmbientPointerMode(event.pointerType) !== "pulse") return;
     const surface = event.currentTarget;
     placeAmbientLight(surface, event.clientX, event.clientY, true);
-    window.setTimeout(() => { surface.dataset.ambientActive = "false"; }, 650);
+    surface.dataset.ambientPulse = "true";
+    window.setTimeout(() => { delete surface.dataset.ambientPulse; }, 540);
+    window.setTimeout(() => { surface.dataset.ambientActive = "false"; }, 900);
   };
 
   if (sharedToken) return <SharedNotebookPage data={sharedNotebook.data} isLoading={sharedNotebook.isLoading} hasError={sharedNotebook.isError} onBack={() => { window.location.hash = ""; }} />;

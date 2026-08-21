@@ -378,3 +378,4 @@
 - [x] Validar la interacción refinada en escritorio y móvil antes de publicarla
 - [x] Crear un fondo ambiental sutil que siga el puntero y responda al tacto sin afectar la accesibilidad
 - [x] Refinar la paleta de acentos para dar identidad al fondo interactivo sin perder legibilidad
+- [x] Diagnosticar por qué la interacción ambiental pública no se percibe o parece no responder y corregirla con una respuesta visible y accesible
