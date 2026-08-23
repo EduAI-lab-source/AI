@@ -74,4 +74,14 @@ describe("experiencia pública de Edu AI", () => {
     expect(styles).not.toContain(".warframe-footer-reference");
   });
 
+  it("mantiene una dirección cromática vibrante y una pulsación táctil móvil más contenida", () => {
+    const styles = source("client/src/index.css");
+
+    expect(styles).toContain("Dirección cromática vibrante");
+    expect(styles).toContain("linear-gradient(120deg, #6044da, #8b42dc)");
+    expect(styles).toContain("edu-ambient-pulse-mobile");
+    expect(styles).toContain("circle 3.25rem at var(--ambient-x)");
+    expect(styles).toContain("circle 9rem at var(--ambient-x)");
+  });
+
 });

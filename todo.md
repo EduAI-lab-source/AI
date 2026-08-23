@@ -380,3 +380,5 @@
 - [x] Refinar la paleta de acentos para dar identidad al fondo interactivo sin perder legibilidad
 - [x] Diagnosticar por qué la interacción ambiental pública no se percibe o parece no responder y corregirla con una respuesta visible y accesible
 - [x] Diagnosticar los logotipos rotos de la versión pública y migrarlos a referencias estables que sobrevivan a futuras publicaciones
+- [x] Renovar la paleta y las superficies para una apariencia más llamativa, pulida y profesional sin perder legibilidad
+- [x] Reducir el tamaño de las ondas táctiles del fondo ambiental en móviles y validar su respuesta
