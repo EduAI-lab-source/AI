@@ -393,5 +393,5 @@
 - [x] Diagnosticar y restaurar la conexión pública del chat de Edu AI, con un reintento claro ante fallos recuperables
 - [x] Medir la latencia actual del chat de Edu AI e identificar sus principales cuellos de botella
 - [x] Optimizar el flujo conversacional para reducir la espera percibida sin disminuir la calidad de las respuestas
-- [ ] Diagnosticar el fallo público que muestra un reintento al saludar a Edu AI tras la optimización de latencia
-- [ ] Corregir, validar y publicar el chat para que responda normalmente en textoavoz.xyz
+- [x] Diagnosticar el fallo público que muestra un reintento al saludar a Edu AI tras la optimización de latencia
+- [x] Corregir, validar y publicar el chat para que responda normalmente en textoavoz.xyz
