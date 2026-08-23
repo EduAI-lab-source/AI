@@ -395,5 +395,5 @@
 - [x] Optimizar el flujo conversacional para reducir la espera percibida sin disminuir la calidad de las respuestas
 - [x] Diagnosticar el fallo público que muestra un reintento al saludar a Edu AI tras la optimización de latencia
 - [x] Corregir, validar y publicar el chat para que responda normalmente en textoavoz.xyz
-- [ ] Mejorar las respuestas de Edu AI sobre Eduardo para que sean específicas, naturales, variadas y bien redactadas
-- [ ] Probar y publicar la presentación renovada del creador en textoavoz.xyz
+- [x] Mejorar las respuestas de Edu AI sobre Eduardo para que sean específicas, naturales, variadas y bien redactadas
+- [x] Probar y publicar la presentación renovada del creador en textoavoz.xyz
