@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildEduAiMessages,
   EDU_AI_SYSTEM_PROMPT,
+  getEduAiResponseProfile,
   getTextResponse,
 } from "./eduAi";
 
@@ -43,6 +44,11 @@ describe("Edu AI conversation contract", () => {
     expect(String(buildEduAiMessages(prompt, "deep")[0]?.content)).toContain("profundidad amable");
     expect(String(buildEduAiMessages(prompt, "creative")[0]?.content)).toContain("imaginación práctica");
     expect(String(buildEduAiMessages(prompt, "study")[0]?.content)).toContain("práctica breve");
+  });
+
+  it("uses a compact low-latency profile for everyday answers while retaining context for detailed modes", () => {
+    expect(getEduAiResponseProfile("brief")).toMatchObject({ historyLimit: 8, maxTokens: 220, reasoning: { effort: "minimal" } });
+    expect(getEduAiResponseProfile("deep")).toMatchObject({ historyLimit: 12, maxTokens: 480, reasoning: { effort: "low" } });
   });
 
   it("keeps recent context while removing empty messages", () => {

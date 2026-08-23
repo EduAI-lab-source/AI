@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { buildEduAiMessages, getTextResponse } from "./eduAi";
+import { buildEduAiMessages, getEduAiResponseProfile, getTextResponse } from "./eduAi";
 import { hasValidEduAiGateway } from "./eduAiGateway";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM } from "./_core/llm";
@@ -81,9 +81,13 @@ export const appRouter = router({
         assertRateLimit(ctx.req);
 
         try {
+          const responseStyle = input.responseStyle ?? "brief";
+          const profile = getEduAiResponseProfile(responseStyle);
           const response = await invokeLLM({
             model: "gpt-5-mini",
-            messages: buildEduAiMessages(input.messages, input.responseStyle, input.imageAttachment),
+            messages: buildEduAiMessages(input.messages, responseStyle, input.imageAttachment),
+            maxTokens: profile.maxTokens,
+            reasoning: profile.reasoning,
           });
           const content = getTextResponse(response.choices[0]?.message.content ?? "");
 

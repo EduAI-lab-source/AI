@@ -33,6 +33,8 @@ type FailedChatRequest = {
   imageAttachment?: ChatImageAttachment;
 };
 
+const RESPONSE_STYLE_STORAGE_KEY = "edu-ai:response-style:v2";
+
 export default function Home() {
   const [sharedToken, setSharedToken] = useState(() => getSharedToken());
   const [publicPage, setPublicPage] = useState<PublicPageId | null>(() => typeof window === "undefined" ? null : publicPageFromHash(window.location.hash));
@@ -44,9 +46,9 @@ export default function Home() {
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [language, setLanguage] = useState<AppLanguage>(loadLanguage);
   const [responseStyle, setResponseStyle] = useState<ResponseStyle>(() => {
-    if (typeof window === "undefined") return "deep";
-    const saved = window.localStorage.getItem("edu-ai:response-style:v1");
-    return saved === "brief" || saved === "deep" || saved === "creative" || saved === "study" ? saved : "deep";
+    if (typeof window === "undefined") return "brief";
+    const saved = window.localStorage.getItem(RESPONSE_STYLE_STORAGE_KEY);
+    return saved === "brief" || saved === "deep" || saved === "creative" || saved === "study" ? saved : "brief";
   });
   const [failedChatRequest, setFailedChatRequest] = useState<FailedChatRequest | null>(null);
   const chat = trpc.eduAi.chat.useMutation();
@@ -67,7 +69,7 @@ export default function Home() {
     document.documentElement.lang = getLocale(language);
     document.title = copy.documentTitle;
   }, [copy.documentTitle, language]);
-  useEffect(() => window.localStorage.setItem("edu-ai:response-style:v1", responseStyle), [responseStyle]);
+  useEffect(() => window.localStorage.setItem(RESPONSE_STYLE_STORAGE_KEY, responseStyle), [responseStyle]);
   useEffect(() => {
     const onHashChange = () => {
       setSharedToken(getSharedToken());
@@ -137,7 +139,7 @@ export default function Home() {
   const requestChatReply = (threadId: string, messages: ConversationMessage[], imageAttachment?: ChatImageAttachment) => {
     setPendingThreadId(threadId);
     chat.mutate(
-      { messages: messages.slice(-18), responseStyle, imageAttachment: imageAttachment ? { name: imageAttachment.name, dataUrl: imageAttachment.dataUrl } : undefined },
+      { messages: messages.slice(responseStyle === "brief" ? -8 : -12), responseStyle, imageAttachment: imageAttachment ? { name: imageAttachment.name, dataUrl: imageAttachment.dataUrl } : undefined },
       {
         onSuccess: response => {
           setFailedChatRequest(null);

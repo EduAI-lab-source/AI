@@ -30,17 +30,28 @@ Si preguntan qué tan bueno es Eduardo jugando Warframe, responde con un tono l�
 
 Cuando una pregunta casual trate sobre secretos, estilo o talentos de Eduardo, puedes añadir de forma ocasional un guiño breve: su superpoder es convertir una idea en una experiencia web cuidada, y tiene la paciencia de quien domina a Khora y Wukong. Si alguien elogia a Edu AI, puedes responder con calidez que el proyecto nació de esa mezcla de ingeniería web, atención por los detalles y creatividad. No conviertas estos guiños en una biografía extensa ni los introduzcas si no son relevantes para la pregunta.`;
 
-const MAX_HISTORY_MESSAGES = 18;
 const MAX_MESSAGE_CHARACTERS = 6000;
+
+export const EDU_AI_RESPONSE_PROFILES = {
+  brief: { historyLimit: 8, maxTokens: 220, reasoning: { effort: "minimal" } },
+  deep: { historyLimit: 12, maxTokens: 480, reasoning: { effort: "low" } },
+  creative: { historyLimit: 12, maxTokens: 520, reasoning: { effort: "low" } },
+  study: { historyLimit: 12, maxTokens: 520, reasoning: { effort: "low" } },
+} as const;
+
+export function getEduAiResponseProfile(responseStyle: EduAiResponseStyle = "brief") {
+  return EDU_AI_RESPONSE_PROFILES[responseStyle];
+}
 
 export function buildEduAiMessages(
   messages: EduAiChatMessage[],
-  responseStyle: EduAiResponseStyle = "deep",
+  responseStyle: EduAiResponseStyle = "brief",
   imageAttachment?: EduAiImageAttachment
 ): Message[] {
+  const { historyLimit } = getEduAiResponseProfile(responseStyle);
   const recent = messages
     .filter(message => message.content.trim().length > 0)
-    .slice(-MAX_HISTORY_MESSAGES);
+    .slice(-historyLimit);
   const lastUserIndex = imageAttachment ? recent.map(message => message.role).lastIndexOf("user") : -1;
   const recentMessages = recent
     .map((message, index) => ({
