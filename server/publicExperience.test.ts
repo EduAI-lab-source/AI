@@ -17,6 +17,7 @@ describe("experiencia pública de Edu AI", () => {
 
   it("usa un emblema integrado como marca coherente sin depender de archivos externos", () => {
     const home = source("client/src/pages/Home.tsx");
+    const mark = source("client/src/components/EduAiMark.tsx");
 
     expect(home).toContain('import { EduAiMark } from "@/components/EduAiMark"');
     expect(home).toContain("<EduAiMark />");
@@ -24,6 +25,17 @@ describe("experiencia pública de Edu AI", () => {
     expect(home).toContain('className="identity-orb"');
     expect(home).toContain('className="header-mark"');
     expect(home).toContain("<TextToSpeechStudio");
+    expect(mark).toContain('import { useId } from "react"');
+    expect(mark).toContain("const peachId = `edu-peach-${id}`");
+  });
+
+  it("protege el emblema de compresión en la cabecera de historial móvil estrecha", () => {
+    const styles = source("client/src/index.css");
+
+    expect(styles).toContain("flex: 0 0 35px");
+    expect(styles).toContain("@media (max-width: 220px)");
+    expect(styles).toContain(".mobile-history-sheet { width: 100vw");
+    expect(styles).toContain(".mobile-history-sheet .identity-orb { width: 32px");
   });
 
   it("conserva la copia cifrada privada y no ofrece sincronización o enlaces dependientes de cuenta", () => {
