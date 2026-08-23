@@ -3,6 +3,8 @@ export type ChatRuntimeConfig = {
   hostname?: string;
 };
 
+export const CHAT_RETRY_MESSAGE = "No pude completar la última respuesta. Usa «Reintentar mensaje» para volver a enviar tu pregunta.";
+
 // El Worker conserva las credenciales del modelo fuera de GitHub Pages.
 export const EDU_AI_PUBLIC_BACKEND = "https://api.textoavoz.xyz";
 const EDU_AI_STATIC_APP_HOSTNAMES = new Set([
@@ -22,17 +24,24 @@ export function getEduAiApiBase(value?: string, hostname = "") {
 }
 
 export function isChatTransportAvailable({ apiBaseUrl, hostname = "" }: ChatRuntimeConfig) {
-  if (getEduAiApiBase(apiBaseUrl, hostname)) return true;
-  return !hostname.endsWith("github.io") && !EDU_AI_STATIC_APP_HOSTNAMES.has(hostname);
+  return Boolean(getEduAiApiBase(apiBaseUrl, hostname));
 }
 
 export function humanizeChatError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error ?? "");
-  const isTransportMismatch = /unexpected token|valid json|<!doctype|syntaxerror/i.test(message);
+  const isTransportMismatch = /unexpected token|unexpected end of json|valid json|<!doctype|syntaxerror|json parse/i.test(message);
 
   if (isTransportMismatch) {
-    return "La conversación está preparando una conexión segura. Inténtalo de nuevo cuando esté disponible.";
+    return CHAT_RETRY_MESSAGE;
   }
 
-  return "No pude responder esta vez. Inténtalo de nuevo en unos momentos.";
+  if (/muchas preguntas|too many requests/i.test(message)) {
+    return "Edu AI está recibiendo muchas preguntas. Espera unos minutos antes de continuar.";
+  }
+
+  return CHAT_RETRY_MESSAGE;
+}
+
+export function isChatRecoveryMessage(content: string) {
+  return content === CHAT_RETRY_MESSAGE;
 }

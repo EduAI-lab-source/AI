@@ -114,6 +114,15 @@ export type AIChatBoxProps = {
 
   /** Locale used by the optional browser-native dictation control. */
   voiceLanguage?: string;
+
+  /** Optional recovery action for a failed final assistant message. */
+  onRetryLastMessage?: () => void;
+
+  /** Identifies assistant messages that can be retried safely. */
+  isRetryableMessage?: (message: Message) => boolean;
+
+  /** Visible label for the recovery action. */
+  retryLabel?: string;
 };
 
 /**
@@ -179,6 +188,9 @@ export function AIChatBox({
   disabled = false,
   disabledMessage,
   voiceLanguage = "es-VE",
+  onRetryLastMessage,
+  isRetryableMessage,
+  retryLabel = "Reintentar mensaje",
 }: AIChatBoxProps) {
   const [input, setInput] = useState("");
   const [attachment, setAttachment] = useState<ChatImageAttachment | null>(null);
@@ -369,6 +381,7 @@ export function AIChatBox({
                 const isLastMessage = index === displayMessages.length - 1;
                 const shouldApplyMinHeight =
                   isLastMessage && !isLoading && minHeightForLastMessage > 0;
+                const canRetryMessage = message.role === "assistant" && isLastMessage && Boolean(onRetryLastMessage && isRetryableMessage?.(message));
 
                 return (
                   <div
@@ -402,9 +415,9 @@ export function AIChatBox({
                       )}
                     >
                       {message.role === "assistant" ? (
-                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                        <><div className="prose prose-sm dark:prose-invert max-w-none">
                           <Streamdown>{message.content}</Streamdown>
-                        </div>
+                        </div>{canRetryMessage && <button type="button" className="chat-retry-button" onClick={onRetryLastMessage} disabled={isLoading}>{retryLabel}</button>}</>
                       ) : (
                         <p className="whitespace-pre-wrap text-sm">
                           {message.content}

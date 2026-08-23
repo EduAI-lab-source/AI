@@ -11,6 +11,7 @@ import {
   type ChatState,
   updateConversationOrganization,
 } from "./chatSession";
+import { CHAT_RETRY_MESSAGE } from "./chatRuntime";
 
 describe("chatSession", () => {
   it("crea una conversación con el saludo propio de Edu AI", () => {
@@ -94,6 +95,15 @@ describe("chatSession", () => {
       content: "Unexpected token '<', \"<!doctype\" is not valid JSON",
     });
     expect(message.content).not.toMatch(/unexpected token|json|doctype/i);
+    expect(message.content).toBe(CHAT_RETRY_MESSAGE);
+  });
+
+  it("actualiza el mensaje heredado de conexión para que pueda reintentarse", () => {
+    const message = sanitizeAssistantMessage({
+      role: "assistant",
+      content: "La conversación está preparando una conexión segura. Inténtalo de nuevo cuando esté disponible.",
+    });
+    expect(message.content).toBe(CHAT_RETRY_MESSAGE);
   });
 
   it("crea carpetas personales sin duplicar nombres", () => {

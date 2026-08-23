@@ -14,7 +14,7 @@ import {
   type ConversationFolder,
   type ConversationMessage,
 } from "@/lib/chatSession";
-import { getEduAiApiBase, humanizeChatError, isChatTransportAvailable } from "@/lib/chatRuntime";
+import { getEduAiApiBase, humanizeChatError, isChatRecoveryMessage, isChatTransportAvailable } from "@/lib/chatRuntime";
 import { COPY, GLOBAL_TRANSLATION_OPTIONS, LANGUAGE_OPTIONS, getGlobalTranslationUrl, getLocale, isAppLanguage, loadLanguage, saveLanguage, type AppCopy, type AppLanguage } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { workspaceStateFromSnapshot } from "@/lib/workspaceRestore";
@@ -26,6 +26,12 @@ import { TextToSpeechStudio } from "@/components/TextToSpeechStudio";
 import { EduAiMark } from "@/components/EduAiMark";
 import { EditorialGuides, PublicFooter, PublicInfoPage, publicPageFromHash, type PublicPageId } from "@/components/PublicTrustContent";
 import { AdPlacement } from "@/components/MonetizationReadiness";
+
+type FailedChatRequest = {
+  threadId: string;
+  messages: ConversationMessage[];
+  imageAttachment?: ChatImageAttachment;
+};
 
 export default function Home() {
   const [sharedToken, setSharedToken] = useState(() => getSharedToken());
@@ -42,6 +48,7 @@ export default function Home() {
     const saved = window.localStorage.getItem("edu-ai:response-style:v1");
     return saved === "brief" || saved === "deep" || saved === "creative" || saved === "study" ? saved : "deep";
   });
+  const [failedChatRequest, setFailedChatRequest] = useState<FailedChatRequest | null>(null);
   const chat = trpc.eduAi.chat.useMutation();
   const sharedNotebook = trpc.sharing.get.useQuery({ token: sharedToken ?? "invalid" }, { enabled: Boolean(sharedToken), retry: false, refetchOnWindowFocus: false });
   const copy = COPY[language];
@@ -127,26 +134,48 @@ export default function Home() {
     setDeleteTargetId(null);
   };
 
+  const requestChatReply = (threadId: string, messages: ConversationMessage[], imageAttachment?: ChatImageAttachment) => {
+    setPendingThreadId(threadId);
+    chat.mutate(
+      { messages: messages.slice(-18), responseStyle, imageAttachment: imageAttachment ? { name: imageAttachment.name, dataUrl: imageAttachment.dataUrl } : undefined },
+      {
+        onSuccess: response => {
+          setFailedChatRequest(null);
+          setChatState(current => current.threads.some(item => item.id === threadId)
+            ? replaceThreadMessages(current, threadId, [...messages, { role: "assistant", content: response.content }])
+            : current);
+        },
+        onError: error => {
+          const recoveryMessage = humanizeChatError(error);
+          if (isChatRecoveryMessage(recoveryMessage)) setFailedChatRequest({ threadId, messages, imageAttachment });
+          setChatState(current => current.threads.some(item => item.id === threadId)
+            ? replaceThreadMessages(current, threadId, [...messages, { role: "assistant", content: recoveryMessage }])
+            : current);
+        },
+        onSettled: () => setPendingThreadId(null),
+      }
+    );
+  };
+
   const sendMessage = (content: string, imageAttachment?: ChatImageAttachment) => {
     if (!activeThread || chat.isPending || !isChatAvailable) return;
     const threadId = activeThread.id;
     const nextMessages: ConversationMessage[] = [...activeThread.messages, { role: "user", content }];
+    setFailedChatRequest(null);
     setChatState(current => replaceThreadMessages(current, threadId, nextMessages));
-    setPendingThreadId(threadId);
-    chat.mutate(
-      { messages: nextMessages.slice(-18), responseStyle, imageAttachment: imageAttachment ? { name: imageAttachment.name, dataUrl: imageAttachment.dataUrl } : undefined },
-      {
-        onSuccess: response => setChatState(current => {
-          const thread = current.threads.find(item => item.id === threadId);
-          return thread ? replaceThreadMessages(current, threadId, [...thread.messages, { role: "assistant", content: response.content }]) : current;
-        }),
-        onError: error => setChatState(current => {
-          const thread = current.threads.find(item => item.id === threadId);
-          return thread ? replaceThreadMessages(current, threadId, [...thread.messages, { role: "assistant", content: humanizeChatError(error) }]) : current;
-        }),
-        onSettled: () => setPendingThreadId(null),
-      }
-    );
+    requestChatReply(threadId, nextMessages, imageAttachment);
+  };
+
+  const retryLastMessage = () => {
+    if (!activeThread || chat.isPending) return;
+    const savedRetry = failedChatRequest?.threadId === activeThread.id ? failedChatRequest : null;
+    const trailingMessage = activeThread.messages.at(-1);
+    const recoveredRetry: FailedChatRequest | null = !savedRetry && trailingMessage && isChatRecoveryMessage(trailingMessage.content)
+      ? { threadId: activeThread.id, messages: activeThread.messages.slice(0, -1) }
+      : null;
+    const retry = savedRetry ?? recoveredRetry;
+    if (!retry) return;
+    requestChatReply(retry.threadId, retry.messages, retry.imageAttachment);
   };
 
   if (!activeThread) return null;
@@ -206,7 +235,7 @@ export default function Home() {
             <section className="assistant-secondary" aria-labelledby="assistant-secondary-title">
               <button className="assistant-secondary-toggle" onClick={() => setIsAssistantOpen(open => !open)} aria-expanded={isAssistantOpen}><span><Bot size={17} /><span><small>{language === "es" ? "HERRAMIENTA DE IDEAS" : language === "ru" ? "ИНСТРУМЕНТ ДЛЯ ИДЕЙ" : "IDEAS TOOL"}</small><strong id="assistant-secondary-title">{language === "es" ? "Conversar con Edu AI" : language === "ru" ? "Поговорить с Edu AI" : "Talk with Edu AI"}</strong></span></span><span>{isAssistantOpen ? (language === "es" ? "Cerrar" : language === "ru" ? "Закрыть" : "Close") : (language === "es" ? "Abrir" : language === "ru" ? "Открыть" : "Open")}</span></button>
               {!isAssistantOpen && <p>{language === "es" ? "Cuando necesites ordenar una idea, estudiar o crear un plan, Edu AI sigue aquí para acompañarte." : language === "ru" ? "Когда нужно упорядочить мысль, учиться или составить план, Edu AI остаётся рядом." : "Whenever you need to organise an idea, study, or make a plan, Edu AI is still here with you."}</p>}
-              {isAssistantOpen && <><AIChatBox messages={activeThread.messages} onSendMessage={sendMessage} isLoading={isActivePending} placeholder={isChatAvailable ? copy.composerPlaceholder : copy.unavailablePlaceholder} disabled={!isChatAvailable} disabledMessage={!isChatAvailable ? copy.unavailableMessage : undefined} voiceLanguage={language === "es" ? "es-VE" : language === "ru" ? "ru-RU" : "en-US"} className="chat-canvas chat-canvas-secondary" height="min(54vh, 620px)" /><p className="composer-caption"><span>↗</span> {copy.disclaimer}</p></>}
+              {isAssistantOpen && <><AIChatBox messages={activeThread.messages} onSendMessage={sendMessage} onRetryLastMessage={retryLastMessage} isRetryableMessage={message => isChatRecoveryMessage(message.content)} retryLabel={language === "es" ? "Reintentar mensaje" : language === "ru" ? "Повторить сообщение" : "Retry message"} isLoading={isActivePending} placeholder={isChatAvailable ? copy.composerPlaceholder : copy.unavailablePlaceholder} disabled={!isChatAvailable} disabledMessage={!isChatAvailable ? copy.unavailableMessage : undefined} voiceLanguage={language === "es" ? "es-VE" : language === "ru" ? "ru-RU" : "en-US"} className="chat-canvas chat-canvas-secondary" height="min(54vh, 620px)" /><p className="composer-caption"><span>↗</span> {copy.disclaimer}</p></>}
             </section>
           </>}
         </div>

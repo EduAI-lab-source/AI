@@ -390,3 +390,4 @@
 - [x] Corregir el acabado descolorido de la barra lateral con un fondo sólido sin cambiar la paleta ni el diseño general
 - [x] Reforzar el contraste de las etiquetas editoriales y textos secundarios que resulten poco visibles
 - [x] Auditar toda la interfaz en busca de etiquetas, notas y controles con contraste insuficiente y corregirlos de forma coherente
+- [x] Diagnosticar y restaurar la conexión pública del chat de Edu AI, con un reintento claro ante fallos recuperables

@@ -397,6 +397,8 @@ body { background: #f2f7ff; color: #192a55; }
 .public-footer button, .public-footer-social { color: #465b80; }
 .public-page-intro { color: #4f627e; }
 .public-page-sections p { color: #52647c; }
+.chat-retry-button { min-height: 34px; margin-top: 10px; padding: 0 11px; color: #fff; border: 0; border-radius: 9px; background: #5b3bc6; font: 700 12px var(--font-sans); cursor: pointer; transition: transform .16s cubic-bezier(.23,1,.32,1), background .16s ease; }
+.chat-retry-button:hover:not(:disabled) { background: #462ca6; }.chat-retry-button:active { transform: scale(.97); }.chat-retry-button:disabled { cursor: wait; opacity: .65; }
 .conversation-header h1 { color: #17264f; text-shadow: 0 9px 30px rgba(72, 53, 146, .1); }
 .conversation-header h1 em, .conversation-intro h2 em { color: #6d3ee8; }
 .header-subtitle, .status-line { color: #4f6286; }

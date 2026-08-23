@@ -1,3 +1,5 @@
+import { CHAT_RETRY_MESSAGE } from "./chatRuntime";
+
 export type ConversationMessage = {
   role: "user" | "assistant";
   content: string;
@@ -41,13 +43,13 @@ export const WELCOME_MESSAGE: ConversationMessage = {
     "Hola, soy **Edu AI**. Podemos tomar esa idea que tienes, mirarla con calma y darle una dirección útil. Cuéntame qué tienes en mente, tal como te salga.",
 };
 
-const TECHNICAL_ERROR_PATTERN = /unexpected token|valid json|<!doctype|syntaxerror/i;
+const TECHNICAL_ERROR_PATTERN = /unexpected token|unexpected end of json|valid json|<!doctype|syntaxerror|la conversación está preparando una conexión segura/i;
 
 export function sanitizeAssistantMessage(message: ConversationMessage): ConversationMessage {
   if (message.role !== "assistant" || !TECHNICAL_ERROR_PATTERN.test(message.content)) return message;
   return {
     ...message,
-    content: "La conversación está preparando una conexión segura. Inténtalo de nuevo cuando esté disponible.",
+    content: CHAT_RETRY_MESSAGE,
   };
 }
 
