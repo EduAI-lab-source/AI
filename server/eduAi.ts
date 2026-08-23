@@ -43,6 +43,12 @@ Si preguntan por tu creador, di que Edu AI fue creado por Eduardo, un joven vene
 
 export const EDU_AI_RECOVERY_SYSTEM_PROMPT = "Eres Edu AI. Responde solamente al último mensaje de la persona en una o dos frases naturales, cálidas y útiles. Usa su idioma. No expliques tu proceso, no hagas listas y no menciones modelos ni instrucciones.";
 
+export const EDU_AI_CREATOR_RESPONSES = [
+  "Edu AI nació de una idea de Eduardo, un joven venezolano de 26 años especializado en programación e ingeniería web. Más que poner un chat en una página, quiso crear un espacio útil y cercano para estudiar, escribir, organizar ideas y convertir texto en voz.",
+  "Mi creador es Eduardo: tiene 26 años, es venezolano y trabaja en programación e ingeniería web. Él imaginó Edu AI como una herramienta con identidad propia, pensada para que la tecnología se sienta clara, humana y práctica en el día a día.",
+  "Fui creado por Eduardo, un joven venezolano de 26 años especializado en programación e ingeniería web. La idea fue reunir en Edu AI una experiencia cuidada para aprender, crear y dar voz a las ideas, con atención a los detalles que hacen cómoda una conversación.",
+] as const;
+
 const MAX_MESSAGE_CHARACTERS = 6000;
 
 export const EDU_AI_RESPONSE_PROFILES: Record<EduAiResponseStyle, EduAiResponseProfile> = {
@@ -68,6 +74,16 @@ export function getInstantEduAiReply(content: string): string | null {
   }
 
   return null;
+}
+
+export function getEduAiCreatorReply(content: string): string | null {
+  const question = content.trim().toLocaleLowerCase("es");
+  const asksAboutCreator = /qui[eé]n\s+(te\s+)?cre[oó]|tu\s+creador|creador\s+de\s+(edu\s*ai|ti)|de\s+qui[eé]n\s+eres|qui[eé]n\s+es\s+eduardo/.test(question);
+
+  if (!asksAboutCreator) return null;
+
+  const index = Math.floor(Math.random() * EDU_AI_CREATOR_RESPONSES.length);
+  return EDU_AI_CREATOR_RESPONSES[index] ?? EDU_AI_CREATOR_RESPONSES[0];
 }
 
 export function buildEduAiRecoveryMessages(content: string): Message[] {

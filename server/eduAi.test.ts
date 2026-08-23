@@ -3,7 +3,9 @@ import {
   buildEduAiMessages,
   buildEduAiRecoveryMessages,
   EDU_AI_BRIEF_SYSTEM_PROMPT,
+  EDU_AI_CREATOR_RESPONSES,
   EDU_AI_SYSTEM_PROMPT,
+  getEduAiCreatorReply,
   getEduAiResponseProfile,
   getInstantEduAiReply,
   getTextResponse,
@@ -54,6 +56,15 @@ describe("Edu AI conversation contract", () => {
     expect(getInstantEduAiReply("holaaaaaaa")).toContain("Soy Edu AI");
     expect(getInstantEduAiReply("Hello!")).toContain("I’m Edu AI");
     expect(getInstantEduAiReply("Hola, ayúdame con matemáticas")).toBeNull();
+  });
+
+  it("presents Eduardo with a specific and varied creator response", () => {
+    const response = getEduAiCreatorReply("¿Me puedes decir quién te creó?");
+
+    expect(EDU_AI_CREATOR_RESPONSES).toContain(response);
+    expect(response).toContain("Eduardo");
+    expect(response).toContain("programación e ingeniería web");
+    expect(getEduAiCreatorReply("Ayúdame con matemáticas")).toBeNull();
   });
 
   it("builds a minimal recovery context when a provider response has no text", () => {

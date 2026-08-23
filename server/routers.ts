@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { buildEduAiMessages, buildEduAiRecoveryMessages, getEduAiResponseProfile, getInstantEduAiReply, getTextResponse } from "./eduAi";
+import { buildEduAiMessages, buildEduAiRecoveryMessages, getEduAiCreatorReply, getEduAiResponseProfile, getInstantEduAiReply, getTextResponse } from "./eduAi";
 import { hasValidEduAiGateway } from "./eduAiGateway";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM } from "./_core/llm";
@@ -84,6 +84,11 @@ export const appRouter = router({
           const instantReply = getInstantEduAiReply(input.messages.at(-1)?.content ?? "");
           if (instantReply) {
             return { content: instantReply };
+          }
+
+          const creatorReply = getEduAiCreatorReply(input.messages.at(-1)?.content ?? "");
+          if (creatorReply) {
+            return { content: creatorReply };
           }
 
           const responseStyle = input.responseStyle ?? "brief";
