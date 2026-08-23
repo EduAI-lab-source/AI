@@ -391,5 +391,5 @@
 - [x] Reforzar el contraste de las etiquetas editoriales y textos secundarios que resulten poco visibles
 - [x] Auditar toda la interfaz en busca de etiquetas, notas y controles con contraste insuficiente y corregirlos de forma coherente
 - [x] Diagnosticar y restaurar la conexión pública del chat de Edu AI, con un reintento claro ante fallos recuperables
-- [ ] Medir la latencia actual del chat de Edu AI e identificar sus principales cuellos de botella
-- [ ] Optimizar el flujo conversacional para reducir la espera percibida sin disminuir la calidad de las respuestas
+- [x] Medir la latencia actual del chat de Edu AI e identificar sus principales cuellos de botella
+- [x] Optimizar el flujo conversacional para reducir la espera percibida sin disminuir la calidad de las respuestas
