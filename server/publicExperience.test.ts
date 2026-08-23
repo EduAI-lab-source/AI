@@ -49,6 +49,7 @@ describe("experiencia pública de Edu AI", () => {
     expect(trustContent).toContain('id: "voz-clara"');
     expect(trustContent).toContain('id: "habito"');
     expect(trustContent).not.toContain("adsbygoogle");
+    expect(trustContent).toContain("no carga tipografías, anuncios ni recursos visuales de terceros");
   });
 
   it("mantiene el perfil oficial de Facebook accesible en la misma pestaña con apertura nativa y ruta de respaldo móvil", () => {

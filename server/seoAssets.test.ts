@@ -16,6 +16,9 @@ describe("activos SEO de Edu AI", () => {
     expect(html).toContain('rel="icon" type="image/svg+xml" href="/edu-ai-mark.svg"');
     expect(html).toContain('rel="apple-touch-icon" href="/edu-ai-mark.svg"');
     expect(source("client/public/edu-ai-mark.svg")).toContain('<svg');
+    expect(html).toContain('name="theme-color" content="#2c176a"');
+    expect(html).not.toContain("pagead2.googlesyndication.com");
+    expect(source("client/src/index.css")).not.toContain("fonts.googleapis.com");
     expect(html).toContain('"@type": "WebSite"');
     expect(html).toContain('"@type": "WebApplication"');
     expect(html).toContain('"isAccessibleForFree": true');

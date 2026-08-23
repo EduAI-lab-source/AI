@@ -383,3 +383,7 @@
 - [x] Renovar la paleta y las superficies para una apariencia más llamativa, pulida y profesional sin perder legibilidad
 - [x] Reducir el tamaño de las ondas táctiles del fondo ambiental en móviles y validar su respuesta
 - [x] Eliminar las reglas móviles que conservan verde residual y validar la paleta violeta e índigo en textoavoz.xyz
+- [x] Auditar la continuidad del alojamiento gratuito, dominio y recursos críticos para reducir puntos de fallo evitables
+- [x] Reforzar y documentar las protecciones verificables de publicación estática y activos esenciales
+- [x] Eliminar las dependencias externas evitables de la interfaz y conservar localmente sus recursos de carga
+- [x] Documentar qué servicios de voz, verificación y conversación requieren necesariamente conectividad externa
