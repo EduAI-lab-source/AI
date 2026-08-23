@@ -1,6 +1,7 @@
 import type { AppLanguage } from "@/lib/i18n";
 import { BookOpen, ChevronDown, ExternalLink, FileText, HeartHandshake, Mail, Scale, ShieldCheck, Sparkles } from "lucide-react";
 import { useState, type MouseEvent } from "react";
+import { EduAiMark } from "./EduAiMark";
 
 export type PublicPageId = "privacy" | "terms" | "about" | "contact";
 
@@ -201,7 +202,7 @@ export function EditorialGuides({ language }: { language: AppLanguage }) {
 
 export function PublicFooter({ language, onNavigate }: { language: AppLanguage; onNavigate: (page: PublicPageId) => void }) {
   const copy = UI_COPY[language];
-  return <footer className="public-footer"><div className="public-footer-brand"><span><img src="https://edusearch-9qua9exp.manus.space/manus-storage/edu-ai-origen-mark_85743c02.png" alt="" /></span><div><strong>Edu AI</strong><small>textoavoz.xyz</small></div></div><div className="public-footer-links" aria-label={copy.legal}><button onClick={() => onNavigate("about")}>{language === "es" ? "Acerca de" : language === "ru" ? "О проекте" : "About"}</button><button onClick={() => onNavigate("privacy")}>{language === "es" ? "Privacidad" : language === "ru" ? "Конфиденциальность" : "Privacy"}</button><button onClick={() => onNavigate("terms")}>{language === "es" ? "Términos" : language === "ru" ? "Условия" : "Terms"}</button><button onClick={() => onNavigate("contact")}>{language === "es" ? "Contacto" : language === "ru" ? "Контакты" : "Contact"}</button></div><a className="public-footer-social" href={FACEBOOK_URL} target="_self" onClick={openFacebook} aria-label={copy.facebook} title={copy.facebook}><FacebookGlyph /></a></footer>;
+  return <footer className="public-footer"><div className="public-footer-brand"><span><EduAiMark /></span><div><strong>Edu AI</strong><small>textoavoz.xyz</small></div></div><div className="public-footer-links" aria-label={copy.legal}><button onClick={() => onNavigate("about")}>{language === "es" ? "Acerca de" : language === "ru" ? "О проекте" : "About"}</button><button onClick={() => onNavigate("privacy")}>{language === "es" ? "Privacidad" : language === "ru" ? "Конфиденциальность" : "Privacy"}</button><button onClick={() => onNavigate("terms")}>{language === "es" ? "Términos" : language === "ru" ? "Условия" : "Terms"}</button><button onClick={() => onNavigate("contact")}>{language === "es" ? "Contacto" : language === "ru" ? "Контакты" : "Contact"}</button></div><a className="public-footer-social" href={FACEBOOK_URL} target="_self" onClick={openFacebook} aria-label={copy.facebook} title={copy.facebook}><FacebookGlyph /></a></footer>;
 }
 
 export function PublicInfoPage({ page, language, onBack }: { page: PublicPageId; language: AppLanguage; onBack: () => void }) {

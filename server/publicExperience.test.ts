@@ -15,10 +15,12 @@ describe("experiencia pública de Edu AI", () => {
     expect(home).not.toContain("account-entry");
   });
 
-  it("usa el emblema Origen como marca coherente en los puntos principales de la interfaz", () => {
+  it("usa un emblema integrado como marca coherente sin depender de archivos externos", () => {
     const home = source("client/src/pages/Home.tsx");
 
-    expect(home).toContain("const EDU_AI_LOGO_SRC = \"https://edusearch-9qua9exp.manus.space/manus-storage/edu-ai-origen-mark_85743c02.png\"");
+    expect(home).toContain('import { EduAiMark } from "@/components/EduAiMark"');
+    expect(home).toContain("<EduAiMark />");
+    expect(home).not.toContain("manus-storage");
     expect(home).toContain('className="identity-orb"');
     expect(home).toContain('className="header-mark"');
     expect(home).toContain("<TextToSpeechStudio");
