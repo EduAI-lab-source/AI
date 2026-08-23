@@ -388,3 +388,5 @@
 - [x] Eliminar las dependencias externas evitables de la interfaz y conservar localmente sus recursos de carga
 - [x] Documentar qué servicios de voz, verificación y conversación requieren necesariamente conectividad externa
 - [x] Corregir el acabado descolorido de la barra lateral con un fondo sólido sin cambiar la paleta ni el diseño general
+- [x] Reforzar el contraste de las etiquetas editoriales y textos secundarios que resulten poco visibles
+- [x] Auditar toda la interfaz en busca de etiquetas, notas y controles con contraste insuficiente y corregirlos de forma coherente

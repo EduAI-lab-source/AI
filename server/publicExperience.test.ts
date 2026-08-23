@@ -97,4 +97,13 @@ describe("experiencia pública de Edu AI", () => {
     expect(styles).toContain(".mobile-history-sheet { background: #212363; }");
   });
 
+  it("refuerza etiquetas editoriales, notas y textos auxiliares sobre fondos claros", () => {
+    const styles = source("client/src/index.css");
+
+    expect(styles).toContain("Auditoría de legibilidad");
+    expect(styles).toContain(".editorial-guides .overline, .public-page .overline { color: #46308f; }");
+    expect(styles).toContain(".guide-card-top { color: #a33f65; }");
+    expect(styles).toContain(".public-footer-brand small, .public-page header small, .public-facebook-action > p { color: #596b86; }");
+  });
+
 });

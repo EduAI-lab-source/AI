@@ -386,6 +386,17 @@ body { background: #f2f7ff; color: #192a55; }
 .new-chat-button:hover:not(:disabled) { background: #fff; box-shadow: 0 13px 24px rgba(14, 12, 66, .3); }
 .thread-link:hover:not(:disabled) { border-color: #4b4a98; background: #292d73; color: #fff; }
 .thread-link.active { border-color: #5f58c2; background: #39358a; color: #fff; box-shadow: inset 3px 0 #ffb171; }
+
+/* Auditoría de legibilidad: etiquetas y notas pequeñas con contraste estable sobre fondos claros. */
+.editorial-guides .overline, .public-page .overline { color: #46308f; }
+.editorial-guides-heading p:not(.overline) { color: #465a79; }
+.guide-card > p { color: #4c5f7d; }
+.guide-card-top { color: #a33f65; }
+.public-footer { color: #4b5d7a; }
+.public-footer-brand small, .public-page header small, .public-facebook-action > p { color: #596b86; }
+.public-footer button, .public-footer-social { color: #465b80; }
+.public-page-intro { color: #4f627e; }
+.public-page-sections p { color: #52647c; }
 .conversation-header h1 { color: #17264f; text-shadow: 0 9px 30px rgba(72, 53, 146, .1); }
 .conversation-header h1 em, .conversation-intro h2 em { color: #6d3ee8; }
 .header-subtitle, .status-line { color: #4f6286; }
