@@ -82,6 +82,8 @@ describe("experiencia pública de Edu AI", () => {
     expect(styles).toContain("edu-ambient-pulse-mobile");
     expect(styles).toContain("circle 3.25rem at var(--ambient-x)");
     expect(styles).toContain("circle 9rem at var(--ambient-x)");
+    expect(styles).toContain("El móvil mantiene la misma dirección índigo/violeta");
+    expect(styles).toContain("#2c176a 0%, #23307d 57%, #0c6574 100%");
   });
 
 });

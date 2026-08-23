@@ -382,3 +382,4 @@
 - [x] Diagnosticar los logotipos rotos de la versión pública y migrarlos a referencias estables que sobrevivan a futuras publicaciones
 - [x] Renovar la paleta y las superficies para una apariencia más llamativa, pulida y profesional sin perder legibilidad
 - [x] Reducir el tamaño de las ondas táctiles del fondo ambiental en móviles y validar su respuesta
+- [x] Eliminar las reglas móviles que conservan verde residual y validar la paleta violeta e índigo en textoavoz.xyz

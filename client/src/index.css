@@ -409,3 +409,17 @@ body { background: #f2f7ff; color: #192a55; }
 }
 
 @keyframes edu-ambient-pulse-mobile { 0% { opacity: .18; transform: scale(.58); } 60% { opacity: .94; transform: scale(.98); } 100% { opacity: 1; transform: scale(.88); } }
+
+/* El móvil mantiene la misma dirección índigo/violeta, incluso en navegación y paneles superpuestos. */
+@media (max-width: 760px) {
+  .edu-app { background: radial-gradient(circle at 92% 5%, rgba(139, 104, 255, .52), transparent 15rem), radial-gradient(circle at 8% 84%, rgba(57, 211, 191, .18), transparent 18rem), #f2f7ff; }
+  .mobile-appbar { border-bottom-color: rgba(79, 61, 172, .14); background: linear-gradient(100deg, rgba(251,250,255,.94), rgba(240,238,255,.9)); box-shadow: 0 8px 22px rgba(58, 45, 137, .08); }
+  .mobile-menu, .mobile-new-chat { border-color: rgba(91, 68, 195, .18); background: rgba(255,255,255,.86); color: #4e32ad; box-shadow: 0 6px 15px rgba(78, 51, 174, .09); }
+  .mobile-new-chat { color: #7141dc; }
+  .mobile-brand { color: #24295a; }
+  .mobile-history-scrim { background: rgba(23, 16, 76, .52); }
+  .mobile-history-sheet { background: linear-gradient(165deg, #2c176a 0%, #23307d 57%, #0c6574 100%); box-shadow: 22px 0 50px rgba(31, 17, 91, .34); }
+  .close-history { border-color: rgba(224, 219, 255, .24); background: rgba(255,255,255,.1); color: #f6f2ff; }
+  .chat-canvas.bg-card { box-shadow: 0 22px 45px -35px rgba(58, 43, 149, .62), inset 0 1px rgba(255,255,255,.72); }
+  .edu-dialog-cancel { color: #443587 !important; border-color: rgba(82, 63, 172, .22) !important; background: rgba(250,249,255,.9) !important; }
+}
