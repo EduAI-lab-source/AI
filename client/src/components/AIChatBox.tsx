@@ -123,6 +123,12 @@ export type AIChatBoxProps = {
 
   /** Visible label for the recovery action. */
   retryLabel?: string;
+
+  /** Brief status shown while Edu AI prepares a response. */
+  loadingLabel?: string;
+
+  /** Supporting detail for the visible response status. */
+  loadingDetail?: string;
 };
 
 /**
@@ -191,6 +197,8 @@ export function AIChatBox({
   onRetryLastMessage,
   isRetryableMessage,
   retryLabel = "Reintentar mensaje",
+  loadingLabel = "Edu AI está preparando una respuesta",
+  loadingDetail,
 }: AIChatBoxProps) {
   const [input, setInput] = useState("");
   const [attachment, setAttachment] = useState<ChatImageAttachment | null>(null);
@@ -447,8 +455,9 @@ export function AIChatBox({
                   <div data-slot="message-avatar" className="size-8 shrink-0 mt-1 rounded-full bg-primary/10 flex items-center justify-center">
                     <Sparkles className="size-4 text-primary" />
                   </div>
-                  <div data-slot="message-content" className="rounded-lg bg-muted px-4 py-2.5">
-                    <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                  <div data-slot="message-content" className="chat-thinking" role="status" aria-live="polite">
+                    <span className="chat-thinking-orbit"><Loader2 className="size-4 animate-spin" /></span>
+                    <span><strong>{loadingLabel}</strong>{loadingDetail && <small>{loadingDetail}</small>}</span>
                   </div>
                 </div>
               )}

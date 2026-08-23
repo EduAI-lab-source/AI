@@ -399,3 +399,7 @@
 - [x] Probar y publicar la presentación renovada del creador en textoavoz.xyz
 - [x] Corregir el tamaño y recorte del logo de Edu AI en encabezados móviles estrechos
 - [x] Validar y publicar el logo legible en los tamaños móviles afectados
+- [ ] Añadir rutas rápidas «¿Qué quieres lograr hoy?» para estudiar, escribir, planificar y crear voz
+- [ ] Mejorar el estado de respuesta de Edu AI con un indicador claro y útil mientras prepara una respuesta
+- [ ] Crear un acceso compacto al contenido reciente para recuperar conversaciones, notas y audio sin búsqueda manual
+- [ ] Validar, publicar y verificar la nueva experiencia guiada en textoavoz.xyz

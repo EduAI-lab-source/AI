@@ -20,7 +20,9 @@ const STUDIO_COPY: Record<AppLanguage, { eyebrow: string; title: string; emphasi
 
 const DEFAULT_TEXT: Record<AppLanguage, string> = { es: "Una idea que se escucha también puede encontrar su camino.", en: "An idea that is heard can also find its way.", ru: "Идея, которую слышат, тоже может найти свой путь." };
 
-export function TextToSpeechStudio({ language, latestAssistantMessage }: { language: AppLanguage; latestAssistantMessage?: string }) {
+export type RecentAudio = { label: string; createdAt: number };
+
+export function TextToSpeechStudio({ language, latestAssistantMessage, onAudioReady }: { language: AppLanguage; latestAssistantMessage?: string; onAudioReady?: (audio: RecentAudio) => void }) {
   const copy = STUDIO_COPY[language];
   const voices = VOICES[language];
   const [text, setText] = useState(() => DEFAULT_TEXT[language]);
@@ -62,6 +64,7 @@ export function TextToSpeechStudio({ language, latestAssistantMessage }: { langu
       const audio = await response.blob();
       const nextUrl = URL.createObjectURL(audio);
       setAudioUrl(current => { if (current) URL.revokeObjectURL(current); return nextUrl; });
+      onAudioReady?.({ label: `${selectedVoice.name} · MP3`, createdAt: Date.now() });
       const remainingHeader = Number(response.headers.get("x-edu-ai-characters-left"));
       if (Number.isFinite(remainingHeader)) setRemaining(remainingHeader);
     } catch (error) { setStatus(error instanceof Error && error.message ? error.message : copy.errorFallback); }

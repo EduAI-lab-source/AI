@@ -27,9 +27,10 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { createSyncCode, decryptWorkspace, encryptWorkspace, isWorkspaceSnapshot, loadSyncCode, parseSyncCode, persistSyncCode, type WorkspaceSnapshot } from "@/lib/workspaceSync";
+import { loadWorkspaceNotes, WORKSPACE_NOTES_STORAGE_KEY, type WorkspaceNote } from "@/lib/workspaceRecents";
 import type { ChatState } from "@/lib/chatSession";
 
-type StudioTab = "library" | "tools" | "notes" | "study" | "progress" | "preferences";
+export type StudioTab = "library" | "tools" | "notes" | "study" | "progress" | "preferences";
 export type ResponseStyle = "brief" | "deep" | "creative" | "study";
 
 type LearningStudioProps = {
@@ -41,13 +42,13 @@ type LearningStudioProps = {
   onResponseStyleChange: (style: ResponseStyle) => void;
   chatState: ChatState;
   onRestoreWorkspace: (snapshot: WorkspaceSnapshot) => void;
+  initialTab?: StudioTab;
 };
 
-type StudioNote = { id: string; content: string; createdAt: number };
+type StudioNote = WorkspaceNote;
 type StudioProgress = { weeklyGoal: number; completedDays: string[] };
 
 const READING_STORAGE_KEY = "edu-ai:library:v1";
-const NOTES_STORAGE_KEY = "edu-ai:notes:v1";
 const PROGRESS_STORAGE_KEY = "edu-ai:progress:v1";
 
 const TOOL_PROMPTS: Record<AppLanguage, Array<{ label: string; description: string; prompt: string; icon: "summary" | "plan" | "write" | "decision" | "study" }>> = {
@@ -91,13 +92,7 @@ function loadStringList(key: string) {
 }
 
 function loadNotes() {
-  if (typeof window === "undefined") return [] as StudioNote[];
-  try {
-    const stored = JSON.parse(window.localStorage.getItem(NOTES_STORAGE_KEY) ?? "[]");
-    return Array.isArray(stored) ? stored.filter((note): note is StudioNote => Boolean(note && typeof note.content === "string" && typeof note.id === "string")) : [];
-  } catch {
-    return [];
-  }
+  return loadWorkspaceNotes() as StudioNote[];
 }
 
 function loadProgress(): StudioProgress {
@@ -124,8 +119,8 @@ function escapePrintHtml(value: string) {
   return value.replace(/[&<>'"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character] ?? character);
 }
 
-export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onClose, responseStyle, onResponseStyleChange, chatState, onRestoreWorkspace }: LearningStudioProps) {
-  const [tab, setTab] = useState<StudioTab>("library");
+export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onClose, responseStyle, onResponseStyleChange, chatState, onRestoreWorkspace, initialTab = "library" }: LearningStudioProps) {
+  const [tab, setTab] = useState<StudioTab>(initialTab);
   const [readingList, setReadingList] = useState(() => loadStringList(READING_STORAGE_KEY));
   const [notes, setNotes] = useState(() => loadNotes());
   const [draftNote, setDraftNote] = useState("");
@@ -142,8 +137,9 @@ export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onC
   const challenge = useMemo(() => WEEKLY_CHALLENGES[language][Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000)) % WEEKLY_CHALLENGES[language].length], [language]);
 
   useEffect(() => { window.localStorage.setItem(READING_STORAGE_KEY, JSON.stringify(readingList)); }, [readingList]);
-  useEffect(() => { window.localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes)); }, [notes]);
+  useEffect(() => { window.localStorage.setItem(WORKSPACE_NOTES_STORAGE_KEY, JSON.stringify(notes)); }, [notes]);
   useEffect(() => { window.localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(progress)); }, [progress]);
+  useEffect(() => { setTab(initialTab); }, [initialTab]);
   useEffect(() => () => window.speechSynthesis?.cancel(), []);
 
   const toggleBook = (id: string) => setReadingList(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);

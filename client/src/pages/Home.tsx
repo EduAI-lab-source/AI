@@ -1,5 +1,5 @@
 import { AIChatBox } from "@/components/AIChatBox";
-import { LearningStudio, type ResponseStyle } from "@/components/LearningStudio";
+import { LearningStudio, type ResponseStyle, type StudioTab } from "@/components/LearningStudio";
 import type { ChatImageAttachment } from "@/components/AIChatBox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import {
@@ -20,9 +20,10 @@ import { trpc } from "@/lib/trpc";
 import { workspaceStateFromSnapshot } from "@/lib/workspaceRestore";
 import { parseSharedNotebookSnapshot } from "@/lib/sharedNotebook";
 import { getAmbientPointerMode, getAmbientPosition } from "@/lib/ambientMotion";
-import { ArrowUpRight, Bot, BookOpen, CirclePlus, Eraser, FolderPlus, Languages, LibraryBig, Link2, Menu, MessageSquareText, Search, ShieldCheck, Star, Trash2, Volume2, X } from "lucide-react";
+import { getLatestWorkspaceNote } from "@/lib/workspaceRecents";
+import { ArrowUpRight, Bot, BookOpen, CirclePlus, ClipboardPenLine, Eraser, FileAudio, FolderPlus, GraduationCap, Languages, LibraryBig, Link2, ListChecks, Menu, MessageSquareText, PenLine, Search, ShieldCheck, Star, Trash2, Volume2, X } from "lucide-react";
 import { type PointerEvent, useEffect, useMemo, useState } from "react";
-import { TextToSpeechStudio } from "@/components/TextToSpeechStudio";
+import { TextToSpeechStudio, type RecentAudio } from "@/components/TextToSpeechStudio";
 import { EduAiMark } from "@/components/EduAiMark";
 import { EditorialGuides, PublicFooter, PublicInfoPage, publicPageFromHash, type PublicPageId } from "@/components/PublicTrustContent";
 import { AdPlacement } from "@/components/MonetizationReadiness";
@@ -43,7 +44,9 @@ export default function Home() {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isLearningOpen, setIsLearningOpen] = useState(false);
+  const [learningStartTab, setLearningStartTab] = useState<StudioTab>("library");
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const [recentAudio, setRecentAudio] = useState<RecentAudio | null>(null);
   const [language, setLanguage] = useState<AppLanguage>(loadLanguage);
   const [responseStyle, setResponseStyle] = useState<ResponseStyle>(() => {
     if (typeof window === "undefined") return "brief";
@@ -168,6 +171,27 @@ export default function Home() {
     requestChatReply(threadId, nextMessages, imageAttachment);
   };
 
+  const openLearning = (tab: StudioTab = "library") => {
+    setLearningStartTab(tab);
+    setIsLearningOpen(true);
+    setIsHistoryOpen(false);
+  };
+
+  const openAssistant = () => {
+    setIsLearningOpen(false);
+    setIsAssistantOpen(true);
+  };
+
+  const startGuidedChat = (prompt: string) => {
+    openAssistant();
+    window.setTimeout(() => sendMessage(prompt), 0);
+  };
+
+  const focusVoiceStudio = () => {
+    setIsLearningOpen(false);
+    window.setTimeout(() => document.getElementById("tts-title")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+  };
+
   const retryLastMessage = () => {
     if (!activeThread || chat.isPending) return;
     const savedRetry = failedChatRequest?.threadId === activeThread.id ? failedChatRequest : null;
@@ -206,10 +230,17 @@ export default function Home() {
     onDeleteThread: (threadId: string) => setDeleteTargetId(threadId),
     onOrganizeThread: organizeThread,
     onAddFolder: addFolder,
-    onOpenLearning: () => { setIsLearningOpen(true); setIsHistoryOpen(false); },
+    onOpenLearning: () => openLearning(),
   };
   const learningLabel = language === "es" ? "Mi espacio" : language === "ru" ? "Моё пространство" : "My space";
   const latestAssistantMessage = [...activeThread.messages].reverse().find(message => message.role === "assistant")?.content;
+  const latestWorkspaceNote = getLatestWorkspaceNote();
+  const mostRecentThread = [...chatState.threads].sort((left, right) => right.updatedAt - left.updatedAt)[0];
+  const chatThinkingCopy = language === "es"
+    ? { label: "Edu AI está preparando una respuesta", detail: "Ordena el contexto para responderte con claridad." }
+    : language === "ru"
+      ? { label: "Edu AI готовит ответ", detail: "Собирает контекст, чтобы ответить ясно." }
+      : { label: "Edu AI is preparing a reply", detail: "It is organizing the context for a clear answer." };
   const deleteTarget = chatState.threads.find(thread => thread.id === deleteTargetId);
 
   return (
@@ -228,16 +259,18 @@ export default function Home() {
         </div>
         <header className="conversation-header">
           <div><span className="status-line"><i /> {copy.statusLine}</span><h1>{hasConversation && isAssistantOpen ? activeThread.title : <>{copy.heroTitle}<br /><em>{copy.heroEmphasis}</em></>}</h1><p className="header-subtitle">{copy.headerSubtitle}</p></div>
-          <div className="header-actions"><button className="learning-entry" onClick={() => setIsLearningOpen(current => !current)} aria-pressed={isLearningOpen}><LibraryBig size={15} />{learningLabel}</button><LanguagePicker language={language} copy={copy} onChange={setLanguage} /><span className="header-mark" aria-hidden="true"><EduAiMark /></span></div>
+          <div className="header-actions"><button className="learning-entry" onClick={() => isLearningOpen ? setIsLearningOpen(false) : openLearning()} aria-pressed={isLearningOpen}><LibraryBig size={15} />{learningLabel}</button><LanguagePicker language={language} copy={copy} onChange={setLanguage} /><span className="header-mark" aria-hidden="true"><EduAiMark /></span></div>
         </header>
         <div className="conversation-stage">
-          {isLearningOpen ? <LearningStudio language={language} latestAssistantMessage={latestAssistantMessage} onAskEdu={sendMessage} onClose={() => setIsLearningOpen(false)} responseStyle={responseStyle} onResponseStyleChange={setResponseStyle} chatState={chatState} onRestoreWorkspace={snapshot => { const restored = workspaceStateFromSnapshot(snapshot); setChatState(restored.chatState); setLanguage(restored.language); setResponseStyle(restored.responseStyle); }} /> : <>
-            <TextToSpeechStudio language={language} latestAssistantMessage={latestAssistantMessage} />
+          {isLearningOpen ? <LearningStudio language={language} latestAssistantMessage={latestAssistantMessage} onAskEdu={sendMessage} onClose={() => setIsLearningOpen(false)} responseStyle={responseStyle} onResponseStyleChange={setResponseStyle} chatState={chatState} initialTab={learningStartTab} onRestoreWorkspace={snapshot => { const restored = workspaceStateFromSnapshot(snapshot); setChatState(restored.chatState); setLanguage(restored.language); setResponseStyle(restored.responseStyle); }} /> : <>
+            <TextToSpeechStudio language={language} latestAssistantMessage={latestAssistantMessage} onAudioReady={setRecentAudio} />
+            <GuidedStartPanel language={language} onOpenStudy={() => openLearning("study")} onWrite={() => startGuidedChat(language === "es" ? "Quiero escribir algo importante. Hazme tres preguntas cortas sobre el propósito, la persona que lo leerá y el tono antes de ayudarme a crear una primera versión." : language === "ru" ? "Я хочу написать важный текст. Задай мне три коротких вопроса о цели, читателе и тоне, прежде чем помочь создать первый вариант." : "I want to write something important. Ask me three short questions about the purpose, reader, and tone before helping me create a first draft.")} onPlan={() => startGuidedChat(language === "es" ? "Quiero organizar un plan realista. Pregúntame mi objetivo, el tiempo disponible y mi punto de partida; después propón pasos pequeños y sostenibles." : language === "ru" ? "Я хочу составить реалистичный план. Спроси о цели, доступном времени и отправной точке, затем предложи небольшие выполнимые шаги." : "I want to make a realistic plan. Ask about my goal, available time, and starting point; then suggest small sustainable steps.")} onCreateAudio={focusVoiceStudio} />
+            <RecentShelf language={language} thread={mostRecentThread} latestNote={latestWorkspaceNote} recentAudio={recentAudio} onOpenConversation={threadId => { selectThread(threadId); openAssistant(); }} onOpenNotes={() => openLearning("notes")} onOpenAudio={focusVoiceStudio} />
             <AdPlacement placement="studio" language={language} />
             <section className="assistant-secondary" aria-labelledby="assistant-secondary-title">
               <button className="assistant-secondary-toggle" onClick={() => setIsAssistantOpen(open => !open)} aria-expanded={isAssistantOpen}><span><Bot size={17} /><span><small>{language === "es" ? "HERRAMIENTA DE IDEAS" : language === "ru" ? "ИНСТРУМЕНТ ДЛЯ ИДЕЙ" : "IDEAS TOOL"}</small><strong id="assistant-secondary-title">{language === "es" ? "Conversar con Edu AI" : language === "ru" ? "Поговорить с Edu AI" : "Talk with Edu AI"}</strong></span></span><span>{isAssistantOpen ? (language === "es" ? "Cerrar" : language === "ru" ? "Закрыть" : "Close") : (language === "es" ? "Abrir" : language === "ru" ? "Открыть" : "Open")}</span></button>
               {!isAssistantOpen && <p>{language === "es" ? "Cuando necesites ordenar una idea, estudiar o crear un plan, Edu AI sigue aquí para acompañarte." : language === "ru" ? "Когда нужно упорядочить мысль, учиться или составить план, Edu AI остаётся рядом." : "Whenever you need to organise an idea, study, or make a plan, Edu AI is still here with you."}</p>}
-              {isAssistantOpen && <><AIChatBox messages={activeThread.messages} onSendMessage={sendMessage} onRetryLastMessage={retryLastMessage} isRetryableMessage={message => isChatRecoveryMessage(message.content)} retryLabel={language === "es" ? "Reintentar mensaje" : language === "ru" ? "Повторить сообщение" : "Retry message"} isLoading={isActivePending} placeholder={isChatAvailable ? copy.composerPlaceholder : copy.unavailablePlaceholder} disabled={!isChatAvailable} disabledMessage={!isChatAvailable ? copy.unavailableMessage : undefined} voiceLanguage={language === "es" ? "es-VE" : language === "ru" ? "ru-RU" : "en-US"} className="chat-canvas chat-canvas-secondary" height="min(54vh, 620px)" /><p className="composer-caption"><span>↗</span> {copy.disclaimer}</p></>}
+              {isAssistantOpen && <><AIChatBox messages={activeThread.messages} onSendMessage={sendMessage} onRetryLastMessage={retryLastMessage} isRetryableMessage={message => isChatRecoveryMessage(message.content)} retryLabel={language === "es" ? "Reintentar mensaje" : language === "ru" ? "Повторить сообщение" : "Retry message"} isLoading={isActivePending} loadingLabel={chatThinkingCopy.label} loadingDetail={chatThinkingCopy.detail} placeholder={isChatAvailable ? copy.composerPlaceholder : copy.unavailablePlaceholder} disabled={!isChatAvailable} disabledMessage={!isChatAvailable ? copy.unavailableMessage : undefined} voiceLanguage={language === "es" ? "es-VE" : language === "ru" ? "ru-RU" : "en-US"} className="chat-canvas chat-canvas-secondary" height="min(54vh, 620px)" /><p className="composer-caption"><span>↗</span> {copy.disclaimer}</p></>}
             </section>
           </>}
         </div>
@@ -266,6 +299,31 @@ function getSharedToken() {
   if (typeof window === "undefined") return null;
   const match = window.location.hash.match(/^#share=([A-Za-z0-9_-]{32,96})$/);
   return match?.[1] ?? null;
+}
+
+function GuidedStartPanel({ language, onOpenStudy, onWrite, onPlan, onCreateAudio }: { language: AppLanguage; onOpenStudy: () => void; onWrite: () => void; onPlan: () => void; onCreateAudio: () => void }) {
+  const copy = language === "es"
+    ? { eyebrow: "EMPIEZA POR AQUÍ", title: "¿Qué quieres lograr hoy?", detail: "Elige una ruta; puedes cambiarla cuando quieras.", study: ["Estudiar", "Entender, practicar y repasar"], write: ["Escribir", "Dar forma a una idea propia"], plan: ["Planificar", "Convertir intención en pasos"], audio: ["Crear audio", "Escuchar o descargar tu texto"] }
+    : language === "ru"
+      ? { eyebrow: "НАЧНИТЕ ЗДЕСЬ", title: "Чего вы хотите достичь сегодня?", detail: "Выберите путь — его можно изменить в любой момент.", study: ["Учиться", "Понять, потренироваться и повторить"], write: ["Писать", "Придать идее форму"], plan: ["Планировать", "Превратить намерение в шаги"], audio: ["Создать аудио", "Прослушать или скачать текст"] }
+      : { eyebrow: "START HERE", title: "What would you like to achieve today?", detail: "Choose a path; you can change it anytime.", study: ["Study", "Understand, practice, and review"], write: ["Write", "Shape an idea in your own voice"], plan: ["Plan", "Turn intention into steps"], audio: ["Create audio", "Listen to or download your text"] };
+  const actions = [
+    { id: "study", copy: copy.study, icon: GraduationCap, action: onOpenStudy },
+    { id: "write", copy: copy.write, icon: PenLine, action: onWrite },
+    { id: "plan", copy: copy.plan, icon: ListChecks, action: onPlan },
+    { id: "audio", copy: copy.audio, icon: Volume2, action: onCreateAudio },
+  ];
+
+  return <section className="guided-start" aria-labelledby="guided-start-title"><div className="guided-start-heading"><div><p className="overline">{copy.eyebrow}</p><h2 id="guided-start-title">{copy.title}</h2></div><p>{copy.detail}</p></div><div className="guided-start-grid">{actions.map(item => { const Icon = item.icon; return <button key={item.id} type="button" onClick={item.action}><span><Icon size={17} /></span><strong>{item.copy[0]}</strong><small>{item.copy[1]}</small><ArrowUpRight size={15} aria-hidden="true" /></button>; })}</div></section>;
+}
+
+function RecentShelf({ language, thread, latestNote, recentAudio, onOpenConversation, onOpenNotes, onOpenAudio }: { language: AppLanguage; thread?: { id: string; title: string }; latestNote?: { content: string }; recentAudio: RecentAudio | null; onOpenConversation: (threadId: string) => void; onOpenNotes: () => void; onOpenAudio: () => void }) {
+  const copy = language === "es"
+    ? { eyebrow: "CONTINÚA SIN BUSCAR", title: "Vuelve a lo último", conversation: "Conversación", note: "Nota", audio: "Audio", emptyConversation: "Aún no has iniciado una conversación.", emptyNote: "Guarda una idea en tu cuaderno.", emptyAudio: "Crea un audio desde el estudio." }
+    : language === "ru"
+      ? { eyebrow: "ПРОДОЛЖИТЕ БЕЗ ПОИСКА", title: "Вернитесь к последнему", conversation: "Беседа", note: "Заметка", audio: "Аудио", emptyConversation: "Вы ещё не начали беседу.", emptyNote: "Сохраните идею в блокнот.", emptyAudio: "Создайте аудио в студии." }
+      : { eyebrow: "CONTINUE WITHOUT SEARCHING", title: "Pick up where you left off", conversation: "Conversation", note: "Note", audio: "Audio", emptyConversation: "You have not started a conversation yet.", emptyNote: "Save an idea in your notebook.", emptyAudio: "Create audio from the studio." };
+  return <section className="recent-shelf" aria-labelledby="recent-shelf-title"><div><p className="overline">{copy.eyebrow}</p><h2 id="recent-shelf-title">{copy.title}</h2></div><div className="recent-shelf-grid"><button type="button" onClick={() => thread && onOpenConversation(thread.id)} disabled={!thread}><MessageSquareText size={17} /><span><small>{copy.conversation}</small><strong>{thread?.title ?? copy.emptyConversation}</strong></span><ArrowUpRight size={15} /></button><button type="button" onClick={onOpenNotes}><ClipboardPenLine size={17} /><span><small>{copy.note}</small><strong>{latestNote?.content ?? copy.emptyNote}</strong></span><ArrowUpRight size={15} /></button><button type="button" onClick={onOpenAudio}><FileAudio size={17} /><span><small>{copy.audio}</small><strong>{recentAudio?.label ?? copy.emptyAudio}</strong></span><ArrowUpRight size={15} /></button></div></section>;
 }
 
 function SharedNotebookPage({ data, isLoading, hasError, onBack }: { data?: { title: string; snapshot: string; expiresAt: string | null }; isLoading: boolean; hasError: boolean; onBack: () => void }) {

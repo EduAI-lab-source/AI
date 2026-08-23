@@ -29,6 +29,17 @@ describe("experiencia pública de Edu AI", () => {
     expect(mark).toContain("const peachId = `edu-peach-${id}`");
   });
 
+  it("ofrece rutas guiadas, contenido reciente y una espera conversacional comprensible", () => {
+    const home = source("client/src/pages/Home.tsx");
+    const chat = source("client/src/components/AIChatBox.tsx");
+
+    expect(home).toContain("<GuidedStartPanel");
+    expect(home).toContain("<RecentShelf");
+    expect(home).toContain("loadingLabel={chatThinkingCopy.label}");
+    expect(chat).toContain('className="chat-thinking"');
+    expect(chat).toContain("loadingDetail");
+  });
+
   it("protege el emblema de compresión en la cabecera de historial móvil estrecha", () => {
     const styles = source("client/src/index.css");
 
