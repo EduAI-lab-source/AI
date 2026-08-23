@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   buildEduAiMessages,
+  buildEduAiRecoveryMessages,
+  EDU_AI_BRIEF_SYSTEM_PROMPT,
   EDU_AI_SYSTEM_PROMPT,
   getEduAiResponseProfile,
+  getInstantEduAiReply,
   getTextResponse,
 } from "./eduAi";
 
@@ -38,17 +41,39 @@ describe("Edu AI conversation contract", () => {
     expect(String(messages[0]?.content)).toContain("como un buen tutor");
   });
 
+  it("uses a compact prompt for everyday conversation without turning greetings into questionnaires", () => {
+    const messages = buildEduAiMessages([{ role: "user", content: "Holaaaa" }], "brief");
+
+    expect(messages[0]).toMatchObject({ role: "system" });
+    expect(String(messages[0]?.content)).toContain("No conviertas un saludo en un cuestionario");
+    expect(String(messages[0]?.content)).toContain("una o dos frases");
+    expect(EDU_AI_BRIEF_SYSTEM_PROMPT.length).toBeLessThan(EDU_AI_SYSTEM_PROMPT.length);
+  });
+
+  it("answers an isolated greeting immediately without invoking the model", () => {
+    expect(getInstantEduAiReply("holaaaaaaa")).toContain("Soy Edu AI");
+    expect(getInstantEduAiReply("Hello!")).toContain("I’m Edu AI");
+    expect(getInstantEduAiReply("Hola, ayúdame con matemáticas")).toBeNull();
+  });
+
+  it("builds a minimal recovery context when a provider response has no text", () => {
+    expect(buildEduAiRecoveryMessages("Hola, necesito ayuda")).toEqual([
+      expect.objectContaining({ role: "system" }),
+      { role: "user", content: "Hola, necesito ayuda" },
+    ]);
+  });
+
   it("uses a distinct instruction for each response preference", () => {
     const prompt = [{ role: "user" as const, content: "Help me learn this in English / Помоги изучить это" }];
-    expect(String(buildEduAiMessages(prompt, "brief")[0]?.content)).toContain("dos a cinco frases");
+    expect(String(buildEduAiMessages(prompt, "brief")[0]?.content)).toContain("una o dos frases");
     expect(String(buildEduAiMessages(prompt, "deep")[0]?.content)).toContain("profundidad amable");
     expect(String(buildEduAiMessages(prompt, "creative")[0]?.content)).toContain("imaginación práctica");
     expect(String(buildEduAiMessages(prompt, "study")[0]?.content)).toContain("práctica breve");
   });
 
-  it("uses a compact low-latency profile for everyday answers while retaining context for detailed modes", () => {
-    expect(getEduAiResponseProfile("brief")).toMatchObject({ historyLimit: 8, maxTokens: 220, reasoning: { effort: "minimal" } });
-    expect(getEduAiResponseProfile("deep")).toMatchObject({ historyLimit: 12, maxTokens: 480, reasoning: { effort: "low" } });
+  it("uses a compact low-latency history for everyday answers while retaining more context for detailed modes", () => {
+    expect(getEduAiResponseProfile("brief")).toEqual({ historyLimit: 8, reasoning: { effort: "minimal" } });
+    expect(getEduAiResponseProfile("deep")).toEqual({ historyLimit: 12, reasoning: { effort: "low" } });
   });
 
   it("keeps recent context while removing empty messages", () => {

@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { buildEduAiMessages, getEduAiResponseProfile, getTextResponse } from "./eduAi";
+import { buildEduAiMessages, buildEduAiRecoveryMessages, getEduAiResponseProfile, getInstantEduAiReply, getTextResponse } from "./eduAi";
 import { hasValidEduAiGateway } from "./eduAiGateway";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM } from "./_core/llm";
@@ -81,15 +81,30 @@ export const appRouter = router({
         assertRateLimit(ctx.req);
 
         try {
+          const instantReply = getInstantEduAiReply(input.messages.at(-1)?.content ?? "");
+          if (instantReply) {
+            return { content: instantReply };
+          }
+
           const responseStyle = input.responseStyle ?? "brief";
           const profile = getEduAiResponseProfile(responseStyle);
+          const messages = buildEduAiMessages(input.messages, responseStyle, input.imageAttachment);
           const response = await invokeLLM({
             model: "gpt-5-mini",
-            messages: buildEduAiMessages(input.messages, responseStyle, input.imageAttachment),
-            maxTokens: profile.maxTokens,
+            messages,
             reasoning: profile.reasoning,
           });
-          const content = getTextResponse(response.choices[0]?.message.content ?? "");
+          let content = getTextResponse(response.choices[0]?.message.content ?? "");
+
+          if (!content) {
+            console.warn("[Edu AI] Empty model response; retrying with compact recovery context");
+            const recovery = await invokeLLM({
+              model: "gpt-5-mini",
+              messages: buildEduAiRecoveryMessages(input.messages.at(-1)?.content ?? ""),
+              reasoning: { effort: "minimal" },
+            });
+            content = getTextResponse(recovery.choices[0]?.message.content ?? "");
+          }
 
           if (!content) {
             throw new Error("El modelo no devolvió una respuesta de texto");
