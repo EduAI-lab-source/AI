@@ -378,6 +378,14 @@ body { background: #f2f7ff; color: #192a55; }
 .thread-link svg { color: #a8f2df; }
 .thread-link:hover:not(:disabled), .thread-link.active { border-color: rgba(255,255,255,.15); background: linear-gradient(112deg, rgba(255,255,255,.15), rgba(122,92,255,.2)); color: #fff; }
 .thread-link.active svg { color: #ffbf84; }
+
+/* Barra lateral sólida: conserva el índigo actual sin capas translúcidas que resten contraste. */
+.conversation-sidebar { border-right-color: #392a7d; background: #212363; box-shadow: 8px 0 26px rgba(26, 21, 83, .18); }
+.conversation-sidebar::before { display: none; }
+.new-chat-button { border-color: #f0eaff; background: #fffafb; color: #302064; box-shadow: 0 10px 20px rgba(14, 12, 66, .24); }
+.new-chat-button:hover:not(:disabled) { background: #fff; box-shadow: 0 13px 24px rgba(14, 12, 66, .3); }
+.thread-link:hover:not(:disabled) { border-color: #4b4a98; background: #292d73; color: #fff; }
+.thread-link.active { border-color: #5f58c2; background: #39358a; color: #fff; box-shadow: inset 3px 0 #ffb171; }
 .conversation-header h1 { color: #17264f; text-shadow: 0 9px 30px rgba(72, 53, 146, .1); }
 .conversation-header h1 em, .conversation-intro h2 em { color: #6d3ee8; }
 .header-subtitle, .status-line { color: #4f6286; }
@@ -421,4 +429,8 @@ body { background: #f2f7ff; color: #192a55; }
   .close-history { border-color: rgba(224, 219, 255, .24); background: rgba(255,255,255,.1); color: #f6f2ff; }
   .chat-canvas.bg-card { box-shadow: 0 22px 45px -35px rgba(58, 43, 149, .62), inset 0 1px rgba(255,255,255,.72); }
   .edu-dialog-cancel { color: #443587 !important; border-color: rgba(82, 63, 172, .22) !important; background: rgba(250,249,255,.9) !important; }
+}
+
+@media (max-width: 760px) {
+  .mobile-history-sheet { background: #212363; }
 }

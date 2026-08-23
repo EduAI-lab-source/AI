@@ -87,4 +87,14 @@ describe("experiencia pública de Edu AI", () => {
     expect(styles).toContain("#2c176a 0%, #23307d 57%, #0c6574 100%");
   });
 
+  it("conserva una barra lateral sólida y sin velos translúcidos", () => {
+    const styles = source("client/src/index.css");
+
+    expect(styles).toContain("Barra lateral sólida");
+    expect(styles).toContain("background: #212363");
+    expect(styles).toContain(".conversation-sidebar::before { display: none; }");
+    expect(styles).toContain("background: #39358a");
+    expect(styles).toContain(".mobile-history-sheet { background: #212363; }");
+  });
+
 });
