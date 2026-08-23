@@ -397,5 +397,5 @@
 - [x] Corregir, validar y publicar el chat para que responda normalmente en textoavoz.xyz
 - [x] Mejorar las respuestas de Edu AI sobre Eduardo para que sean específicas, naturales, variadas y bien redactadas
 - [x] Probar y publicar la presentación renovada del creador en textoavoz.xyz
-- [ ] Corregir el tamaño y recorte del logo de Edu AI en encabezados móviles estrechos
-- [ ] Validar y publicar el logo legible en los tamaños móviles afectados
+- [x] Corregir el tamaño y recorte del logo de Edu AI en encabezados móviles estrechos
+- [x] Validar y publicar el logo legible en los tamaños móviles afectados
