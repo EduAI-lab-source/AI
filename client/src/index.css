@@ -376,6 +376,21 @@ button:active:not(:disabled) { transform: scale(.975); }
 body { background: #f2f7ff; color: #192a55; }
 .edu-app { background: radial-gradient(circle at 72% 8%, rgba(126, 92, 255, .42), transparent 27rem), radial-gradient(circle at 94% 73%, rgba(255, 132, 181, .28), transparent 31rem), radial-gradient(circle at 27% 92%, rgba(44, 211, 190, .24), transparent 28rem), #f2f7ff; }
 .edu-app::before { opacity: .42; background-image: linear-gradient(rgba(63, 53, 130, .052) 1px, transparent 1px), linear-gradient(90deg, rgba(63, 53, 130, .052) 1px, transparent 1px); }
+
+/* Movimiento cromático propio: solo CSS incluido en el paquete estático, sin recursos externos. */
+@media (prefers-reduced-motion: no-preference) {
+  .edu-app { background-size: 150% 150%, 165% 165%, 145% 145%, auto; animation: edu-color-drift 34s cubic-bezier(.45,0,.55,1) infinite alternate; }
+  .tts-studio::after { animation: edu-voice-glow 16s cubic-bezier(.45,0,.55,1) infinite alternate; }
+}
+@keyframes edu-color-drift {
+  0% { background-position: 4% 0%, 100% 72%, 17% 100%, 0 0; }
+  52% { background-position: 84% 16%, 8% 92%, 82% 12%, 0 0; }
+  100% { background-position: 46% 100%, 89% 9%, 5% 47%, 0 0; }
+}
+@keyframes edu-voice-glow {
+  0% { opacity: .68; transform: translate3d(-4%, 2%, 0) scale(.94); }
+  100% { opacity: 1; transform: translate3d(7%, -6%, 0) scale(1.1); }
+}
 .conversation-sidebar { border-right-color: rgba(190, 182, 255, .18); background: linear-gradient(165deg, #28145f 0%, #172b70 48%, #0a6170 100%); box-shadow: 14px 0 44px rgba(38, 22, 94, .14); }
 .conversation-sidebar::before { opacity: .7; background: radial-gradient(circle at 4% 0%, rgba(255, 180, 131, .34), transparent 35%), radial-gradient(circle at 100% 12%, rgba(99, 214, 255, .3), transparent 44%); }
 .identity-lockup small, .sidebar-copy p, .thread-text small, .privacy-note, .erase-button { color: #d6d8ff; }
@@ -489,4 +504,12 @@ body { background: #f2f7ff; color: #192a55; }
 
 @media (max-width: 760px) {
   .mobile-history-sheet { background: #212363; }
+}
+
+@media (max-width: 760px) and (prefers-reduced-motion: no-preference) {
+  .edu-app { background-size: 176% 176%, 162% 162%, auto; animation-duration: 27s; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edu-app, .tts-studio::after { animation: none !important; }
 }

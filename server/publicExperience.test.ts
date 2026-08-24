@@ -50,6 +50,16 @@ describe("experiencia pública de Edu AI", () => {
     expect(styles).toContain("min-height: 68px");
   });
 
+  it("mantiene el movimiento cromático dentro del CSS publicado y permite reducirlo", () => {
+    const styles = source("client/src/index.css");
+
+    expect(styles).toContain("@keyframes edu-color-drift");
+    expect(styles).toContain("background-size: 150% 150%");
+    expect(styles).toContain("@keyframes edu-voice-glow");
+    expect(styles).toContain("Movimiento cromático propio: solo CSS incluido en el paquete estático");
+    expect(styles).toContain(".edu-app, .tts-studio::after { animation: none !important; }");
+  });
+
   it("protege el emblema de compresión en la cabecera de historial móvil estrecha", () => {
     const styles = source("client/src/index.css");
 
