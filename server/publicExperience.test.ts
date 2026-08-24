@@ -47,6 +47,8 @@ describe("experiencia pública de Edu AI", () => {
     expect(home).toContain("<EduAiSpotlight");
     expect(home).toContain('id="edu-ai-assistant"');
     expect(home).toContain("Habla con Edu AI");
+    expect(home).toContain('className="edu-ai-chat-panel"');
+    expect(home).not.toContain('className="assistant-secondary"');
     expect(styles).toContain(".edu-ai-spotlight");
     expect(styles).toContain(".edu-ai-spotlight-cta");
   });
