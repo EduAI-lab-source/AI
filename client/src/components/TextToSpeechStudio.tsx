@@ -22,8 +22,9 @@ const DEFAULT_TEXT: Record<AppLanguage, string> = { es: "Una idea que se escucha
 
 export type RecentAudio = { label: string; createdAt: number };
 
-export function TextToSpeechStudio({ language, latestAssistantMessage, onAudioReady }: { language: AppLanguage; latestAssistantMessage?: string; onAudioReady?: (audio: RecentAudio) => void }) {
+export function TextToSpeechStudio({ language, latestAssistantMessage, onAudioReady, networkAvailable = true }: { language: AppLanguage; latestAssistantMessage?: string; onAudioReady?: (audio: RecentAudio) => void; networkAvailable?: boolean }) {
   const copy = STUDIO_COPY[language];
+  const offlineCopy = language === "es" ? "Sin conexión: puedes preparar el texto; el audio se habilitará al reconectarte." : language === "ru" ? "Нет соединения: текст можно подготовить, а аудио станет доступно после подключения." : "Offline: you can prepare your text; audio will be enabled when you reconnect.";
   const voices = VOICES[language];
   const [text, setText] = useState(() => DEFAULT_TEXT[language]);
   const [speaker, setSpeaker] = useState("aquila");
@@ -42,18 +43,24 @@ export function TextToSpeechStudio({ language, latestAssistantMessage, onAudioRe
   useEffect(() => () => { if (audioUrl) URL.revokeObjectURL(audioUrl); }, [audioUrl]);
   useEffect(() => { if (!voices.some(voice => voice.id === speaker)) setSpeaker("aquila"); }, [speaker, voices]);
   useEffect(() => {
+    if (!networkAvailable) {
+      setTurnstileToken("");
+      setTurnstileError(false);
+      return;
+    }
     let mounted = true;
     loadTurnstile().then(turnstile => {
       if (!mounted || !turnstileContainerRef.current || turnstileWidgetRef.current) return;
-      turnstileWidgetRef.current = turnstile.render(turnstileContainerRef.current, { sitekey: TURNSTILE_SITE_KEY, action: "tts-generate", appearance: "always", callback: token => { if (mounted) { setTurnstileToken(token); setTurnstileError(false); } }, "error-callback": () => { if (mounted) setTurnstileError(true); }, "expired-callback": () => { if (mounted) setTurnstileToken(""); } });
+      turnstileWidgetRef.current = turnstile.render(turnstileContainerRef.current, { sitekey: TURNSTILE_SITE_KEY, action: "tts-generate", appearance: "always", callback: token => { if (mounted) { setTurnstileToken(token); setTurnstileError(false); } }, "error-callback": () => { if (!mounted) return; const widgetId = turnstileWidgetRef.current; if (widgetId) { turnstile.remove?.(widgetId); turnstileWidgetRef.current = null; } setTurnstileError(true); }, "expired-callback": () => { if (mounted) setTurnstileToken(""); } });
     }).catch(() => { if (mounted) setTurnstileError(true); });
     return () => { mounted = false; };
-  }, []);
+  }, [networkAvailable]);
 
   const useLatestResponse = () => { if (latestAssistantMessage) { setText(latestAssistantMessage.slice(0, TTS_MAX_CHARACTERS)); setStatus(""); } };
   const prepareNarration = () => { setText(prepareTtsText(text)); setStatus(copy.prepared); };
   const generateAudio = async () => {
     if (!cleanText || cleanText.length > TTS_MAX_CHARACTERS || isGenerating) return;
+    if (!networkAvailable) { setStatus(offlineCopy); return; }
     const visitorId = getTtsVisitorId();
     if (!visitorId) { setStatus(copy.errorFallback); return; }
     if (!turnstileToken) { setStatus(turnstileError ? copy.verificationError : copy.checking); return; }
@@ -78,8 +85,8 @@ export function TextToSpeechStudio({ language, latestAssistantMessage, onAudioRe
       <textarea id="tts-text" value={text} maxLength={TTS_MAX_CHARACTERS} onChange={event => setText(event.target.value)} placeholder={copy.textarea} />
       <div className="tts-prep-row" aria-label={copy.listening}><div className="tts-listening-metric"><span><Clock3 size={14} />{copy.listening}</span><strong>{formatTtsDuration(text, language)}</strong><small>{wordCount} {copy.words}</small></div><button type="button" className="tts-prepare" onClick={prepareNarration}><Wand2 size={14} /><span><strong>{copy.prepare}</strong><small>{copy.prepHint}</small></span></button></div>
       <div className="tts-voices" role="radiogroup" aria-label={copy.voice}><p><Volume2 size={14} />{copy.voice}</p><div>{voices.map(voice => <button key={voice.id} type="button" role="radio" aria-checked={speaker === voice.id} className={speaker === voice.id ? "active" : ""} onClick={() => setSpeaker(voice.id)}><strong>{voice.name}</strong><small>{voice.note}</small></button>)}</div></div>
-      <div className="tts-actions"><button className="tts-generate" onClick={generateAudio} disabled={isGenerating || !cleanText || !turnstileToken}><span>{isGenerating ? <LoaderCircle className="tts-spinner" size={17} /> : <Play size={17} fill="currentColor" />}</span>{isGenerating ? copy.generating : copy.generate}</button><p>{copy.daily}{remaining !== null ? ` · ${remaining}/${TTS_DAILY_CHARACTER_LIMIT}` : ""}<small>{turnstileError ? copy.verificationError : turnstileToken ? copy.protected : copy.checking}</small></p></div>
-      <div className="tts-turnstile" ref={turnstileContainerRef} aria-label="Comprobación de seguridad" />
+      <div className="tts-actions"><button className="tts-generate" onClick={generateAudio} disabled={isGenerating || !cleanText || !turnstileToken || !networkAvailable}><span>{isGenerating ? <LoaderCircle className="tts-spinner" size={17} /> : <Play size={17} fill="currentColor" />}</span>{isGenerating ? copy.generating : copy.generate}</button><p>{copy.daily}{remaining !== null ? ` · ${remaining}/${TTS_DAILY_CHARACTER_LIMIT}` : ""}<small>{!networkAvailable ? offlineCopy : turnstileError ? copy.verificationError : turnstileToken ? copy.protected : copy.checking}</small></p></div>
+      {networkAvailable && <div className="tts-turnstile" ref={turnstileContainerRef} aria-label="Comprobación de seguridad" />}
       {status && <p className="tts-status" role="status">{status}</p>}
       {audioUrl && <div className="tts-result"><div><span><Volume2 size={17} /></span><p><strong>{copy.ready}</strong><small>{selectedVoice.name} · MP3</small></p></div><audio controls src={audioUrl} /><a href={audioUrl} download={`edu-ai-${selectedVoice.id}.mp3`}><Download size={16} />{copy.download}</a></div>}
       <p className="tts-privacy"><AlignLeft size={12} />{copy.privacy}</p>

@@ -73,6 +73,38 @@ describe("experiencia pública de Edu AI", () => {
     expect(styles).toContain(".edu-app, .tts-studio::after { animation: none !important; }");
   });
 
+  it("empaqueta la lectura de PDF y evita imágenes de ejemplo cargadas desde terceros", () => {
+    const chat = source("client/src/components/AIChatBox.tsx");
+    const showcase = source("client/src/pages/ComponentShowcase.tsx");
+
+    expect(chat).toContain('import("pdfjs-dist/legacy/build/pdf.mjs")');
+    expect(chat).toContain('import("pdfjs-dist/legacy/build/pdf.worker.min.mjs?url")');
+    expect(chat).not.toContain("cdn.jsdelivr.net");
+    expect(showcase).not.toContain("https://github.com/shadcn.png");
+  });
+
+  it("mantiene la edición local disponible y desactiva acciones de red al perder conexión", () => {
+    const home = source("client/src/pages/Home.tsx");
+    const studio = source("client/src/components/TextToSpeechStudio.tsx");
+    const styles = source("client/src/index.css");
+
+    expect(home).toContain("useNetworkStatus");
+    expect(home).toContain("<NetworkAvailabilityNotice");
+    expect(studio).toContain("networkAvailable = true");
+    expect(studio).toContain("!networkAvailable");
+    expect(styles).toContain(".network-resilience-notice");
+  });
+
+  it("detiene de forma controlada la verificación cuando Turnstile no puede iniciarse", () => {
+    const turnstile = source("client/src/lib/turnstileRuntime.ts");
+    const studio = source("client/src/components/TextToSpeechStudio.tsx");
+
+    expect(turnstile).toContain("turnstileLoader = null");
+    expect(turnstile).toContain("script.remove()");
+    expect(studio).toContain("turnstile.remove?.(widgetId)");
+    expect(studio).toContain("turnstileWidgetRef.current = null");
+  });
+
   it("protege el emblema de compresión en la cabecera de historial móvil estrecha", () => {
     const styles = source("client/src/index.css");
 

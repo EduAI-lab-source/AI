@@ -414,3 +414,7 @@
 - [x] Validar, publicar y verificar la nueva visibilidad de Edu AI en textoavoz.xyz
 - [x] Retirar el bloque secundario duplicado de «Conversar con Edu AI»
 - [x] Ubicar la tarjeta principal «Habla con Edu AI» en el lugar del bloque retirado y validar su publicación
+- [x] Auditar dependencias externas de interfaz, marca, estilos, contenido y funciones públicas
+- [x] Eliminar o sustituir dependencias externas evitables por recursos integrados en la publicación estática
+- [x] Reforzar mensajes y degradación segura para chat, voz y verificación cuando la red no esté disponible
+- [ ] Validar y publicar el refuerzo de resistencia en textoavoz.xyz con límites documentados

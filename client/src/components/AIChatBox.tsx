@@ -19,12 +19,13 @@ type PdfRuntime = {
   };
 };
 
-const PDF_READER_URL = "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.2.108/build/pdf.min.mjs";
-const PDF_WORKER_URL = "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.2.108/build/pdf.worker.min.mjs";
-
 async function loadPdfRuntime() {
-  const pdf = await import(/* @vite-ignore */ PDF_READER_URL) as unknown as PdfRuntime;
-  pdf.GlobalWorkerOptions.workerSrc = PDF_WORKER_URL;
+  const [pdfModule, workerModule] = await Promise.all([
+    import("pdfjs-dist/legacy/build/pdf.mjs"),
+    import("pdfjs-dist/legacy/build/pdf.worker.min.mjs?url"),
+  ]);
+  const pdf = pdfModule as unknown as PdfRuntime;
+  pdf.GlobalWorkerOptions.workerSrc = workerModule.default;
   return pdf;
 }
 

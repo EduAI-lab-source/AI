@@ -21,6 +21,7 @@ import { workspaceStateFromSnapshot } from "@/lib/workspaceRestore";
 import { parseSharedNotebookSnapshot } from "@/lib/sharedNotebook";
 import { getAmbientPointerMode, getAmbientPosition } from "@/lib/ambientMotion";
 import { getLatestWorkspaceNote } from "@/lib/workspaceRecents";
+import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { ArrowUpRight, Bot, BookOpen, CirclePlus, ClipboardPenLine, Eraser, FileAudio, FolderPlus, GraduationCap, Languages, LibraryBig, Link2, ListChecks, Menu, MessageSquareText, PenLine, Search, ShieldCheck, Sparkles, Star, Trash2, Volume2, X } from "lucide-react";
 import { type PointerEvent, useEffect, useMemo, useState } from "react";
 import { TextToSpeechStudio, type RecentAudio } from "@/components/TextToSpeechStudio";
@@ -55,12 +56,14 @@ export default function Home() {
   });
   const [failedChatRequest, setFailedChatRequest] = useState<FailedChatRequest | null>(null);
   const chat = trpc.eduAi.chat.useMutation();
+  const isNetworkAvailable = useNetworkStatus();
   const sharedNotebook = trpc.sharing.get.useQuery({ token: sharedToken ?? "invalid" }, { enabled: Boolean(sharedToken), retry: false, refetchOnWindowFocus: false });
   const copy = COPY[language];
-  const isChatAvailable = isChatTransportAvailable({
+  const hasChatTransport = isChatTransportAvailable({
     apiBaseUrl: getEduAiApiBase(import.meta.env.VITE_EDU_AI_API_URL, typeof window === "undefined" ? "" : window.location.hostname),
     hostname: typeof window === "undefined" ? "" : window.location.hostname,
   });
+  const isChatAvailable = isNetworkAvailable && hasChatTransport;
   const activeThread = useMemo(
     () => chatState.threads.find(thread => thread.id === chatState.activeThreadId) ?? chatState.threads[0],
     [chatState]
@@ -274,9 +277,10 @@ export default function Home() {
           <div><span className="status-line"><i /> {copy.statusLine}</span><h1>{hasConversation && isAssistantOpen ? activeThread.title : <>{copy.heroTitle}<br /><em>{copy.heroEmphasis}</em></>}</h1><p className="header-subtitle">{copy.headerSubtitle}</p></div>
           <div className="header-actions"><button className="learning-entry" onClick={() => isLearningOpen ? setIsLearningOpen(false) : openLearning()} aria-pressed={isLearningOpen}><LibraryBig size={15} />{learningLabel}</button><LanguagePicker language={language} copy={copy} onChange={setLanguage} /><span className="header-mark" aria-hidden="true"><EduAiMark /></span></div>
         </header>
+        {!isNetworkAvailable && <NetworkAvailabilityNotice language={language} />}
         <div className="conversation-stage">
           {isLearningOpen ? <LearningStudio language={language} latestAssistantMessage={latestAssistantMessage} onAskEdu={sendMessage} onClose={() => setIsLearningOpen(false)} responseStyle={responseStyle} onResponseStyleChange={setResponseStyle} chatState={chatState} initialTab={learningStartTab} onRestoreWorkspace={snapshot => { const restored = workspaceStateFromSnapshot(snapshot); setChatState(restored.chatState); setLanguage(restored.language); setResponseStyle(restored.responseStyle); }} /> : <>
-            <TextToSpeechStudio language={language} latestAssistantMessage={latestAssistantMessage} onAudioReady={setRecentAudio} />
+            <TextToSpeechStudio language={language} latestAssistantMessage={latestAssistantMessage} onAudioReady={setRecentAudio} networkAvailable={isNetworkAvailable} />
             <GuidedStartPanel language={language} onOpenStudy={() => openLearning("study")} onWrite={() => startGuidedChat(language === "es" ? "Quiero escribir algo importante. Hazme tres preguntas cortas sobre el propósito, la persona que lo leerá y el tono antes de ayudarme a crear una primera versión." : language === "ru" ? "Я хочу написать важный текст. Задай мне три коротких вопроса о цели, читателе и тоне, прежде чем помочь создать первый вариант." : "I want to write something important. Ask me three short questions about the purpose, reader, and tone before helping me create a first draft.")} onPlan={() => startGuidedChat(language === "es" ? "Quiero organizar un plan realista. Pregúntame mi objetivo, el tiempo disponible y mi punto de partida; después propón pasos pequeños y sostenibles." : language === "ru" ? "Я хочу составить реалистичный план. Спроси о цели, доступном времени и отправной точке, затем предложи небольшие выполнимые шаги." : "I want to make a realistic plan. Ask about my goal, available time, and starting point; then suggest small sustainable steps.")} onCreateAudio={focusVoiceStudio} />
             <RecentShelf language={language} thread={mostRecentThread} latestNote={latestWorkspaceNote} recentAudio={recentAudio} onOpenConversation={threadId => { selectThread(threadId); openAssistant(); }} onOpenNotes={() => openLearning("notes")} onOpenAudio={focusVoiceStudio} />
             <AdPlacement placement="studio" language={language} />
@@ -303,6 +307,15 @@ export default function Home() {
       </AlertDialog>
     </main>
   );
+}
+
+function NetworkAvailabilityNotice({ language }: { language: AppLanguage }) {
+  const copy = language === "es"
+    ? { title: "La interfaz sigue disponible sin conexión", detail: "Puedes escribir, organizar ideas y revisar tu contenido local. El chat y la creación de audio volverán a activarse al recuperar la red." }
+    : language === "ru"
+      ? { title: "Интерфейс доступен без подключения", detail: "Можно писать, упорядочивать идеи и просматривать локальный контент. Чат и создание аудио включатся после восстановления сети." }
+      : { title: "The interface remains available offline", detail: "You can write, organise ideas, and review local content. Chat and audio creation will re-enable when the connection returns." };
+  return <section className="network-resilience-notice" role="status"><span aria-hidden="true">⌁</span><div><strong>{copy.title}</strong><p>{copy.detail}</p></div></section>;
 }
 
 function EduAiSpotlight({ language, isOpen, onToggle }: { language: AppLanguage; isOpen: boolean; onToggle: () => void }) {

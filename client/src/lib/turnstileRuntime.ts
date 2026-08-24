@@ -35,8 +35,20 @@ export function loadTurnstile() {
     script.async = true;
     script.defer = true;
     script.dataset.eduAiTurnstile = "true";
-    script.onload = () => window.turnstile ? resolve(window.turnstile) : reject(new Error("Turnstile no se pudo iniciar."));
-    script.onerror = () => reject(new Error("Turnstile no se pudo cargar."));
+    script.onload = () => {
+      if (window.turnstile) {
+        resolve(window.turnstile);
+        return;
+      }
+      turnstileLoader = null;
+      script.remove();
+      reject(new Error("Turnstile no se pudo iniciar."));
+    };
+    script.onerror = () => {
+      turnstileLoader = null;
+      script.remove();
+      reject(new Error("Turnstile no se pudo cargar."));
+    };
     document.head.appendChild(script);
   });
   return turnstileLoader;
