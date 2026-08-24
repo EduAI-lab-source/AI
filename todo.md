@@ -412,5 +412,5 @@
 - [x] Reforzar la presencia de Edu AI y su llamada a la acción en escritorio sin desplazar el estudio de voz
 - [x] Crear un acceso móvil claro y persistente para abrir Edu AI desde la pantalla principal
 - [x] Validar, publicar y verificar la nueva visibilidad de Edu AI en textoavoz.xyz
-- [ ] Retirar el bloque secundario duplicado de «Conversar con Edu AI»
-- [ ] Ubicar la tarjeta principal «Habla con Edu AI» en el lugar del bloque retirado y validar su publicación
+- [x] Retirar el bloque secundario duplicado de «Conversar con Edu AI»
+- [x] Ubicar la tarjeta principal «Habla con Edu AI» en el lugar del bloque retirado y validar su publicación
