@@ -417,4 +417,4 @@
 - [x] Auditar dependencias externas de interfaz, marca, estilos, contenido y funciones públicas
 - [x] Eliminar o sustituir dependencias externas evitables por recursos integrados en la publicación estática
 - [x] Reforzar mensajes y degradación segura para chat, voz y verificación cuando la red no esté disponible
-- [ ] Validar y publicar el refuerzo de resistencia en textoavoz.xyz con límites documentados
+- [x] Validar y publicar el refuerzo de resistencia en textoavoz.xyz con límites documentados
