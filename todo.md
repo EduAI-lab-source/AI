@@ -409,6 +409,6 @@
 - [x] Respetar la preferencia de reducir movimiento y validar la animación en móvil y escritorio
 - [x] Publicar y verificar el movimiento ambiental en textoavoz.xyz
 - [x] Garantizar que la animación cromática use solo CSS y recursos incluidos en el paquete estático, sin dependencias externas
-- [ ] Reforzar la presencia de Edu AI y su llamada a la acción en escritorio sin desplazar el estudio de voz
-- [ ] Crear un acceso móvil claro y persistente para abrir Edu AI desde la pantalla principal
-- [ ] Validar, publicar y verificar la nueva visibilidad de Edu AI en textoavoz.xyz
+- [x] Reforzar la presencia de Edu AI y su llamada a la acción en escritorio sin desplazar el estudio de voz
+- [x] Crear un acceso móvil claro y persistente para abrir Edu AI desde la pantalla principal
+- [x] Validar, publicar y verificar la nueva visibilidad de Edu AI en textoavoz.xyz
