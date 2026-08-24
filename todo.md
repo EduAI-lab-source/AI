@@ -405,7 +405,7 @@
 - [x] Validar, publicar y verificar la nueva experiencia guiada en textoavoz.xyz
 - [x] Rediseñar el acceso de retorno desde la mesa de aprendizaje para que indique claramente «Volver al estudio de voz»
 - [x] Validar y publicar el acceso de retorno visible en móvil y escritorio
-- [ ] Añadir movimiento cromático suave al fondo y a los acentos de Edu AI sin perjudicar la legibilidad
-- [ ] Respetar la preferencia de reducir movimiento y validar la animación en móvil y escritorio
-- [ ] Publicar y verificar el movimiento ambiental en textoavoz.xyz
-- [ ] Garantizar que la animación cromática use solo CSS y recursos incluidos en el paquete estático, sin dependencias externas
+- [x] Añadir movimiento cromático suave al fondo y a los acentos de Edu AI sin perjudicar la legibilidad
+- [x] Respetar la preferencia de reducir movimiento y validar la animación en móvil y escritorio
+- [x] Publicar y verificar el movimiento ambiental en textoavoz.xyz
+- [x] Garantizar que la animación cromática use solo CSS y recursos incluidos en el paquete estático, sin dependencias externas
