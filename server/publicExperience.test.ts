@@ -40,6 +40,16 @@ describe("experiencia pública de Edu AI", () => {
     expect(chat).toContain("loadingDetail");
   });
 
+  it("muestra un retorno explícito y accesible hacia el estudio principal de voz", () => {
+    const studio = source("client/src/components/LearningStudio.tsx");
+    const styles = source("client/src/index.css");
+
+    expect(studio).toContain('className="return-to-voice"');
+    expect(studio).toContain("Volver al estudio de voz");
+    expect(styles).toContain(".return-to-voice");
+    expect(styles).toContain("min-height: 68px");
+  });
+
   it("protege el emblema de compresión en la cabecera de historial móvil estrecha", () => {
     const styles = source("client/src/index.css");
 

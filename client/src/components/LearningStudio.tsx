@@ -279,12 +279,17 @@ export function LearningStudio({ language, latestAssistantMessage, onAskEdu, onC
   const navigation: Array<{ id: StudioTab; label: string; icon: typeof LibraryBig }> = [
     { id: "library", label: copy.library, icon: LibraryBig }, { id: "tools", label: copy.tools, icon: WandSparkles }, { id: "notes", label: copy.notes, icon: ClipboardPenLine }, { id: "study", label: copy.study, icon: GraduationCap }, { id: "progress", label: language === "es" ? "Progreso" : language === "ru" ? "Прогресс" : "Progress", icon: CalendarDays }, { id: "preferences", label: copy.preferences, icon: Brain },
   ];
+  const returnCopy = language === "es"
+    ? { eyebrow: "FUNCIÓN PRINCIPAL", label: "Volver al estudio de voz", detail: "Crear o descargar audio" }
+    : language === "ru"
+      ? { eyebrow: "ГЛАВНАЯ ФУНКЦИЯ", label: "Вернуться в студию голоса", detail: "Создать или скачать аудио" }
+      : { eyebrow: "MAIN FEATURE", label: "Back to voice studio", detail: "Create or download audio" };
 
   return (
     <section className="learning-studio" aria-label={copy.desk}>
       <div className="learning-hero">
         <div><p className="overline">{copy.desk.toUpperCase()}</p><h2>{copy.desk}<em>.</em></h2></div>
-        <button className="return-to-chat" onClick={onClose}><ChevronRight size={15} /> Edu AI</button>
+        <button className="return-to-voice" onClick={onClose} aria-label={returnCopy.label}><span className="return-to-voice-icon"><Volume2 size={18} /></span><span><small>{returnCopy.eyebrow}</small><strong>{returnCopy.label}</strong><em>{returnCopy.detail}</em></span><ChevronRight size={18} aria-hidden="true" /></button>
       </div>
       <div className="learning-tabs" role="tablist" aria-label={copy.desk}>
         {navigation.map(item => {

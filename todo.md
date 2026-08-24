@@ -403,3 +403,5 @@
 - [x] Mejorar el estado de respuesta de Edu AI con un indicador claro y útil mientras prepara una respuesta
 - [x] Crear un acceso compacto al contenido reciente para recuperar conversaciones, notas y audio sin búsqueda manual
 - [x] Validar, publicar y verificar la nueva experiencia guiada en textoavoz.xyz
+- [ ] Rediseñar el acceso de retorno desde la mesa de aprendizaje para que indique claramente «Volver al estudio de voz»
+- [ ] Validar y publicar el acceso de retorno visible en móvil y escritorio
