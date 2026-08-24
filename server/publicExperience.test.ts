@@ -40,6 +40,17 @@ describe("experiencia pública de Edu AI", () => {
     expect(chat).toContain("loadingDetail");
   });
 
+  it("presenta Edu AI como una acción visible y directa desde la pantalla principal", () => {
+    const home = source("client/src/pages/Home.tsx");
+    const styles = source("client/src/index.css");
+
+    expect(home).toContain("<EduAiSpotlight");
+    expect(home).toContain('id="edu-ai-assistant"');
+    expect(home).toContain("Habla con Edu AI");
+    expect(styles).toContain(".edu-ai-spotlight");
+    expect(styles).toContain(".edu-ai-spotlight-cta");
+  });
+
   it("muestra un retorno explícito y accesible hacia el estudio principal de voz", () => {
     const studio = source("client/src/components/LearningStudio.tsx");
     const styles = source("client/src/index.css");

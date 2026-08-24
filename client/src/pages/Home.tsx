@@ -21,7 +21,7 @@ import { workspaceStateFromSnapshot } from "@/lib/workspaceRestore";
 import { parseSharedNotebookSnapshot } from "@/lib/sharedNotebook";
 import { getAmbientPointerMode, getAmbientPosition } from "@/lib/ambientMotion";
 import { getLatestWorkspaceNote } from "@/lib/workspaceRecents";
-import { ArrowUpRight, Bot, BookOpen, CirclePlus, ClipboardPenLine, Eraser, FileAudio, FolderPlus, GraduationCap, Languages, LibraryBig, Link2, ListChecks, Menu, MessageSquareText, PenLine, Search, ShieldCheck, Star, Trash2, Volume2, X } from "lucide-react";
+import { ArrowUpRight, Bot, BookOpen, CirclePlus, ClipboardPenLine, Eraser, FileAudio, FolderPlus, GraduationCap, Languages, LibraryBig, Link2, ListChecks, Menu, MessageSquareText, PenLine, Search, ShieldCheck, Sparkles, Star, Trash2, Volume2, X } from "lucide-react";
 import { type PointerEvent, useEffect, useMemo, useState } from "react";
 import { TextToSpeechStudio, type RecentAudio } from "@/components/TextToSpeechStudio";
 import { EduAiMark } from "@/components/EduAiMark";
@@ -182,6 +182,11 @@ export default function Home() {
     setIsAssistantOpen(true);
   };
 
+  const openAssistantSpotlight = () => {
+    openAssistant();
+    window.setTimeout(() => document.getElementById("edu-ai-assistant")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+  };
+
   const startGuidedChat = (prompt: string) => {
     openAssistant();
     window.setTimeout(() => sendMessage(prompt), 0);
@@ -261,13 +266,14 @@ export default function Home() {
           <div><span className="status-line"><i /> {copy.statusLine}</span><h1>{hasConversation && isAssistantOpen ? activeThread.title : <>{copy.heroTitle}<br /><em>{copy.heroEmphasis}</em></>}</h1><p className="header-subtitle">{copy.headerSubtitle}</p></div>
           <div className="header-actions"><button className="learning-entry" onClick={() => isLearningOpen ? setIsLearningOpen(false) : openLearning()} aria-pressed={isLearningOpen}><LibraryBig size={15} />{learningLabel}</button><LanguagePicker language={language} copy={copy} onChange={setLanguage} /><span className="header-mark" aria-hidden="true"><EduAiMark /></span></div>
         </header>
+        {!isLearningOpen && <EduAiSpotlight language={language} onOpen={openAssistantSpotlight} />}
         <div className="conversation-stage">
           {isLearningOpen ? <LearningStudio language={language} latestAssistantMessage={latestAssistantMessage} onAskEdu={sendMessage} onClose={() => setIsLearningOpen(false)} responseStyle={responseStyle} onResponseStyleChange={setResponseStyle} chatState={chatState} initialTab={learningStartTab} onRestoreWorkspace={snapshot => { const restored = workspaceStateFromSnapshot(snapshot); setChatState(restored.chatState); setLanguage(restored.language); setResponseStyle(restored.responseStyle); }} /> : <>
             <TextToSpeechStudio language={language} latestAssistantMessage={latestAssistantMessage} onAudioReady={setRecentAudio} />
             <GuidedStartPanel language={language} onOpenStudy={() => openLearning("study")} onWrite={() => startGuidedChat(language === "es" ? "Quiero escribir algo importante. Hazme tres preguntas cortas sobre el propósito, la persona que lo leerá y el tono antes de ayudarme a crear una primera versión." : language === "ru" ? "Я хочу написать важный текст. Задай мне три коротких вопроса о цели, читателе и тоне, прежде чем помочь создать первый вариант." : "I want to write something important. Ask me three short questions about the purpose, reader, and tone before helping me create a first draft.")} onPlan={() => startGuidedChat(language === "es" ? "Quiero organizar un plan realista. Pregúntame mi objetivo, el tiempo disponible y mi punto de partida; después propón pasos pequeños y sostenibles." : language === "ru" ? "Я хочу составить реалистичный план. Спроси о цели, доступном времени и отправной точке, затем предложи небольшие выполнимые шаги." : "I want to make a realistic plan. Ask about my goal, available time, and starting point; then suggest small sustainable steps.")} onCreateAudio={focusVoiceStudio} />
             <RecentShelf language={language} thread={mostRecentThread} latestNote={latestWorkspaceNote} recentAudio={recentAudio} onOpenConversation={threadId => { selectThread(threadId); openAssistant(); }} onOpenNotes={() => openLearning("notes")} onOpenAudio={focusVoiceStudio} />
             <AdPlacement placement="studio" language={language} />
-            <section className="assistant-secondary" aria-labelledby="assistant-secondary-title">
+            <section className="assistant-secondary" id="edu-ai-assistant" aria-labelledby="assistant-secondary-title">
               <button className="assistant-secondary-toggle" onClick={() => setIsAssistantOpen(open => !open)} aria-expanded={isAssistantOpen}><span><Bot size={17} /><span><small>{language === "es" ? "HERRAMIENTA DE IDEAS" : language === "ru" ? "ИНСТРУМЕНТ ДЛЯ ИДЕЙ" : "IDEAS TOOL"}</small><strong id="assistant-secondary-title">{language === "es" ? "Conversar con Edu AI" : language === "ru" ? "Поговорить с Edu AI" : "Talk with Edu AI"}</strong></span></span><span>{isAssistantOpen ? (language === "es" ? "Cerrar" : language === "ru" ? "Закрыть" : "Close") : (language === "es" ? "Abrir" : language === "ru" ? "Открыть" : "Open")}</span></button>
               {!isAssistantOpen && <p>{language === "es" ? "Cuando necesites ordenar una idea, estudiar o crear un plan, Edu AI sigue aquí para acompañarte." : language === "ru" ? "Когда нужно упорядочить мысль, учиться или составить план, Edu AI остаётся рядом." : "Whenever you need to organise an idea, study, or make a plan, Edu AI is still here with you."}</p>}
               {isAssistantOpen && <><AIChatBox messages={activeThread.messages} onSendMessage={sendMessage} onRetryLastMessage={retryLastMessage} isRetryableMessage={message => isChatRecoveryMessage(message.content)} retryLabel={language === "es" ? "Reintentar mensaje" : language === "ru" ? "Повторить сообщение" : "Retry message"} isLoading={isActivePending} loadingLabel={chatThinkingCopy.label} loadingDetail={chatThinkingCopy.detail} placeholder={isChatAvailable ? copy.composerPlaceholder : copy.unavailablePlaceholder} disabled={!isChatAvailable} disabledMessage={!isChatAvailable ? copy.unavailableMessage : undefined} voiceLanguage={language === "es" ? "es-VE" : language === "ru" ? "ru-RU" : "en-US"} className="chat-canvas chat-canvas-secondary" height="min(54vh, 620px)" /><p className="composer-caption"><span>↗</span> {copy.disclaimer}</p></>}
@@ -293,6 +299,16 @@ export default function Home() {
       </AlertDialog>
     </main>
   );
+}
+
+function EduAiSpotlight({ language, onOpen }: { language: AppLanguage; onOpen: () => void }) {
+  const copy = language === "es"
+    ? { eyebrow: "TU COMPAÑERO DE IDEAS", title: "Habla con Edu AI", detail: "Pregunta, estudia, escribe y organiza tus próximos pasos.", action: "Abrir Edu AI" }
+    : language === "ru"
+      ? { eyebrow: "ВАШ ПОМОЩНИК ДЛЯ ИДЕЙ", title: "Поговорите с Edu AI", detail: "Спрашивайте, учитесь, пишите и планируйте следующие шаги.", action: "Открыть Edu AI" }
+      : { eyebrow: "YOUR IDEAS COMPANION", title: "Talk with Edu AI", detail: "Ask, study, write, and organise your next steps.", action: "Open Edu AI" };
+
+  return <section className="edu-ai-spotlight" aria-labelledby="edu-ai-spotlight-title"><span className="edu-ai-spotlight-mark" aria-hidden="true"><EduAiMark /></span><div><p>{copy.eyebrow}</p><h2 id="edu-ai-spotlight-title"><Sparkles size={16} aria-hidden="true" />{copy.title}</h2><span>{copy.detail}</span></div><button type="button" className="edu-ai-spotlight-cta" onClick={onOpen}><Bot size={16} aria-hidden="true" />{copy.action}<ArrowUpRight size={15} aria-hidden="true" /></button></section>;
 }
 
 function getSharedToken() {
