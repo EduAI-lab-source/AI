@@ -40,6 +40,8 @@ async function startServer() {
     const origin = req.headers.origin;
     const allowedOrigins = [
       "https://eduai-lab-source.github.io",
+      "https://textoavoz.xyz",
+      "https://www.textoavoz.xyz",
       process.env.EDU_AI_ALLOWED_ORIGIN,
     ].filter((value): value is string => Boolean(value));
 
@@ -47,7 +49,7 @@ async function startServer() {
       res.setHeader("Access-Control-Allow-Origin", origin);
       res.setHeader("Vary", "Origin");
       res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type, trpc-accept");
       if (req.method === "OPTIONS") return res.sendStatus(204);
     }
     next();

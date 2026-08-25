@@ -427,3 +427,11 @@
 - [x] Publicar una salvaguarda temporal de cliente que no envíe consultas políticas al gateway anterior
 - [x] Verificar la integridad de dominio, activos, interfaz, chat, voz y publicación estática tras la corrección
 - [x] Probar y publicar la corrección de neutralidad política en textoavoz.xyz
+- [x] Diseñar un formulario público de opiniones claro, accesible y localizado
+- [x] Ubicar el acceso «Dejar una opinión» debajo de «Mi espacio de aprendizaje» en la barra lateral
+- [x] Presentar el formulario público como «Enviar sugerencia al creador» sin mostrar el correo de destino
+- [x] Guardar las opiniones recibidas con validación y control de frecuencia
+- [x] Notificar al propietario cuando llegue una nueva opinión y conservar un registro seguro
+- [x] Añadir pruebas de envío válido, validación y limitación contra abuso
+- [ ] Validar, publicar y verificar el canal de opiniones en móvil y escritorio
+- [x] Entregar las opiniones de forma privada a Fazeogve@gmail.com sin exponer el correo en la interfaz pública

@@ -166,6 +166,20 @@ export const creditBalances = mysqlTable("credit_balances", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+/** Private suggestions submitted from the public interface; never rendered back to visitors. */
+export const creatorSuggestions = mysqlTable("creator_suggestions", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  senderName: varchar("senderName", { length: 80 }).notNull(),
+  message: text("message").notNull(),
+  visitorHash: varchar("visitorHash", { length: 64 }).notNull(),
+  ownerNotified: boolean("ownerNotified").notNull().default(false),
+  emailDelivered: boolean("emailDelivered").notNull().default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, table => [
+  index("creator_suggestions_created_idx").on(table.createdAt),
+  index("creator_suggestions_visitor_created_idx").on(table.visitorHash, table.createdAt),
+]);
+
 /** Immutable audit trail for future credit purchases, use and refunds; no checkout currently writes here. */
 export const creditLedger = mysqlTable("credit_ledger", {
   id: varchar("id", { length: 64 }).primaryKey(),
@@ -189,3 +203,4 @@ export type LearningNote = typeof learningNotes.$inferSelect;
 export type LearningUpload = typeof learningUploads.$inferSelect;
 export type CreditBalance = typeof creditBalances.$inferSelect;
 export type CreditLedgerEntry = typeof creditLedger.$inferSelect;
+export type CreatorSuggestion = typeof creatorSuggestions.$inferSelect;

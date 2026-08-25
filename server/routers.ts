@@ -2,12 +2,13 @@ import { COOKIE_NAME } from "@shared/const";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { buildEduAiMessages, buildEduAiRecoveryMessages, getEduAiCreatorReply, getEduAiResponseProfile, getInstantEduAiReply, getPoliticalNonOpinionReply, getTextResponse } from "./eduAi";
+import { notifyCreatorAboutSuggestion } from "./creatorSuggestions";
 import { hasValidEduAiGateway } from "./eduAiGateway";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM } from "./_core/llm";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { createSharedLearningLink, getAccountEncryptedWorkspace, getCreditBalance, getEncryptedWorkspace, getPublicSharedLearningLink, listSharedLearningLinks, reserveTtsQuota, revokeSharedLearningLink, saveAccountEncryptedWorkspace, saveEncryptedWorkspace } from "./db";
+import { createCreatorSuggestion, createSharedLearningLink, getAccountEncryptedWorkspace, getCreditBalance, getEncryptedWorkspace, getPublicSharedLearningLink, listSharedLearningLinks, reserveTtsQuota, revokeSharedLearningLink, saveAccountEncryptedWorkspace, saveEncryptedWorkspace, updateCreatorSuggestionDelivery } from "./db";
 import { randomBytes, randomUUID } from "node:crypto";
 import { getCreditReadiness } from "./credits";
 import { createTtsNetworkIdentity, TTS_MAX_CHARACTERS_PER_SYNTHESIS } from "./ttsQuota";
@@ -15,6 +16,9 @@ import { createTtsNetworkIdentity, TTS_MAX_CHARACTERS_PER_SYNTHESIS } from "./tt
 const REQUEST_LIMIT = 18;
 const REQUEST_WINDOW_MS = 5 * 60 * 1000;
 const requestWindows = new Map<string, { count: number; resetAt: number }>();
+const SUGGESTION_LIMIT = 3;
+const SUGGESTION_WINDOW_MS = 30 * 60 * 1000;
+const suggestionWindows = new Map<string, { count: number; resetAt: number }>();
 
 function assertRateLimit(request: { ip?: string; headers: Record<string, string | string[] | undefined> }) {
   const forwarded = request.headers["x-forwarded-for"];
@@ -36,6 +40,34 @@ function assertRateLimit(request: { ip?: string; headers: Record<string, string 
   }
 
   current.count += 1;
+}
+
+function getClientIp(request: { ip?: string; headers: Record<string, string | string[] | undefined> }) {
+  const forwarded = request.headers["x-forwarded-for"];
+  const forwardedIp = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(",")[0];
+  return forwardedIp?.trim() || request.ip || "anonymous";
+}
+
+export function createSuggestionRateLimiter(limit = SUGGESTION_LIMIT, windowMs = SUGGESTION_WINDOW_MS) {
+  const windows = new Map<string, { count: number; resetAt: number }>();
+
+  return (key: string, now = Date.now()) => {
+    const current = windows.get(key);
+    if (!current || current.resetAt <= now) {
+      windows.set(key, { count: 1, resetAt: now + windowMs });
+      return;
+    }
+    if (current.count >= limit) {
+      throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Gracias por compartir. Espera un poco antes de enviar otra sugerencia." });
+    }
+    current.count += 1;
+  };
+}
+
+const trackSuggestionRequest = createSuggestionRateLimiter();
+
+function assertSuggestionRateLimit(request: { ip?: string; headers: Record<string, string | string[] | undefined> }) {
+  trackSuggestionRequest(getClientIp(request));
 }
 
 export const appRouter = router({
@@ -162,6 +194,24 @@ export const appRouter = router({
           console.error("[TTS] Failed to reserve capacity", error);
           throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "La voz de Edu AI no está disponible en este momento." });
         }
+      }),
+  }),
+  feedback: router({
+    submit: publicProcedure
+      .input(z.object({
+        name: z.string().trim().min(2, "Escribe tu nombre.").max(80),
+        message: z.string().trim().min(8, "Escribe una sugerencia un poco más detallada.").max(1200),
+        website: z.string().max(0).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (input.website) return { accepted: true };
+        assertSuggestionRateLimit(ctx.req);
+        const visitorHash = createTtsNetworkIdentity(getClientIp(ctx.req), process.env.EDU_AI_GATEWAY_SECRET ?? "feedback-fallback-secret");
+        const id = randomUUID();
+        await createCreatorSuggestion({ id, senderName: input.name, message: input.message, visitorHash });
+        const delivery = await notifyCreatorAboutSuggestion({ name: input.name, message: input.message });
+        await updateCreatorSuggestionDelivery({ id, ...delivery });
+        return { accepted: true };
       }),
   }),
   credits: router({

@@ -29,6 +29,8 @@ import { TextToSpeechStudio, type RecentAudio } from "@/components/TextToSpeechS
 import { EduAiMark } from "@/components/EduAiMark";
 import { EditorialGuides, PublicFooter, PublicInfoPage, publicPageFromHash, type PublicPageId } from "@/components/PublicTrustContent";
 import { AdPlacement } from "@/components/MonetizationReadiness";
+import { CreatorSuggestionDialog } from "@/components/CreatorSuggestionDialog";
+import { MessageCircleHeart } from "lucide-react";
 
 type FailedChatRequest = {
   threadId: string;
@@ -48,6 +50,7 @@ export default function Home() {
   const [isLearningOpen, setIsLearningOpen] = useState(false);
   const [learningStartTab, setLearningStartTab] = useState<StudioTab>("library");
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const [isSuggestionOpen, setIsSuggestionOpen] = useState(false);
   const [recentAudio, setRecentAudio] = useState<RecentAudio | null>(null);
   const [language, setLanguage] = useState<AppLanguage>(loadLanguage);
   const [responseStyle, setResponseStyle] = useState<ResponseStyle>(() => {
@@ -258,6 +261,7 @@ export default function Home() {
     onOrganizeThread: organizeThread,
     onAddFolder: addFolder,
     onOpenLearning: () => openLearning(),
+    onOpenSuggestion: () => setIsSuggestionOpen(true),
   };
   const learningLabel = language === "es" ? "Mi espacio" : language === "ru" ? "Моё пространство" : "My space";
   const latestAssistantMessage = [...activeThread.messages].reverse().find(message => message.role === "assistant")?.content;
@@ -316,6 +320,7 @@ export default function Home() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <CreatorSuggestionDialog open={isSuggestionOpen} onOpenChange={setIsSuggestionOpen} language={language} networkAvailable={isNetworkAvailable} />
     </main>
   );
 }
@@ -382,16 +387,16 @@ function SharedNotebookPage({ data, isLoading, hasError, onBack }: { data?: { ti
 type SidebarContentsProps = {
   activeThreadId: string; isPending: boolean; threads: ReturnType<typeof loadChatState>["threads"]; copy: AppCopy; locale: string;
   folders: ConversationFolder[];
-  onNewConversation: () => void; onSelectThread: (threadId: string) => void; onClearConversation: () => void; onDeleteThread: (threadId: string) => void; onOrganizeThread: (threadId: string, changes: Parameters<typeof updateConversationOrganization>[2]) => void; onAddFolder: (name: string) => void; onOpenLearning: () => void;
+  onNewConversation: () => void; onSelectThread: (threadId: string) => void; onClearConversation: () => void; onDeleteThread: (threadId: string) => void; onOrganizeThread: (threadId: string, changes: Parameters<typeof updateConversationOrganization>[2]) => void; onAddFolder: (name: string) => void; onOpenLearning: () => void; onOpenSuggestion: () => void;
 };
 
-function SidebarContents({ activeThreadId, isPending, threads, folders, copy, locale, onNewConversation, onSelectThread, onClearConversation, onDeleteThread, onOrganizeThread, onAddFolder, onOpenLearning }: SidebarContentsProps) {
+function SidebarContents({ activeThreadId, isPending, threads, folders, copy, locale, onNewConversation, onSelectThread, onClearConversation, onDeleteThread, onOrganizeThread, onAddFolder, onOpenLearning, onOpenSuggestion }: SidebarContentsProps) {
   const learningText = copy.languageLabel === "Idioma" ? "Mi espacio de aprendizaje" : copy.languageLabel === "Язык" ? "Моё пространство для учёбы" : "My learning space";
   const labels = copy.languageLabel === "Idioma"
-    ? { search: "Buscar conversaciones", all: "Todas", favorites: "Favoritas", folder: "Nueva carpeta", empty: "No hay conversaciones aquí" }
+    ? { search: "Buscar conversaciones", all: "Todas", favorites: "Favoritas", folder: "Nueva carpeta", empty: "No hay conversaciones aquí", suggestion: "Enviar sugerencia al creador" }
     : copy.languageLabel === "Язык"
-      ? { search: "Поиск разговоров", all: "Все", favorites: "Избранное", folder: "Новая папка", empty: "Здесь пока нет разговоров" }
-      : { search: "Search conversations", all: "All", favorites: "Favorites", folder: "New folder", empty: "No conversations here yet" };
+      ? { search: "Поиск разговоров", all: "Все", favorites: "Избранное", folder: "Новая папка", empty: "Здесь пока нет разговоров", suggestion: "Отправить предложение создателю" }
+      : { search: "Search conversations", all: "All", favorites: "Favorites", folder: "New folder", empty: "No conversations here yet", suggestion: "Send a suggestion to the creator" };
   const [query, setQuery] = useState("");
   const [folderFilter, setFolderFilter] = useState("all");
   const [showFavoriteOnly, setShowFavoriteOnly] = useState(false);
@@ -413,6 +418,7 @@ function SidebarContents({ activeThreadId, isPending, threads, folders, copy, lo
       <div className="identity-lockup"><span className="identity-orb"><EduAiMark /></span><span><strong>Edu AI</strong><small>{copy.brandSubtitle}</small></span></div>
       <button type="button" className="new-chat-button" onClick={onNewConversation} disabled={isPending}><CirclePlus size={17} /> <span>{copy.newConversation}</span><span className="new-chat-key">N</span></button>
       <button type="button" className="sidebar-learning-link" onClick={onOpenLearning}><LibraryBig size={15} /><span>{learningText}</span></button>
+      <button type="button" className="sidebar-suggestion-link" onClick={onOpenSuggestion}><MessageCircleHeart size={15} /><span>{labels.suggestion}</span></button>
       <div className="sidebar-copy"><span>{copy.notebookLabel}</span><p>{copy.notebookDescription}</p></div>
       <div className="thread-organizer">
         <label className="thread-search"><Search size={14} /><span className="sr-only">{labels.search}</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder={labels.search} /></label>

@@ -53,6 +53,18 @@ describe("experiencia pública de Edu AI", () => {
     expect(styles).toContain(".edu-ai-spotlight-cta");
   });
 
+  it("ofrece una sugerencia privada al creador desde las acciones laterales", () => {
+    const home = source("client/src/pages/Home.tsx");
+    const styles = source("client/src/index.css");
+    const dialog = source("client/src/components/CreatorSuggestionDialog.tsx");
+
+    expect(home).toContain("Enviar sugerencia al creador");
+    expect(home).toContain('className="sidebar-suggestion-link"');
+    expect(styles).toContain(".sidebar-suggestion-link");
+    expect(dialog).toContain("recipient address is never shown");
+    expect(dialog).not.toContain("Fazeogve@gmail.com");
+  });
+
   it("muestra un retorno explícito y accesible hacia el estudio principal de voz", () => {
     const studio = source("client/src/components/LearningStudio.tsx");
     const styles = source("client/src/index.css");

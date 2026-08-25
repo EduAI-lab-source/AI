@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import { and, eq, inArray } from "drizzle-orm";
-import { accountEncryptedWorkspaces, creditBalances, encryptedWorkspaces, InsertUser, sharedLearningLinks, ttsDailyUsage, users } from "../drizzle/schema";
+import { accountEncryptedWorkspaces, creatorSuggestions, creditBalances, encryptedWorkspaces, InsertUser, sharedLearningLinks, ttsDailyUsage, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { evaluateTtsQuota, TTS_GLOBAL_USAGE_KEY, type TtsQuotaDecision } from "./ttsQuota";
 
@@ -194,6 +194,18 @@ export async function reserveTtsQuota(input: { visitorHash: string; characters: 
 
     return decision;
   });
+}
+
+export async function createCreatorSuggestion(input: { id: string; senderName: string; message: string; visitorHash: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("El buzón de sugerencias no está disponible en este momento.");
+  await db.insert(creatorSuggestions).values(input);
+}
+
+export async function updateCreatorSuggestionDelivery(input: { id: string; ownerNotified: boolean; emailDelivered: boolean }) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(creatorSuggestions).set({ ownerNotified: input.ownerNotified, emailDelivered: input.emailDelivered }).where(eq(creatorSuggestions.id, input.id));
 }
 
 /** Returns a zeroed balance until a future checkout creates the account's first credit movement. */
