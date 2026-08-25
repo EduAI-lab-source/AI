@@ -21,6 +21,7 @@ import { workspaceStateFromSnapshot } from "@/lib/workspaceRestore";
 import { parseSharedNotebookSnapshot } from "@/lib/sharedNotebook";
 import { getAmbientPointerMode, getAmbientPosition } from "@/lib/ambientMotion";
 import { getLatestWorkspaceNote } from "@/lib/workspaceRecents";
+import { getPoliticalNeutralityReply } from "@/lib/eduAi";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { ArrowUpRight, Bot, BookOpen, CirclePlus, ClipboardPenLine, Eraser, FileAudio, FolderPlus, GraduationCap, Languages, LibraryBig, Link2, ListChecks, Menu, MessageSquareText, PenLine, Search, ShieldCheck, Sparkles, Star, Trash2, Volume2, X } from "lucide-react";
 import { type PointerEvent, useEffect, useMemo, useState } from "react";
@@ -144,6 +145,16 @@ export default function Home() {
 
   const requestChatReply = (threadId: string, messages: ConversationMessage[], imageAttachment?: ChatImageAttachment) => {
     setPendingThreadId(threadId);
+    const latestUserMessage = [...messages].reverse().find(message => message.role === "user")?.content ?? "";
+    const politicalBoundary = getPoliticalNeutralityReply(latestUserMessage);
+    if (politicalBoundary) {
+      setFailedChatRequest(null);
+      setChatState(current => current.threads.some(item => item.id === threadId)
+        ? replaceThreadMessages(current, threadId, [...messages, { role: "assistant", content: politicalBoundary }])
+        : current);
+      setPendingThreadId(null);
+      return;
+    }
     chat.mutate(
       { messages: messages.slice(responseStyle === "brief" ? -8 : -12), responseStyle, imageAttachment: imageAttachment ? { name: imageAttachment.name, dataUrl: imageAttachment.dataUrl } : undefined },
       {

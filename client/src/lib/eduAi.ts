@@ -7,6 +7,14 @@ export { EDU_AI_SYSTEM_PROMPT } from "@/data/eduAiProfile";
 export type EduAiMessage = { role: "system" | "user" | "assistant"; content: string };
 export type EduAiAnswer = { content: string; recommendations: AiTool[]; mode: "catalog" | "live" };
 
+const EDU_AI_POLITICAL_BOUNDARY_REPLY = "Edu AI no emite opiniones ni calificaciones sobre política, ideologías, gobiernos, presidentes, partidos o elecciones. Puedo ayudarte con contexto histórico, conceptos y fuentes desde una explicación descriptiva y plural.";
+const POLITICAL_TOPIC_PATTERN = /(politic(?:a|o|as|os|al|ally|ian|ians)?|politics?|political|government|gobierno(?:s)?|president(?:e|es)?|presidency|presidencia|election(?:es)?|elecci(?:on|ones)|vot(?:o|ar|acion|aciones)|vote|voting|part(?:ido|idos|y|ies)|communis(?:m|t|mo|ta|tas)|comunismo|capitalis(?:m|ta|mo)|socialis(?:m|ta|mo)|fascis(?:m|ta|mo)|dictadura|dictator(?:ship)?|democrac(?:ia|y)|izquierda|derecha|chavez|maduro|trump|biden|putin|zelensk(?:y|i)|xi\s*jinping|политик|правительств|президент|выбор|голосова|коммуниз|капитализм|социализм|фашизм|диктатур|демократ|чавес|мадуро)/;
+
+export function getPoliticalNeutralityReply(content: string) {
+  const normalized = content.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLocaleLowerCase("es");
+  return normalized && POLITICAL_TOPIC_PATTERN.test(normalized) ? EDU_AI_POLITICAL_BOUNDARY_REPLY : null;
+}
+
 const categoryAliases: Array<{ category: Category; words: string[] }> = [
   { category: "Chatbots", words: ["chatbot", "chatbots", "asistente", "chat", "pregunta"] },
   { category: "Diseño", words: ["diseño", "diseno", "imagen", "imagenes", "foto", "logo", "gráfico", "grafico"] },

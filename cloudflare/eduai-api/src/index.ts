@@ -11,6 +11,8 @@ const TTS_PATH = "/api/tts";
 const TTS_MODEL = "@cf/deepgram/aura-2-es";
 const TTS_MAX_CHARACTERS = 650;
 const TTS_SPEAKERS = new Set(["sirio", "nestor", "carina", "celeste", "alvaro", "diana", "aquila", "selena", "estrella", "javier"]);
+const EDU_AI_POLITICAL_BOUNDARY_REPLY = "Edu AI no emite opiniones ni calificaciones sobre política, ideologías, gobiernos, presidentes o elecciones. Puedo ayudarte con contexto histórico, conceptos y fuentes desde una explicación descriptiva y plural.";
+const POLITICAL_TOPIC_PATTERN = /(politic(?:a|o|as|os|al|ally|ian|ians)?|politics?|political|government|gobierno(?:s)?|president(?:e|es)?|presidency|presidencia|election(?:es)?|elecci(?:ón|ones)|vot(?:o|ar|ación|aciones)|vote|voting|part(?:ido|idos|y|ies)|communis(?:m|t|mo|ta|tas)|comunismo|capitalis(?:m|ta|mo)|socialis(?:m|ta|mo)|fascis(?:m|ta|mo)|dictadura|dictator(?:ship)?|democrac(?:ia|y)|izquierda|derecha|ch[aá]vez|maduro|trump|biden|putin|zelensk(?:y|i)|xi\s*jinping|политик\p{L}*|правительств\p{L}*|президент\p{L}*|выбор\p{L}*|голосова\p{L}*|коммуниз\p{L}*|капитализм\p{L}*|социализм\p{L}*|фашизм\p{L}*|диктатур\p{L}*|демократ\p{L}*|чавес\p{L}*|мадуро)/iu;
 
 type AiBinding = {
   run(model: string, input: Record<string, unknown>): Promise<ReadableStream>;
@@ -79,6 +81,48 @@ function errorResponse(message: string, origin: string | null, status = 400) {
     }),
     origin
   );
+}
+
+function getLatestChatUserMessage(payload: unknown) {
+  if (!payload || typeof payload !== "object") return null;
+  const entries = [payload, ...Object.values(payload as Record<string, unknown>)];
+
+  for (const entry of entries) {
+    if (!entry || typeof entry !== "object") continue;
+    const json = (entry as { json?: unknown }).json;
+    if (!json || typeof json !== "object") continue;
+    const messages = (json as { messages?: unknown }).messages;
+    if (!Array.isArray(messages)) continue;
+
+    for (let index = messages.length - 1; index >= 0; index -= 1) {
+      const message = messages[index];
+      if (!message || typeof message !== "object") continue;
+      const { role, content } = message as { role?: unknown; content?: unknown };
+      if (role === "user" && typeof content === "string") return content.trim();
+    }
+  }
+
+  return null;
+}
+
+async function getPoliticalBoundaryResponse(request: Request, origin: string | null, isBatch: boolean) {
+  try {
+    const payload = await request.clone().json();
+    const latestMessage = getLatestChatUserMessage(payload);
+    if (!latestMessage || !POLITICAL_TOPIC_PATTERN.test(latestMessage)) return null;
+
+    const result = { result: { data: { json: { content: EDU_AI_POLITICAL_BOUNDARY_REPLY } } } };
+    return withCors(
+      new Response(JSON.stringify(isBatch ? [result] : result), {
+        status: 200,
+        headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+      }),
+      origin
+    );
+  } catch {
+    // Malformed bodies remain the responsibility of the typed upstream procedure.
+    return null;
+  }
 }
 
 function extractTtsReservation(payload: unknown) {
@@ -224,6 +268,11 @@ export default {
         }),
         origin
       );
+    }
+
+    if (url.pathname === "/api/trpc/eduAi.chat" && request.method === "POST") {
+      const boundaryResponse = await getPoliticalBoundaryResponse(request, origin, url.searchParams.get("batch") === "1");
+      if (boundaryResponse) return boundaryResponse;
     }
 
     const upstreamUrl = new URL(`${url.pathname}${url.search}`, UPSTREAM_ORIGIN);

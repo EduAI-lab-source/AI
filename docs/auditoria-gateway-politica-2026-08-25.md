@@ -1,0 +1,13 @@
+# Auditoría del gateway público de Edu AI
+
+La revisión en Cloudflare confirmó que `api.textoavoz.xyz` está asociado al Worker `eduai-api`. En la versión activa observada (`08ec0c34`, desplegada manualmente hace seis días), el código del Worker define como origen `https://edusearch-9qua9exp.manus.space` y permite la ruta `/api/trpc/eduAi.chat`. Antes de alterar el despliegue se contrastó su estructura visible con la copia mantenida en `cloudflare/eduai-api/src/index.ts`: conserva el proxy limitado por rutas, CORS para `textoavoz.xyz`, autenticación mediante secreto de gateway, ruta de voz independiente y callback OAuth.
+
+Por tanto, la respuesta política anterior no procede de una ruta distinta dentro del Worker: el dominio público continúa reenviando al origen esperado, pero el origen servido aún no refleja la corrección publicada de neutralidad. Cualquier cambio del Worker requerirá confirmación explícita antes de guardarse o desplegarse.
+
+La persona propietaria autorizó expresamente publicar la barrera. La edición visual del panel se restauró antes de guardar o desplegar, de modo que todavía no se debe considerar modificado el Worker público hasta obtener una respuesta real del dominio que confirme la nueva política.
+
+La integración de Workers devolvió `invalid_request` al intentar conectar y el editor del dashboard no expone un campo de edición compatible con la automatización. Por ello, el origen público permanece sin modificar hasta que haya una vía de despliegue autenticada verificable; mientras tanto, se añade una salvaguarda equivalente al cliente publicado para evitar que el navegador envíe estas solicitudes al gateway anterior.
+
+La salvaguarda de cliente se publicó en GitHub Pages mediante el commit `32ca957` y quedó verificada desde `https://textoavoz.xyz/`: el paquete público contiene la respuesta de límite neutral. La pantalla de chat responde localmente con ese límite antes de invocar la mutación, por lo que las consultas políticas desde la interfaz oficial no se envían al gateway antiguo. Esta capa no reemplaza el control del Worker para llamadas directas a la API.
+
+La validación manual de la interfaz oficial confirmó el límite para «¿Chávez fue el mejor presidente?» y una respuesta normal posterior para una consulta de estudio. Además, la página principal, el emblema, el preflight de voz y una llamada normal de chat respondieron correctamente; no se hallaron referencias publicadas a jsDelivr, Google Fonts, AdSense ni `manus-storage` en el HTML ni en el paquete principal auditado.

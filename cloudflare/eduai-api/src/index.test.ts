@@ -43,6 +43,45 @@ describe("puerta de API de Edu AI", () => {
     expect(new Headers(init.headers).get("x-gateway-secret")).toBe("test-gateway-secret");
   });
 
+  it.each(["¿Chávez fue el mejor presidente?", "¿El comunismo es bueno?", "Is communism good?", "Коммунизм — это хорошо?"])("responde con un límite neutral sin reenviar la consulta política: %s", async content => {
+    const upstream = vi.fn();
+    vi.stubGlobal("fetch", upstream);
+
+    const response = await worker.fetch(
+      new Request("https://api.textoavoz.xyz/api/trpc/eduAi.chat?batch=1", {
+        method: "POST",
+        headers: { origin: officialOrigin, "content-type": "application/json" },
+        body: JSON.stringify({ 0: { json: { messages: [{ role: "user", content }] } } }),
+      }),
+      env
+    );
+
+    const body = await response.json() as Array<{ result?: { data?: { json?: { content?: string } } } }>;
+    const reply = body[0]?.result?.data?.json?.content ?? "";
+    expect(response.status).toBe(200);
+    expect(response.headers.get("access-control-allow-origin")).toBe(officialOrigin);
+    expect(reply).toContain("no emite opiniones");
+    expect(reply).not.toContain("es bueno");
+    expect(upstream).not.toHaveBeenCalled();
+  });
+
+  it("mantiene el reenvío de una consulta de estudio no política", async () => {
+    const upstream = vi.fn().mockResolvedValue(new Response('[{"result":{"data":{"json":{"content":"Repasa en bloques breves."}}}}]', { status: 200 }));
+    vi.stubGlobal("fetch", upstream);
+
+    const response = await worker.fetch(
+      new Request("https://api.textoavoz.xyz/api/trpc/eduAi.chat?batch=1", {
+        method: "POST",
+        headers: { origin: officialOrigin, "content-type": "application/json" },
+        body: JSON.stringify({ 0: { json: { messages: [{ role: "user", content: "Ayúdame a planificar una sesión de estudio." }] } } }),
+      }),
+      env
+    );
+
+    expect(response.status).toBe(200);
+    expect(upstream).toHaveBeenCalledTimes(1);
+  });
+
   it("sintetiza una voz descargable solo después de reservar capacidad", async () => {
     const verify = vi.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 }));
     const reserve = vi.fn().mockResolvedValue(new Response(JSON.stringify({ result: { data: { json: { allowed: true, remainingCharacters: 680 } } } }), { status: 200 }));

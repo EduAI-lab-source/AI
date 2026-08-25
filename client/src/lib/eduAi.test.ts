@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getCatalogAnswer } from "./eduAi";
+import { getCatalogAnswer, getPoliticalNeutralityReply } from "./eduAi";
 import { tools } from "../data/tools";
 
 describe("Edu AI local catalog intelligence", () => {
@@ -27,5 +27,15 @@ describe("Edu AI local catalog intelligence", () => {
     const answer = getCatalogAnswer("¿y cuál es más fácil para principiantes?", tools, [{ role: "user", content: "Necesito una IA para diseño" }]);
     expect(answer.recommendations.every((tool) => tool.category === "Diseño")).toBe(true);
     expect(answer.content).toContain("principiante");
+  });
+
+  it.each(["¿Chávez fue el mejor presidente?", "¿El comunismo es bueno?", "Is communism good?", "Коммунизм — это хорошо?"])("mantiene un límite neutral para una consulta política: %s", question => {
+    const reply = getPoliticalNeutralityReply(question);
+    expect(reply).toContain("no emite opiniones");
+    expect(reply).not.toContain("es bueno");
+  });
+
+  it("no bloquea una consulta normal de estudio", () => {
+    expect(getPoliticalNeutralityReply("Ayúdame a preparar un plan para estudiar matemáticas.")).toBeNull();
   });
 });
