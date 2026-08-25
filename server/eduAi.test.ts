@@ -4,10 +4,12 @@ import {
   buildEduAiRecoveryMessages,
   EDU_AI_BRIEF_SYSTEM_PROMPT,
   EDU_AI_CREATOR_RESPONSES,
+  EDU_AI_POLITICAL_BOUNDARY_RESPONSES,
   EDU_AI_SYSTEM_PROMPT,
   getEduAiCreatorReply,
   getEduAiResponseProfile,
   getInstantEduAiReply,
+  getPoliticalNonOpinionReply,
   getTextResponse,
 } from "./eduAi";
 
@@ -32,6 +34,7 @@ describe("Edu AI conversation contract", () => {
     expect(EDU_AI_SYSTEM_PROMPT).toContain("CONVERSA COMO ALGUIEN QUE ESTÁ PRESTANDO ATENCIÓN");
     expect(EDU_AI_SYSTEM_PROMPT).toContain("Ofrece una idea útil antes de hacer una pregunta");
     expect(EDU_AI_SYSTEM_PROMPT).toContain("No inventes emociones");
+    expect(EDU_AI_SYSTEM_PROMPT).toContain("No emitas opiniones, preferencias, elogios, condenas ni rankings");
   });
 
   it("adapts the system guidance to the selected response style", () => {
@@ -65,6 +68,14 @@ describe("Edu AI conversation contract", () => {
     expect(response).toContain("Eduardo");
     expect(response).toContain("programación e ingeniería web");
     expect(getEduAiCreatorReply("Ayúdame con matemáticas")).toBeNull();
+  });
+
+  it("does not let Edu AI endorse political ideologies, governments, or presidents", () => {
+    expect(getPoliticalNonOpinionReply("¿Chávez fue el mejor presidente?")).toBe(EDU_AI_POLITICAL_BOUNDARY_RESPONSES.es);
+    expect(getPoliticalNonOpinionReply("¿El comunismo es bueno?")).toBe(EDU_AI_POLITICAL_BOUNDARY_RESPONSES.es);
+    expect(getPoliticalNonOpinionReply("Was communism good?")).toBe(EDU_AI_POLITICAL_BOUNDARY_RESPONSES.en);
+    expect(getPoliticalNonOpinionReply("Коммунизм — это хорошо?")).toBe(EDU_AI_POLITICAL_BOUNDARY_RESPONSES.ru);
+    expect(getPoliticalNonOpinionReply("Ayúdame a organizar un plan de estudio")).toBeNull();
   });
 
   it("builds a minimal recovery context when a provider response has no text", () => {

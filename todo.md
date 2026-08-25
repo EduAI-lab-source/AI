@@ -418,3 +418,8 @@
 - [x] Eliminar o sustituir dependencias externas evitables por recursos integrados en la publicación estática
 - [x] Reforzar mensajes y degradación segura para chat, voz y verificación cuando la red no esté disponible
 - [x] Validar y publicar el refuerzo de resistencia en textoavoz.xyz con límites documentados
+- [ ] Diagnosticar por qué Edu AI afirmó una valoración política subjetiva como si fuera un hecho
+- [ ] Añadir pautas y respuestas equilibradas para preguntas políticas sobre figuras, gobiernos y elecciones
+- [ ] Evitar que Edu AI califique ideologías o presidentes como buenos, malos, mejores o peores de manera absoluta
+- [ ] Configurar a Edu AI para no emitir opiniones políticas y responder solo de forma descriptiva y no partidista
+- [ ] Probar y publicar la corrección de neutralidad política en textoavoz.xyz

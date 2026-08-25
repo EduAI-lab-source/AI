@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { buildEduAiMessages, buildEduAiRecoveryMessages, getEduAiCreatorReply, getEduAiResponseProfile, getInstantEduAiReply, getTextResponse } from "./eduAi";
+import { buildEduAiMessages, buildEduAiRecoveryMessages, getEduAiCreatorReply, getEduAiResponseProfile, getInstantEduAiReply, getPoliticalNonOpinionReply, getTextResponse } from "./eduAi";
 import { hasValidEduAiGateway } from "./eduAiGateway";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM } from "./_core/llm";
@@ -81,6 +81,11 @@ export const appRouter = router({
         assertRateLimit(ctx.req);
 
         try {
+          const politicalReply = getPoliticalNonOpinionReply(input.messages.at(-1)?.content ?? "");
+          if (politicalReply) {
+            return { content: politicalReply };
+          }
+
           const instantReply = getInstantEduAiReply(input.messages.at(-1)?.content ?? "");
           if (instantReply) {
             return { content: instantReply };
