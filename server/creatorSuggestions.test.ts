@@ -13,22 +13,12 @@ describe("creator suggestions", () => {
     expect(formatCreatorSuggestion({ name: "Lucía", message: "Me gustó la experiencia de voz." })).toContain("Mensaje:");
   });
 
-  it("acepta la credencial privada de Resend sin enviar un correo", async () => {
+  it("reconoce la configuración privada de Resend sin acceder a la red", () => {
     const settings = getSuggestionEmailSettings();
     expect(settings.isConfigured).toBe(true);
-
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${settings.apiKey}`,
-        "content-type": "application/json",
-      },
-      // Un cuerpo vacío siempre falla la validación antes de que Resend intente enviar.
-      body: "{}",
-    });
-
-    // Una clave limitada a envío debe autenticar correctamente aunque el cuerpo no sea enviable.
-    expect(response.status).not.toBe(401);
+    expect(settings.apiKey.length).toBeGreaterThan(10);
+    expect(settings.recipient).toContain("@");
+    expect(settings.from).toContain("@");
   });
 
   it("limita los envíos repetidos y vuelve a permitirlos al terminar la ventana", () => {

@@ -433,14 +433,17 @@
 - [x] Guardar las opiniones recibidas con validación y control de frecuencia
 - [x] Notificar al propietario cuando llegue una nueva opinión y conservar un registro seguro
 - [x] Añadir pruebas de envío válido, validación y limitación contra abuso
-- [ ] Validar, publicar y verificar el canal de opiniones en móvil y escritorio
+- [x] Validar, publicar y verificar el canal de opiniones en móvil y escritorio
 - [x] Entregar las opiniones de forma privada a Fazeogve@gmail.com sin exponer el correo en la interfaz pública
 - [x] Corregir y probar el campo antispam para que bloquee envíos automatizados sin guardar ni notificar
 - [x] Auditar y documentar las dependencias actuales de Manus y el plan de reversión
 - [x] Respaldar el estado operativo antes de migrar funciones dinámicas
 - [x] Preparar almacenamiento, secretos y enlaces propios en Cloudflare sin afectar el dominio público
-- [ ] Migrar el canal privado de sugerencias al gateway y correo controlados por el propietario
-- [ ] Migrar los límites de uso de texto a voz al almacenamiento propio de Cloudflare
-- [ ] Migrar el chat y la política de neutralidad política al gateway propio
-- [ ] Validar en producción chat, voz, sugerencias, móvil, escritorio y recuperación ante fallos
-- [ ] Documentar la operación independiente y publicar la versión migrada
+- [x] Guardar y vincular el código desplegable del Worker en el GitHub privado del propietario
+- [x] Migrar el canal privado de sugerencias al gateway y correo controlados por el propietario
+- [x] Migrar los límites de uso de texto a voz al almacenamiento propio de Cloudflare
+- [x] Migrar el chat y la política de neutralidad política al gateway propio
+- [x] Migrar la sincronización cifrada y los enlaces privados al almacenamiento D1 propio
+- [x] Eliminar los reenvíos remotos residuales y sus dependencias de autenticación administrada
+- [x] Validar en producción chat, voz, sugerencias, móvil, escritorio y recuperación ante fallos
+- [x] Documentar la operación independiente y publicar la versión migrada

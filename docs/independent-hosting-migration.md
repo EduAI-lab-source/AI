@@ -9,12 +9,12 @@ Edu AI conservará `textoavoz.xyz`, su interfaz estática, el estudio de voz, el
 | Función | Estado actual | Dependencia a retirar | Destino previsto |
 | --- | --- | --- | --- |
 | Interfaz y dominio | GitHub Pages y `textoavoz.xyz` | Ninguna para la carga estática | Se conserva sin cambios visuales |
-| API pública | Worker `api.textoavoz.xyz` | Reenvía varias rutas a un backend administrado | El Worker atenderá las rutas directamente |
-| Chat | El Worker reenvía el chat a un modelo ejecutado fuera de la cuenta del propietario | Backend y modelo administrados | Workers AI con un modelo multilingüe y reglas de Edu AI propias |
-| Texto a voz | La generación ya se ejecuta en Workers AI, pero la cuota se consulta fuera de Cloudflare | Reserva de cuota remota | Worker + D1 para la reserva atómica y límites actuales |
-| Sugerencias | El cliente llama directamente a un backend administrado; combina aviso interno y correo | API, almacenamiento y aviso interno administrados | Worker + D1 + Resend, con el mismo formulario, límite y antispam |
-| Sincronización y enlaces cifrados | El contenido se cifra en el navegador, pero se guarda y comparte desde el backend remoto | API y base de datos remotas | Worker + D1, conservando el cifrado de extremo a extremo |
-| Cuenta opcional | Usa autenticación de un proveedor administrado | Inicio de sesión de ese proveedor | Se sustituirá gradualmente por el código privado de sincronización ya existente; no se expondrá ninguna copia cifrada |
+| API pública | Worker `api.textoavoz.xyz` | Reenvíos remotos retirados | El Worker atiende directamente las funciones públicas conservadas |
+| Chat | Workers AI mediante el Worker | Backend y modelo administrados retirados | `@cf/meta/llama-3.1-8b-instruct-fast`, D1 y reglas de Edu AI propias |
+| Texto a voz | Workers AI + D1 | Reserva de cuota remota retirada | Reserva atómica y límites actuales en D1 |
+| Sugerencias | Worker + D1 + Resend | API, almacenamiento y aviso interno administrados retirados | Mismo formulario, límite y antispam bajo control del propietario |
+| Sincronización cifrada | Worker + D1 | API y base de datos remotas retiradas | Se conserva el cifrado de extremo a extremo del navegador |
+| Cuenta opcional | Retirada del flujo público | Inicio de sesión administrado | Código privado de sincronización sin cuenta ni cookies externas |
 
 ## Diseño objetivo
 
@@ -22,7 +22,7 @@ El Worker actual se mantiene como única puerta pública de `api.textoavoz.xyz`.
 
 La migración se hará de forma aditiva: cada ruta nueva se prueba primero detrás del mismo dominio y con los mismos contratos de respuesta. Solo después se retira el reenvío correspondiente. El sistema de voz conservará el modelo y el límite visibles actuales; únicamente cambiará el lugar donde se registra la cuota. El chat conservará sus instrucciones, el tono de Edu AI y la respuesta no partidista; se probará con español, inglés y ruso antes de retirar el origen anterior.
 
-Workers AI proporciona modelos de texto ejecutados sin servidor dentro de la cuenta de Cloudflare. Para el primer paso de chat se evaluará `@cf/zai-org/glm-4.7-flash`, que el catálogo oficial describe como multilingüe y optimizado para diálogo, seguimiento de instrucciones y conversaciones de varios turnos.[2] Si las pruebas no conservan la calidad esperada, se mantendrá el comportamiento actual mientras se compara una alternativa del mismo catálogo; no se cambiará la ruta pública de forma irreversible.
+Workers AI proporciona modelos de texto ejecutados sin servidor dentro de la cuenta de Cloudflare.[2] La evaluación inicial de GLM devolvió indisponibilidad en producción, por lo que el chat publicado utiliza `@cf/meta/llama-3.1-8b-instruct-fast`, que respondió correctamente bajo el contrato tRPC de Edu AI. Este modelo se mantiene como la selección activa hasta que otra alternativa se compruebe en producción sin degradar la experiencia pública.
 
 Las tres credenciales de correo existentes se almacenarán como secretos cifrados del Worker y se accederán solo desde el servidor. Cloudflare documenta que los secretos no deben ponerse como variables de texto plano ni incluirse en el repositorio; la integración oficial con Resend sigue este mismo patrón.[3] [4]
 
@@ -35,6 +35,22 @@ Antes de cambiar una ruta se conserva un checkpoint del código y la compilació
 El 25 de agosto de 2026 se creó la base D1 `edu-ai-core` en la cuenta de Cloudflare del propietario y se conectó al Worker público `eduai-api` con el enlace `EDU_AI_DB`. La base contiene, aún sin datos de visitantes, las tablas privadas para sugerencias, límites temporales, cuota diaria de voz, copias cifradas y enlaces de aprendizaje. Esta preparación no modificó ninguna ruta pública ni cambió el comportamiento de la web.
 
 También se prepararon secretos cifrados exclusivos para la entrega de sugerencias: una credencial nueva de Resend limitada al envío desde el dominio verificado, el destinatario privado y el remitente verificado. Los valores no se incluyeron en el código, documentación ni interfaz pública. Hasta que se publique el código de la ruta propia, el sitio continúa usando su flujo anterior.
+
+El código desplegable del Worker quedó versionado en el repositorio privado `EduAI-lab-source/eduai-api-worker` y Cloudflare se conectó a la rama `main`. La compilación remota instala dependencias, ejecuta la prueba del Worker y publica con Wrangler; cada cambio posterior en esa rama deja una trazabilidad independiente de Manus. La activación inicial de la compilación se encuentra en curso y debe verificarse antes de declarar migrada una ruta pública.
+
+La ruta pública de sugerencias fue comprobada en `api.textoavoz.xyz`: el preflight responde únicamente al origen oficial, la trampa antispam devuelve una aceptación sin persistir ni enviar correo y una única prueba controlada se guardó en D1 con las banderas privadas de notificación y entrega activadas. El formulario público ahora usa el mismo dominio propio del chat y la voz, sin una llamada directa al backend administrado de Manus.
+
+La reserva de voz también se trasladó al Worker: conserva un audio gratuito diario de hasta 650 caracteres por visitante y el cupo compartido de 3.000 caracteres, con identidad de red cifrada y contadores en D1. La verificación Turnstile continúa ocurriendo antes de cualquier reserva y las pruebas del gateway cubren síntesis, segundo intento bloqueado y rechazo de un token no válido. Ya no se consulta la reserva de voz del backend administrado.
+
+El chat se ejecuta ahora con Workers AI dentro del mismo Worker del propietario. Conserva el contrato tRPC, el contexto breve de conversación, las respuestas inmediatas, la identidad de Edu AI y la barrera multilingüe de neutralidad política antes de cualquier inferencia. El límite de frecuencia usa `chat_rate_limits` en D1 y una huella de red cifrada. Se verificó una respuesta real en `api.textoavoz.xyz` desde el modelo rápido multilingüe de Workers AI; el backend administrado ya no recibe solicitudes de chat.
+
+La interfaz pública actualizada se comprobó en `https://textoavoz.xyz`: el acceso «Enviar sugerencia al creador» permanece debajo de «Mi espacio de aprendizaje», no expone el correo privado y el estudio de voz mantiene sus voces, límite visible y verificación de seguridad.
+
+El diálogo publicado confirma el alcance previsto: solicita únicamente «Tu nombre» y «Tu idea o sugerencia», explica que el correo destinatario no se muestra y no revela direcciones, claves ni controles administrativos.
+
+La copia privada entre dispositivos también opera directamente en D1. El navegador conserva el cifrado AES-GCM y envía únicamente la carga opaca ligada a su código privado; una comprobación de escritura y recuperación en `api.textoavoz.xyz` confirmó el contrato sin una llamada al backend anterior. Las rutas de sesión, OAuth y sincronización de cuenta administrada fueron retiradas del Worker y del cliente porque el flujo publicado usa el código privado de sincronización, que no requiere cuenta ni cookies externas.
+
+La comprobación final de `textoavoz.xyz` confirmó que el estudio de voz, el acceso al espacio de aprendizaje y el chat permanecen visibles después de publicar la compilación sin transporte de sesión administrada. El formulario «Enviar sugerencia al creador» continúa presentando exclusivamente «Tu nombre» y «Tu idea o sugerencia», sin mostrar el correo destinatario. La API propia respondió al chat normal, aplicó el límite político local y descartó correctamente una petición con la trampa antispam; no se volvió a enviar una sugerencia real durante esta comprobación.
 
 ## Límites transparentes
 
