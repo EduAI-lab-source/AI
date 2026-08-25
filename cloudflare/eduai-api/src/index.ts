@@ -8,8 +8,11 @@ const ALLOWED_MUTATION_PATHS = new Set(["/api/trpc/eduAi.chat", "/api/trpc/works
 const ALLOWED_QUERY_PATHS = new Set(["/api/trpc/auth.me", "/api/trpc/sharing.list", "/api/trpc/sharing.get"]);
 const OAUTH_CALLBACK_PATH = "/api/oauth/callback";
 const TTS_PATH = "/api/tts";
+const FEEDBACK_PATH = "/api/trpc/feedback.submit";
 const TTS_MODEL = "@cf/deepgram/aura-2-es";
 const TTS_MAX_CHARACTERS = 650;
+const SUGGESTION_LIMIT = 3;
+const SUGGESTION_WINDOW_MS = 30 * 60 * 1000;
 const TTS_SPEAKERS = new Set(["sirio", "nestor", "carina", "celeste", "alvaro", "diana", "aquila", "selena", "estrella", "javier"]);
 const EDU_AI_POLITICAL_BOUNDARY_REPLY = "Edu AI no emite opiniones ni calificaciones sobre política, ideologías, gobiernos, presidentes o elecciones. Puedo ayudarte con contexto histórico, conceptos y fuentes desde una explicación descriptiva y plural.";
 const POLITICAL_TOPIC_PATTERN = /(politic(?:a|o|as|os|al|ally|ian|ians)?|politics?|political|government|gobierno(?:s)?|president(?:e|es)?|presidency|presidencia|election(?:es)?|elecci(?:ón|ones)|vot(?:o|ar|ación|aciones)|vote|voting|part(?:ido|idos|y|ies)|communis(?:m|t|mo|ta|tas)|comunismo|capitalis(?:m|ta|mo)|socialis(?:m|ta|mo)|fascis(?:m|ta|mo)|dictadura|dictator(?:ship)?|democrac(?:ia|y)|izquierda|derecha|ch[aá]vez|maduro|trump|biden|putin|zelensk(?:y|i)|xi\s*jinping|политик\p{L}*|правительств\p{L}*|президент\p{L}*|выбор\p{L}*|голосова\p{L}*|коммуниз\p{L}*|капитализм\p{L}*|социализм\p{L}*|фашизм\p{L}*|диктатур\p{L}*|демократ\p{L}*|чавес\p{L}*|мадуро)/iu;
@@ -18,9 +21,21 @@ type AiBinding = {
   run(model: string, input: Record<string, unknown>): Promise<ReadableStream>;
 };
 
+type D1Result = { meta?: { changes?: number } };
+type D1PreparedStatement = {
+  bind(...values: unknown[]): D1PreparedStatement;
+  first<T = unknown>(): Promise<T | null>;
+  run(): Promise<D1Result>;
+};
+type D1Binding = { prepare(query: string): D1PreparedStatement };
+
 interface Env {
   EDU_AI_GATEWAY_SECRET: string;
   TURNSTILE_SECRET_KEY?: string;
+  RESEND_API_KEY?: string;
+  FEEDBACK_RECIPIENT_EMAIL?: string;
+  SUGGESTIONS_FROM_EMAIL?: string;
+  EDU_AI_DB?: D1Binding;
   AI: AiBinding;
 }
 
@@ -30,7 +45,7 @@ function corsHeaders(origin: string | null) {
   return new Headers({
     "access-control-allow-origin": origin,
     "access-control-allow-methods": "POST, OPTIONS",
-    "access-control-allow-headers": "authorization, content-type, accept, x-trpc-batch, x-trpc-source",
+    "access-control-allow-headers": "authorization, content-type, accept, trpc-accept, x-trpc-batch, x-trpc-source",
     "access-control-allow-credentials": "true",
     "access-control-max-age": "86400",
     vary: "Origin",
@@ -81,6 +96,120 @@ function errorResponse(message: string, origin: string | null, status = 400) {
     }),
     origin
   );
+}
+
+function trpcErrorResponse(message: string, origin: string | null, status = 400) {
+  return withCors(
+    new Response(JSON.stringify({ error: { json: { message } } }), {
+      status,
+      headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+    }),
+    origin
+  );
+}
+
+function trpcSuccessResponse(value: Record<string, unknown>, origin: string | null) {
+  return withCors(
+    new Response(JSON.stringify({ result: { data: { json: value } } }), {
+      status: 200,
+      headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+    }),
+    origin
+  );
+}
+
+function getClientIp(request: Request) {
+  return request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
+}
+
+async function hashVisitor(ip: string, secret: string) {
+  const bytes = new TextEncoder().encode(`${secret}:${ip}`);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function reserveSuggestionSlot(database: D1Binding, visitorHash: string, now: number) {
+  const current = await database
+    .prepare("SELECT window_started_at, request_count FROM suggestion_rate_limits WHERE visitor_hash = ?")
+    .bind(visitorHash)
+    .first<{ window_started_at: number; request_count: number }>();
+
+  if (!current || now - current.window_started_at >= SUGGESTION_WINDOW_MS) {
+    await database
+      .prepare("INSERT INTO suggestion_rate_limits (visitor_hash, window_started_at, request_count) VALUES (?, ?, 1) ON CONFLICT(visitor_hash) DO UPDATE SET window_started_at = excluded.window_started_at, request_count = 1")
+      .bind(visitorHash, now)
+      .run();
+    return true;
+  }
+
+  if (current.request_count >= SUGGESTION_LIMIT) return false;
+  const result = await database
+    .prepare("UPDATE suggestion_rate_limits SET request_count = request_count + 1 WHERE visitor_hash = ? AND request_count < ?")
+    .bind(visitorHash, SUGGESTION_LIMIT)
+    .run();
+  return (result.meta?.changes ?? 0) === 1;
+}
+
+async function submitCreatorSuggestion(request: Request, env: Env, origin: string | null) {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return trpcErrorResponse("Envía tu nombre y tu sugerencia.", origin);
+  }
+
+  const input = body && typeof body === "object" ? (body as { json?: unknown }).json : null;
+  if (!input || typeof input !== "object") return trpcErrorResponse("Envía tu nombre y tu sugerencia.", origin);
+  const { name, message, website } = input as { name?: unknown; message?: unknown; website?: unknown };
+  const normalizedName = typeof name === "string" ? name.trim() : "";
+  const normalizedMessage = typeof message === "string" ? message.trim() : "";
+  const normalizedWebsite = typeof website === "string" ? website.trim() : "";
+
+  if (typeof website !== "undefined" && (typeof website !== "string" || normalizedWebsite.length > 200)) return trpcErrorResponse("No pudimos validar tu sugerencia.", origin);
+  if (normalizedName.length < 2 || normalizedName.length > 80) return trpcErrorResponse("Escribe tu nombre.", origin);
+  if (normalizedMessage.length < 8 || normalizedMessage.length > 1200) return trpcErrorResponse("Escribe una sugerencia un poco más detallada.", origin);
+  // La trampa se valida después del contrato para que los bots no reciban señales útiles.
+  if (normalizedWebsite) return trpcSuccessResponse({ accepted: true }, origin);
+  if (!env.EDU_AI_DB || !env.EDU_AI_GATEWAY_SECRET) return trpcErrorResponse("El buzón de sugerencias no está disponible en este momento.", origin, 503);
+
+  try {
+    const now = Date.now();
+    const visitorHash = await hashVisitor(getClientIp(request), env.EDU_AI_GATEWAY_SECRET);
+    if (!await reserveSuggestionSlot(env.EDU_AI_DB, visitorHash, now)) return trpcErrorResponse("Gracias por compartir. Espera un poco antes de enviar otra sugerencia.", origin, 429);
+
+    const id = crypto.randomUUID();
+    await env.EDU_AI_DB
+      .prepare("INSERT INTO creator_suggestions (id, sender_name, message, visitor_hash, created_at) VALUES (?, ?, ?, ?, ?)")
+      .bind(id, normalizedName, normalizedMessage, visitorHash, now)
+      .run();
+
+    let emailDelivered = false;
+    if (env.RESEND_API_KEY?.trim() && env.FEEDBACK_RECIPIENT_EMAIL?.trim() && env.SUGGESTIONS_FROM_EMAIL?.trim()) {
+      try {
+        const email = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { authorization: `Bearer ${env.RESEND_API_KEY.trim()}`, "content-type": "application/json" },
+          body: JSON.stringify({
+            from: env.SUGGESTIONS_FROM_EMAIL.trim(),
+            to: [env.FEEDBACK_RECIPIENT_EMAIL.trim()],
+            subject: "Nueva sugerencia para Edu AI",
+            text: `Nombre: ${normalizedName}\n\nMensaje:\n${normalizedMessage}`,
+          }),
+        });
+        emailDelivered = email.ok;
+      } catch {
+        emailDelivered = false;
+      }
+    }
+
+    await env.EDU_AI_DB
+      .prepare("UPDATE creator_suggestions SET owner_notified = ?, email_delivered = ? WHERE id = ?")
+      .bind(emailDelivered ? 1 : 0, emailDelivered ? 1 : 0, id)
+      .run();
+    return trpcSuccessResponse({ accepted: true }, origin);
+  } catch {
+    return trpcErrorResponse("El buzón de sugerencias no está disponible en este momento.", origin, 503);
+  }
 }
 
 function getLatestChatUserMessage(payload: unknown) {
@@ -248,6 +377,10 @@ export default {
       if (request.method !== "POST") return errorResponse("Método no permitido.", origin, 405);
       if (!env.EDU_AI_GATEWAY_SECRET) return errorResponse("La puerta segura no está configurada.", origin, 503);
       return synthesizeTts(request, env, origin);
+    }
+    if (url.pathname === FEEDBACK_PATH) {
+      if (request.method !== "POST") return trpcErrorResponse("Método no permitido.", origin, 405);
+      return submitCreatorSuggestion(request, env, origin);
     }
     const isAllowedMutation = request.method === "POST" && ALLOWED_MUTATION_PATHS.has(url.pathname);
     const isAllowedQuery = request.method === "GET" && ALLOWED_QUERY_PATHS.has(url.pathname);

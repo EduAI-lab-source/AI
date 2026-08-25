@@ -437,8 +437,8 @@
 - [x] Entregar las opiniones de forma privada a Fazeogve@gmail.com sin exponer el correo en la interfaz pública
 - [x] Corregir y probar el campo antispam para que bloquee envíos automatizados sin guardar ni notificar
 - [x] Auditar y documentar las dependencias actuales de Manus y el plan de reversión
-- [ ] Respaldar el estado operativo antes de migrar funciones dinámicas
-- [ ] Preparar almacenamiento, secretos y enlaces propios en Cloudflare sin afectar el dominio público
+- [x] Respaldar el estado operativo antes de migrar funciones dinámicas
+- [x] Preparar almacenamiento, secretos y enlaces propios en Cloudflare sin afectar el dominio público
 - [ ] Migrar el canal privado de sugerencias al gateway y correo controlados por el propietario
 - [ ] Migrar los límites de uso de texto a voz al almacenamiento propio de Cloudflare
 - [ ] Migrar el chat y la política de neutralidad política al gateway propio

@@ -30,6 +30,12 @@ Las tres credenciales de correo existentes se almacenarán como secretos cifrado
 
 Antes de cambiar una ruta se conserva un checkpoint del código y la compilación estática publicada. Las rutas se migran una por una: sugerencias, cuota de voz, sincronización/enlaces y chat. Si una prueba pública falla, el Worker vuelve a su ruta anterior sin modificar el frontend ni el dominio. Los datos existentes se exportan o copian de forma cifrada/privada antes de que su origen deje de ser usado.
 
+## Recursos propios preparados
+
+El 25 de agosto de 2026 se creó la base D1 `edu-ai-core` en la cuenta de Cloudflare del propietario y se conectó al Worker público `eduai-api` con el enlace `EDU_AI_DB`. La base contiene, aún sin datos de visitantes, las tablas privadas para sugerencias, límites temporales, cuota diaria de voz, copias cifradas y enlaces de aprendizaje. Esta preparación no modificó ninguna ruta pública ni cambió el comportamiento de la web.
+
+También se prepararon secretos cifrados exclusivos para la entrega de sugerencias: una credencial nueva de Resend limitada al envío desde el dominio verificado, el destinatario privado y el remitente verificado. Los valores no se incluyeron en el código, documentación ni interfaz pública. Hasta que se publique el código de la ruta propia, el sitio continúa usando su flujo anterior.
+
 ## Límites transparentes
 
 La independencia significa que las cuentas, el código, los secretos y la configuración quedan bajo control del propietario; no elimina la dependencia técnica de proveedores de nube, DNS, correo o inferencia. Workers AI incluye una asignación diaria gratuita y, por encima de ella, aplica consumo por uso según el modelo.[5] Por ello se conservarán los límites de voz, el control de frecuencia y los mensajes claros de disponibilidad.

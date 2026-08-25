@@ -5,6 +5,41 @@ const pageOrigin = "https://eduai-lab-source.github.io";
 const officialOrigin = "https://textoavoz.xyz";
 const env = { EDU_AI_GATEWAY_SECRET: "test-gateway-secret", TURNSTILE_SECRET_KEY: "test-turnstile-secret", AI: { run: vi.fn() } };
 
+function createFeedbackDatabase() {
+  const rateWindows = new Map<string, { windowStartedAt: number; requestCount: number }>();
+  const suggestions: Array<{ id: string; name: string; message: string }> = [];
+
+  const database = {
+    prepare(query: string) {
+      let values: unknown[] = [];
+      return {
+        bind(...nextValues: unknown[]) {
+          values = nextValues;
+          return this;
+        },
+        async first() {
+          if (!query.includes("SELECT window_started_at")) return null;
+          const current = rateWindows.get(String(values[0]));
+          return current ? { window_started_at: current.windowStartedAt, request_count: current.requestCount } : null;
+        },
+        async run() {
+          if (query.includes("INSERT INTO suggestion_rate_limits")) {
+            rateWindows.set(String(values[0]), { windowStartedAt: Number(values[1]), requestCount: 1 });
+          } else if (query.includes("UPDATE suggestion_rate_limits")) {
+            const current = rateWindows.get(String(values[0]));
+            if (!current || current.requestCount >= Number(values[1])) return { meta: { changes: 0 } };
+            current.requestCount += 1;
+          } else if (query.includes("INSERT INTO creator_suggestions")) {
+            suggestions.push({ id: String(values[0]), name: String(values[1]), message: String(values[2]) });
+          }
+          return { meta: { changes: 1 } };
+        },
+      };
+    },
+  };
+  return { database, suggestions };
+}
+
 describe("puerta de API de Edu AI", () => {
   afterEach(() => vi.unstubAllGlobals());
 
@@ -41,6 +76,46 @@ describe("puerta de API de Edu AI", () => {
     expect(url.toString()).toBe("https://edusearch-9qua9exp.manus.space/api/trpc/eduAi.chat?batch=1");
     expect(init.method).toBe("POST");
     expect(new Headers(init.headers).get("x-gateway-secret")).toBe("test-gateway-secret");
+  });
+
+  it("guarda y entrega una sugerencia desde el Worker propio sin reenviarla a Manus", async () => {
+    const { database, suggestions } = createFeedbackDatabase();
+    const email = vi.fn().mockResolvedValue(new Response("{}", { status: 200 }));
+    vi.stubGlobal("fetch", email);
+
+    const response = await worker.fetch(
+      new Request("https://api.textoavoz.xyz/api/trpc/feedback.submit", {
+        method: "POST",
+        headers: { origin: officialOrigin, "content-type": "application/json", "cf-connecting-ip": "203.0.113.25" },
+        body: JSON.stringify({ json: { name: "Prueba Edu AI", message: "Comprobación privada del formulario." } }),
+      }),
+      { ...env, EDU_AI_DB: database, RESEND_API_KEY: "test-resend", FEEDBACK_RECIPIENT_EMAIL: "owner@example.test", SUGGESTIONS_FROM_EMAIL: "Edu AI <sugerencias@example.test>" }
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ result: { data: { json: { accepted: true } } } });
+    expect(response.headers.get("access-control-allow-origin")).toBe(officialOrigin);
+    expect(suggestions).toHaveLength(1);
+    expect(email).toHaveBeenCalledWith("https://api.resend.com/emails", expect.objectContaining({ method: "POST" }));
+  });
+
+  it("descarta la trampa antispam sin guardar ni enviar correo", async () => {
+    const { database, suggestions } = createFeedbackDatabase();
+    const email = vi.fn();
+    vi.stubGlobal("fetch", email);
+
+    const response = await worker.fetch(
+      new Request("https://api.textoavoz.xyz/api/trpc/feedback.submit", {
+        method: "POST",
+        headers: { origin: officialOrigin, "content-type": "application/json" },
+        body: JSON.stringify({ json: { name: "Bot simulado", message: "Este envío debe ser descartado por completo.", website: "https://bot.invalid" } }),
+      }),
+      { ...env, EDU_AI_DB: database, RESEND_API_KEY: "test-resend", FEEDBACK_RECIPIENT_EMAIL: "owner@example.test", SUGGESTIONS_FROM_EMAIL: "Edu AI <sugerencias@example.test>" }
+    );
+
+    expect(response.status).toBe(200);
+    expect(suggestions).toHaveLength(0);
+    expect(email).not.toHaveBeenCalled();
   });
 
   it.each(["¿Chávez fue el mejor presidente?", "¿El comunismo es bueno?", "Is communism good?", "Коммунизм — это хорошо?"])("responde con un límite neutral sin reenviar la consulta política: %s", async content => {

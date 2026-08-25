@@ -7,7 +7,7 @@ export const CHAT_RETRY_MESSAGE = "No pude completar la Ãºltima respuesta. Usa Â
 
 // El Worker conserva las credenciales del modelo fuera de GitHub Pages.
 export const EDU_AI_PUBLIC_BACKEND = "https://api.textoavoz.xyz";
-export const EDU_AI_SUGGESTION_BACKEND = "https://edusearch-9qua9exp.manus.space";
+export const EDU_AI_SUGGESTION_BACKEND = EDU_AI_PUBLIC_BACKEND;
 const EDU_AI_STATIC_APP_HOSTNAMES = new Set([
   "eduai-lab-source.github.io",
   "textoavoz.xyz",
