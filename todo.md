@@ -435,3 +435,4 @@
 - [x] Añadir pruebas de envío válido, validación y limitación contra abuso
 - [ ] Validar, publicar y verificar el canal de opiniones en móvil y escritorio
 - [x] Entregar las opiniones de forma privada a Fazeogve@gmail.com sin exponer el correo en la interfaz pública
+- [x] Corregir y probar el campo antispam para que bloquee envíos automatizados sin guardar ni notificar

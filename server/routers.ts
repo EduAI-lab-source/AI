@@ -19,6 +19,11 @@ const requestWindows = new Map<string, { count: number; resetAt: number }>();
 const SUGGESTION_LIMIT = 3;
 const SUGGESTION_WINDOW_MS = 30 * 60 * 1000;
 const suggestionWindows = new Map<string, { count: number; resetAt: number }>();
+export const creatorSuggestionInputSchema = z.object({
+  name: z.string().trim().min(2, "Escribe tu nombre.").max(80),
+  message: z.string().trim().min(8, "Escribe una sugerencia un poco más detallada.").max(1200),
+  website: z.string().trim().max(200).optional(),
+});
 
 function assertRateLimit(request: { ip?: string; headers: Record<string, string | string[] | undefined> }) {
   const forwarded = request.headers["x-forwarded-for"];
@@ -198,11 +203,7 @@ export const appRouter = router({
   }),
   feedback: router({
     submit: publicProcedure
-      .input(z.object({
-        name: z.string().trim().min(2, "Escribe tu nombre.").max(80),
-        message: z.string().trim().min(8, "Escribe una sugerencia un poco más detallada.").max(1200),
-        website: z.string().max(0).optional(),
-      }))
+      .input(creatorSuggestionInputSchema)
       .mutation(async ({ ctx, input }) => {
         if (input.website) return { accepted: true };
         assertSuggestionRateLimit(ctx.req);

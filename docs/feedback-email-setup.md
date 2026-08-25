@@ -47,3 +47,5 @@ La interfaz fue revisada en escritorio y móvil. El acceso «Enviar sugerencia a
 El diálogo del formulario fue abierto en la previsualización. Expone únicamente los campos «Tu nombre» y «Tu idea o sugerencia», indica que el destinatario no se muestra y no contiene el correo privado. Un intento vacío se mantuvo en validación local y no produjo un envío ni almacenamiento de datos.
 
 Resend verificó `textoavoz.xyz` y confirmó que el dominio está listo para enviar. Se realizó una única prueba de entrega al correo privado configurado, que fue aceptada por Resend; no se usaron datos de visitantes ni se guardó el identificador del envío en el proyecto.
+
+La trampa antispam del formulario se verificó localmente con una URL en el campo oculto. El servidor respondió de forma controlada y la base de datos confirmó que no se creó ningún registro; por lo tanto, ese tipo de envío tampoco activa la notificación ni la entrega de correo.
