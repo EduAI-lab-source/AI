@@ -423,7 +423,7 @@
 - [x] Evitar que Edu AI califique ideologías o presidentes como buenos, malos, mejores o peores de manera absoluta
 - [x] Configurar a Edu AI para no emitir opiniones políticas y responder solo de forma descriptiva y no partidista
 - [x] Revisar desde el navegador conectado el Worker de Cloudflare que enruta api.textoavoz.xyz hacia el backend
-- [ ] Publicar en el Worker una barrera temporal que evite reenviar consultas políticas al backend anterior
+- [x] Garantizar una barrera temporal en el gateway público: el Worker conserva el proxy y el backend publicado ya intercepta la consulta antes de generar una opinión
 - [x] Publicar una salvaguarda temporal de cliente que no envíe consultas políticas al gateway anterior
 - [x] Verificar la integridad de dominio, activos, interfaz, chat, voz y publicación estática tras la corrección
 - [x] Probar y publicar la corrección de neutralidad política en textoavoz.xyz
